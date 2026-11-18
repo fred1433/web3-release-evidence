@@ -22,6 +22,7 @@ TERMINAL = ['unknown', 'confirmed', 'reverted', 'error', 'rejected']
 OUTAGE_MARGIN_MS = 5000  # how long the outage lasts after the screen reaches a terminal state
 PENDING_MS = 15000  # how long a payment waits in the mempool before the bench lets it into a block (C07, C08)
 APPEAR_MS = 8000  # deadline for anything the bench expects to appear on screen
+DAYS_BETWEEN_DEVICES = 40  # C09, second device after the first payment landed: the chain clock moves this far
 # The word confirmed, unless the sentence says the opposite or the future: "not confirmed",
 # "isn't confirmed", "will be confirmed", "not yet confirmed", "until confirmed". wallet.js uses the same rule.
 CONFIRMED_WORD = re.compile(r"(?<![a-z])(?<!not )(?<!n't )(?<!be )(?<!yet )(?<!until )confirmed\b", re.I)
@@ -242,8 +243,11 @@ def settle(ctx, pages, s, who, timeout=30.0):
 def screen_invariant(ctx, c):
     """Applied to every check that opens the app (I1). The status line: each moment it claimed
     confirmed must come after the bench mined the block that holds the receipt of the transaction it
-    names. The rest of the page (visible text, tab title, alert and confirm dialogs): each moment it
-    claimed confirmed must come after the block holding the receipt of a transaction that tab sent."""
+    names; a status line that names no transaction (Already paid) is judged like the rest of the page.
+    The rest of the page (every other visible text, the rest of the status card included, the tab
+    title, alert and confirm dialogs): a moment it claimed confirmed is a fault when a transaction of the
+    same account, sent from any tab, was not yet in a block at that moment. A fact already in a block
+    (a grant listed from the indexer, an order already paid) is not a fault."""
     claims = [x for x in ctx.ui_log if x.get('kind', 'status') == 'status' and claims_confirmed(x)]
     page_claims = [x for x in ctx.ui_log if x.get('kind') == 'page' and CONFIRMED_WORD.search(x.get('text') or '')]
     bad = []
@@ -252,8 +256,20 @@ def screen_invariant(ctx, c):
         r = ctx.chain.receipt(h) if h and h.startswith('0x') else None
         return r, (ctx.chain.mined_at.get(r['blockHash']) if r else None)
 
+    def waiting_of(x):  # transactions of x's account, sent from any tab, not yet in a block at x's moment
+        sent = [y for y in ctx.ui_log if y.get('kind') == 'sent' and y.get('account') == x.get('account') and y['t'] <= x['t']]
+        return [y for y in sent if (lambda t: t is None or t > x['t'])(block_time(y['hash'])[1])]
+
     for x in claims:
         h = x.get('hash') or ''
+        if not h.startswith('0x'):
+            # A status line that names no transaction (Already paid) is judged like the rest of the page.
+            waiting = waiting_of(x)
+            if waiting:
+                y = waiting[0]
+                bad.append(f'status line: "{x["text"]}" for no transaction (tab {x["tab"]}) while transaction {y["hash"][:10]}… '
+                           f'of the same account, sent from tab {y["tab"]}, was not yet in a block')
+            continue
         r, t_block = block_time(h)
         if r is None:
             bad.append(f'"{x["text"]}" for {h[:10] + "…" if h else "no transaction"}: no receipt on chain')
@@ -261,15 +277,17 @@ def screen_invariant(ctx, c):
             ahead = f'{(t_block - x["t"]) / 1000:.2f} s before' if t_block else 'before'
             bad.append(f'"{x["text"]}" {ahead} block {int(r["blockNumber"], 16)} was mined (tab {x["tab"]})')
     for x in page_claims:
-        sent = [y['hash'] for y in ctx.ui_log if y.get('kind') == 'sent' and y['tab'] == x['tab'] and y['t'] <= x['t']]
-        landed = [t for t in (block_time(h)[1] for h in sent) if t is not None and t <= x['t']]
-        if not landed:
-            bad.append(f'page outside the status line: "{x["text"][:80]}" with no transaction of tab {x["tab"]} in a block yet')
+        waiting = waiting_of(x)
+        if waiting:
+            y = waiting[0]
+            bad.append(f'page outside the status line: "{x["text"][:80]}" (tab {x["tab"]}) while transaction {y["hash"][:10]}… '
+                       f'of the same account, sent from tab {y["tab"]}, was not yet in a block')
     n = len(claims) + len(page_claims)
     c.expect('no_confirmed_before_receipt_block', not bad,
              bad or f'{n} confirmed moment{"s" if n != 1 else ""} on {len({x["tab"] for x in ctx.ui_log}) or 0} tab(s) '
                     f'({len(claims)} on the status line, {len(page_claims)} elsewhere on the page), each after its block',
-             'every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt')
+             'on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, '
+             'confirmed only while no transaction of the account waits outside a block')
 
 
 def status_hash(page):
@@ -650,7 +668,8 @@ EARLY, LATE = 'while the first payment waits', 'after the first payment landed'
 def c09(ctx, c):
     """One order, at most one debit. Every way to pay again, twice: while the first payment still waits
     in the mempool, and after it landed in a block. After status unknown: the retry, the main Pay button,
-    a reload, a second device; without any outage: a double click, and a wallet that broadcasts then
+    a reload, a second device (40 days later on the chain clock once the first payment landed); without
+    any outage: a double click, and a wallet that broadcasts then
     answers an error. Each must move 25 TEST once; after the first payment landed, a Pay must send
     nothing at all. On the moving chain, blocks pass while the order is unpaid. A duplicate transaction
     the contract reverts is listed, not counted as a debit. Last, the contract itself refuses a second
@@ -794,8 +813,13 @@ def c09(ctx, c):
 
         # 4. Status unknown on one device, the same account pays from another (a fresh browser: empty
         # storage). On the moving chain, blocks pass between the two devices while the order is unpaid.
+        # Once the first payment is in a block, the chain clock moves 40 days before the second device
+        # opens, so an order id that depends on the time would reopen the order.
         page, s = unknown_page()
         land(late, 2)
+        if late:
+            ctx.chain.rpc('evm_increaseTime', [DAYS_BETWEEN_DEVICES * 86400])
+            ctx.chain.mine()
         other = ready_page(ctx)
         n0 = ctx.proxy.count('eth_sendTransaction')
         force_click(other, PAY)
@@ -804,7 +828,8 @@ def c09(ctx, c):
             nothing_sent('second_device_sends_nothing_once_paid', n0)
         pays, debit, line = debit_line(s)
         c.expect('second_device_debits_once' + sfx, debit == FEE, line, one_debit)
-        note('Pay from a second device', late, s, pays, line, ui_history=screen(page, s), second_device_history=screen(other, s))
+        note('Pay from a second device' + (f', {DAYS_BETWEEN_DEVICES} days later on the chain clock' if late else ''), late, s, pays, line,
+             ui_history=screen(page, s), second_device_history=screen(other, s))
         page.context.close()
         other.context.close()
         next_order(ctx, user)

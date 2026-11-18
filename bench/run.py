@@ -91,7 +91,7 @@ class Ctx:
         cfg.update(wallet)
         context = self.browser.new_context(viewport={'width': 480, 'height': 900}, device_scale_factor=2)
         tab = len(self.contexts) + 1
-        context.expose_binding('__benchRecord', lambda source, entry: self.ui_log.append(dict(entry, tab=tab)))
+        context.expose_binding('__benchRecord', lambda source, entry: self.ui_log.append(dict(entry, tab=tab, account=cfg['account'].lower())))
         context.add_init_script(script='window.__WALLET_CONFIG = ' + json.dumps(cfg) + ';\n' + WALLET_JS)
         self.contexts.append(context)
         page = context.new_page()

@@ -660,12 +660,14 @@ table.muts { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-t
     const nBlocked = ms.filter((m) => m.expected === 'Blocked').length;
     const nIncomplete = ms.filter((m) => m.expected === 'Incomplete').length;
     const pass = ms.filter((m) => m.expected === 'Demonstrated checks passed');
+    const caught = ms.filter((m) => m.expected === 'Blocked' && m.outcome === 'Blocked').length;
     const li2 = el('li');
     li2.append(document.createTextNode(`${say(ms.length)[0].toUpperCase() + say(ms.length).slice(1)} mutants of the app: ${nBlocked} must end Blocked, `
       + (nIncomplete ? `${say(nIncomplete)} Incomplete (no retry button, or one that does nothing: a passed deadline is never a detection), ` : '')
       + `one must fail the CI calibration, and ${say(pass.length)} must pass (`));
     pass.forEach((m, i) => { if (i) li2.append(document.createTextNode(', ')); li2.append(el('code', null, m.id)); });
-    li2.append(document.createTextNode(`). ${D.mut.as_expected} of ${D.mut.total} ended as expected. Run `), el('code', null, 'bench/mutants.py'), document.createTextNode(', report in '), el('code', null, 'reports/mutants.json'), document.createTextNode('.'));
+    li2.append(document.createTextNode(`). ${D.mut.as_expected} of ${D.mut.total} ended as expected. Run `), el('code', null, 'bench/mutants.py'), document.createTextNode(', report in '), el('code', null, 'reports/mutants.json'),
+      document.createTextNode(`. These checks are a bench: they catch ${caught === nBlocked ? 'the ' + say(nBlocked) : say(caught) + ' of the ' + say(nBlocked)} mutants listed below that must end Blocked. They are tests, not a proof: a fault they were not written for can pass.`));
     $('proofs').append(li2);
     $('mutsum').textContent = `Every mutant, replayed: what it breaks, what it must give, what it gave`;
     const mt = $('muts');

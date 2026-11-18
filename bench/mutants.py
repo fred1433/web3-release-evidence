@@ -3,8 +3,8 @@
 Every mutant copies the repository into a temporary folder, changes a few lines of the corrected
 app (or of the faulty one for the CI case), runs the whole bench (both regimes) and compares the
 outcome with what the mutant expects. Most must end Blocked. Some must pass: correct but slow apps,
-a correct app with other words on its status line, and one change that no longer matters since the
-order id comes from the contract. A retry button that does nothing, or none at all, must end
+a correct app with other words on its status line, correct apps that say confirmed about a payment
+already in a block, and one change that no longer matters since the order id comes from the contract. A retry button that does nothing, or none at all, must end
 Incomplete: the bench cannot tell a missing button from a slow one without a deadline, and a passed
 deadline is never a detection (it still cannot pass).
 
@@ -27,6 +27,7 @@ ADMIN = "    function setAllowlisted(address account, bool allowed) external onl
 HEAD = "  ui.setState('submitted', hash);\n  let failures = 0;"
 TAIL = "    await sleep(250);\n  }\n  return lost(ui, wallet, hash, opts);"
 ORDER_OF = "        return keccak256(abi.encode(payer, reader, dataset, periodsEnded[payer][reader][dataset]));"
+SET_STATE = "    $('status').dataset.state = state;"
 RANDOM_ID = "'0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('')"
 PREVIOUS = 'bench/fixtures/e5008da'  # the corrected app of commit e5008da, the one a reviewer showed debiting twice
 
@@ -71,8 +72,15 @@ MUTANTS = {
         (CS, "        if (orderPaid[order]) revert OrderAlreadyPaid();\n", "")]),
     'contract_trusts_order_id': ('D3', 'The contract refuses a paid order id, but accepts any id the caller sends instead of the open order.', BLOCKED, [
         (CS, "        if (order != orderOf(msg.sender, reader, dataset)) revert NotCurrentOrder();\n", "")]),
+    'x1_d1_status_detail': ('D1', 'Reviewer: a detail line inside the status card, under the title, says Payment confirmed while the payment waits.', BLOCKED, [
+        (APP, SET_STATE, "    { let d = document.getElementById('status-detail'); if (!d) { d = document.createElement('small'); d.id = 'status-detail'; $('status-title').parentElement.append(d); } d.textContent = state === 'submitted' ? 'Payment confirmed' : ''; }\n" + SET_STATE)]),
+    'x2_d1_revoke_toast': ('D1', 'Reviewer: a toast says Revocation confirmed as soon as the revocation is sent, before its block.', BLOCKED, [
+        (APP, "  const { hash } = await sendTx(cfg.selectors.revoke + pad(toHex(id)));",
+         "  const { hash } = await sendTx(cfg.selectors.revoke + pad(toHex(id)));\n  if (hash) { const t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); t.textContent = 'Revocation confirmed: the reader no longer has access'; document.body.append(t); }")]),
     'n3_d3_order_per_block': ('D3', 'Reviewer, on this contract: orderOf also hashes block.number, so the order id changes with every block.', BLOCKED, [
         (CS, ORDER_OF, ORDER_OF.replace("[dataset]));", "[dataset], block.number));"))]),
+    'x3_d3_order_per_day': ('D3', 'Reviewer, on this contract: orderOf also hashes the current day (block.timestamp / 1 days), so the order reopens once a day has passed.', BLOCKED, [
+        (CS, ORDER_OF, ORDER_OF.replace("[dataset]));", "[dataset], block.timestamp / 1 days));"))]),
     'previous_corrected_e5008da': ('D3', 'The corrected app of commit e5008da, unchanged: its intent counted the payments already made, so once the first payment was in a block a second Pay (second device, or after a wallet error) was a new intent. A reviewer showed -50 TEST on it.', BLOCKED, ('fixture', PREVIOUS)),
     'no_paid_check': ('D3', 'The app never asks the contract whether the order is paid: after a wallet error it reopens Pay and sends a duplicate, which the contract reverts.', BLOCKED, [
         (CF, "      const o = order || read(a)?.order || await openOrder(a);\n      return BigInt(await call(cfg.selectors.orderPaid + pad(o))) === 1n;", "      return false;")]),
@@ -94,6 +102,11 @@ MUTANTS = {
         (APP, "  wallet.on?.('chainChanged', onChain);", "  wallet.on?.('chainChanged', (id) => setTimeout(() => onChain(id), 500));")]),
     'ok3_wording': ('D1', 'Reviewer: correct app, the pending status reads "Sent: it will be confirmed once it is in a block".', PASSED, [
         (APP, "  submitted: 'Pending: waiting for the network to include it',", "  submitted: 'Sent: it will be confirmed once it is in a block',")]),
+    'ok4_grant_list_confirmed': ('D1', 'Reviewer: correct app, a grant listed from the indexer (so already in a block) reads "active, payment confirmed".', PASSED, [
+        (APP, "${g.active ? 'active' : 'revoked'}", "${g.active ? 'active, payment confirmed' : 'revoked'}")]),
+    'ok5_already_paid_wording': ('D1', 'Reviewer: correct app, Already paid reads "this order was confirmed in an earlier transaction".', PASSED, [
+        (APP, "  'already-paid': 'Already paid: this order went through in an earlier transaction. No second debit.',",
+         "  'already-paid': 'Already paid: this order was confirmed in an earlier transaction. No second debit.',")]),
     'ci_only_d2': ('CI', 'A faulty app that keeps only D2 (D1 and D3 fixed) must fail the CI calibration.', 'calibration fails', None),
 }
 

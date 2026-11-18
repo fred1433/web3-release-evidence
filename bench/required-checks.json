@@ -113,13 +113,13 @@
       "title": "One order, at most one debit",
       "layer": "interface + chain",
       "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; each pay-again done while the first payment waits and again after it landed; waits with a deadline; direct block and mempool scan; direct contract calls",
-      "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
+      "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid, and once the first payment landed the chain clock moves 40 days before the second device opens. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
       "rule": {
         "text": "One order, at most one debit.",
         "fictitious": false
       },
       "allowed": "Check the same transaction again. While the first payment waits, a duplicate that the contract reverts: it costs gas and moves no TEST.",
-      "forbidden": "A second debit for the same order, whatever the number of blocks, devices, reloads or wallet errors."
+      "forbidden": "A second debit for the same order, in any of the pay-again situations this check runs."
     },
     {
       "id": "C10",
@@ -155,7 +155,7 @@
     },
     {
       "item": "Notifications outside the page",
-      "why": "I1 covers the status line, every other visible text on the page, the tab title and alert or confirm dialogs. Browser or system notifications, sounds, and the wallet's own popups are not observed."
+      "why": "I1 covers the status line, the rest of the status card, every other visible text on the page, the tab title and alert or confirm dialogs. Browser or system notifications, sounds, and the wallet's own popups are not observed."
     },
     {
       "item": "A duplicate sent while the first payment still waits, from a device that does not know about it",
@@ -167,7 +167,7 @@
     },
     {
       "item": "Economic and security audit of the contract",
-      "why": "The checks exercise three rules the contract enforces on its own (allowlist, admin role, at most one debit per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+      "why": "The checks exercise three rules the contract enforces on its own (allowlist, admin role, at most one debit per order). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
     },
     {
       "item": "Gas spikes and congestion on a public network",
@@ -191,13 +191,13 @@
       "id": "I1",
       "assertion": "no_confirmed_before_receipt_block",
       "applies_to": "every check that opens the app, in both regimes: all but C05",
-      "text": "Nothing on the page says Confirmed before the block that holds the receipt. On the status line, the receipt of the transaction it names; anywhere else on the page (visible text, tab title, alert and confirm dialogs), the receipt of a transaction that tab sent. The test wallet sends each change to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it. A sentence that says the opposite or the future (\"not confirmed\", \"will be confirmed once it is in a block\") is not a claim."
+      "text": "Nothing on the page says Confirmed too early. On the status line, not before the block that holds the receipt of the transaction it names; a status line that names no transaction (Already paid) is judged like the rest of the page. Anywhere else on the page (every other visible text, the rest of the status card included, the tab title, alert and confirm dialogs), not while a transaction of the same account, sent from any tab, is still outside a block. There the bench cannot tell which transaction a sentence means, so it judges the moment: a fact already in a block (a grant listed from the indexer, an order already paid) may say confirmed, and so may a sentence said while nothing of the account waits. The test wallet sends each change to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it. A sentence that says the opposite or the future (\"not confirmed\", \"will be confirmed once it is in a block\") is not a claim."
     },
     {
       "id": "I2",
       "assertion": "*_debits_once, *_sends_nothing_once_paid, contract_refuses_*",
       "applies_to": "C09, in both regimes",
-      "text": "One order, at most one debit, whatever the number of blocks passed, devices, reloads or wallet errors. The order id comes from the contract (payer, reader, dataset, access period); it never depends on a block number or on a count of payments, and the contract refuses a second debit of it."
+      "text": "One order, at most one debit, in each of the eleven pay-again situations C09 runs: blocks passing while the order is unpaid, a second device opened 40 days later on the chain clock, reloads, a double click and wallet errors. The order id comes from the contract (payer, reader, dataset, access period); in the contract code it depends on no block number, no time and no count of payments, and the contract refuses a second debit of it."
     },
     {
       "id": "I3",

@@ -2,8 +2,8 @@
 // It answers the wallet-only methods itself (accounts, chain switching, user refusal 4001)
 // and forwards everything else to the RPC endpoint the app is configured with.
 // It also records every wallet call, every transaction it sent, every change of the status line (its
-// state and its visible text) and every moment the rest of the page claims confirmed (visible text
-// outside the status line, the tab title, alert and confirm dialogs), so the bench judges the whole
+// state and the text of its title) and every moment the rest of the page claims confirmed (every other
+// visible text, the rest of the status card included, the tab title, alert and confirm dialogs), so the bench judges the whole
 // history of the page, not just the final state of one line. Each record is also sent to the bench as
 // it happens (window.__benchRecord), so the history survives a reload and a closed tab.
 (() => {
@@ -76,14 +76,13 @@
   const CLAIM = /(?<![a-z])(?<!not )(?<!n't )(?<!be )(?<!yet )(?<!until )confirmed\b/i;
   let lastPage = '';
   const pageClaim = (extra) => {
-    const status = document.querySelector('[data-testid="tx-status"]');
     const found = [];
     if (CLAIM.test(document.title)) found.push('tab title: ' + document.title.trim());
     if (document.body) {
       const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       for (let n = w.nextNode(); n; n = w.nextNode()) {
         const p = n.parentElement;
-        if (!p || (status && status.contains(p)) || p.closest('script,style,template') || !p.checkVisibility()) continue;
+        if (!p || p.closest('#status-title, #status-hash, script, style, template') || !p.checkVisibility()) continue;
         const t = n.textContent.replace(/\s+/g, ' ').trim();
         if (CLAIM.test(t)) found.push(t.slice(0, 160));
       }
