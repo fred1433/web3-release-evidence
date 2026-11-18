@@ -1,7 +1,7 @@
 {
   "variant": "corrected",
   "runs": 10,
-  "commit": "92d79fee2b8ec871b8898d09a6baee68617cc591",
+  "commit": "8e34d34423efd1960591cb563c2a455f6f291e63",
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -16,15 +16,15 @@
     "Demonstrated checks passed": 10
   },
   "finished": {
-    "utc": "2026-11-18 18:59:23 UTC",
-    "pacific": "2026-11-18 10:59:23 PST"
+    "utc": "2026-11-18 22:57:00 UTC",
+    "pacific": "2026-11-18 14:57:00 PST"
   },
   "detail": [
     {
       "run": 1,
-      "run_id": "corrected-20261118T183552Z",
+      "run_id": "corrected-20261118T223254Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 143.3,
+      "duration_s": 143.9,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -54,9 +54,9 @@
     },
     {
       "run": 2,
-      "run_id": "corrected-20261118T183815Z",
+      "run_id": "corrected-20261118T223518Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 139.5,
+      "duration_s": 143.9,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -86,9 +86,9 @@
     },
     {
       "run": 3,
-      "run_id": "corrected-20261118T184035Z",
+      "run_id": "corrected-20261118T223742Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 142.7,
+      "duration_s": 144.4,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -118,9 +118,9 @@
     },
     {
       "run": 4,
-      "run_id": "corrected-20261118T184258Z",
+      "run_id": "corrected-20261118T224006Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 141.7,
+      "duration_s": 144.9,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -150,9 +150,9 @@
     },
     {
       "run": 5,
-      "run_id": "corrected-20261118T184519Z",
+      "run_id": "corrected-20261118T224231Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 137.7,
+      "duration_s": 145.5,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -182,7 +182,39 @@
     },
     {
       "run": 6,
-      "run_id": "corrected-20261118T184737Z",
+      "run_id": "corrected-20261118T224457Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 144.7,
+      "outcomes": {
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "passed",
+        "C08/moving": "passed",
+        "C09/still": "passed",
+        "C09/moving": "passed",
+        "C10/still": "passed",
+        "C10/moving": "passed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {},
+      "planted_faults_detected": []
+    },
+    {
+      "run": 7,
+      "run_id": "corrected-20261118T224722Z",
       "status": "Demonstrated checks passed",
       "duration_s": 145.7,
       "outcomes": {
@@ -213,42 +245,10 @@
       "planted_faults_detected": []
     },
     {
-      "run": 7,
-      "run_id": "corrected-20261118T185003Z",
-      "status": "Demonstrated checks passed",
-      "duration_s": 145.9,
-      "outcomes": {
-        "C01/still": "passed",
-        "C01/moving": "passed",
-        "C02/still": "passed",
-        "C02/moving": "passed",
-        "C03/still": "passed",
-        "C03/moving": "passed",
-        "C04/still": "passed",
-        "C04/moving": "passed",
-        "C05/still": "passed",
-        "C06/still": "passed",
-        "C06/moving": "passed",
-        "C07/still": "passed",
-        "C07/moving": "passed",
-        "C08/still": "passed",
-        "C08/moving": "passed",
-        "C09/still": "passed",
-        "C09/moving": "passed",
-        "C10/still": "passed",
-        "C10/moving": "passed",
-        "C11/still": "passed",
-        "C11/moving": "passed"
-      },
-      "failed_assertions": {},
-      "errors": {},
-      "planted_faults_detected": []
-    },
-    {
       "run": 8,
-      "run_id": "corrected-20261118T185229Z",
+      "run_id": "corrected-20261118T224947Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 141.0,
+      "duration_s": 144.8,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -278,9 +278,9 @@
     },
     {
       "run": 9,
-      "run_id": "corrected-20261118T185450Z",
+      "run_id": "corrected-20261118T225212Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 137.1,
+      "duration_s": 144.3,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",
@@ -310,9 +310,9 @@
     },
     {
       "run": 10,
-      "run_id": "corrected-20261118T185707Z",
+      "run_id": "corrected-20261118T225437Z",
       "status": "Demonstrated checks passed",
-      "duration_s": 135.8,
+      "duration_s": 143.2,
       "outcomes": {
         "C01/still": "passed",
         "C01/moving": "passed",

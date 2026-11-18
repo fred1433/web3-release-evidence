@@ -1,8 +1,8 @@
 {
-  "finished": "2026-11-18 19:28:38 UTC",
-  "commit": "92d79fee2b8ec871b8898d09a6baee68617cc591",
-  "as_expected": 29,
-  "total": 29,
+  "finished": "2026-11-18 22:32:53 UTC",
+  "commit": "8e34d34423efd1960591cb563c2a455f6f291e63",
+  "as_expected": 34,
+  "total": 34,
   "mutants": [
     {
       "id": "late_d1",
@@ -26,7 +26,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 210.7,
+      "duration_s": 296.7,
       "by_regime": {
         "still": [
           "C08"
@@ -58,7 +58,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 138.2,
+      "duration_s": 239.2,
       "by_regime": {
         "still": [
           "C08"
@@ -130,7 +130,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 149.5,
+      "duration_s": 138.9,
       "by_regime": {
         "still": [
           "C09"
@@ -156,17 +156,25 @@
         "C07/moving": [
           "no_confirmed_before_block",
           "no_confirmed_before_receipt_block"
+        ],
+        "C11/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C11/moving": [
+          "no_confirmed_before_receipt_block"
         ]
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 153.3,
+      "duration_s": 140.4,
       "by_regime": {
         "still": [
-          "C07"
+          "C07",
+          "C11"
         ],
         "moving": [
-          "C07"
+          "C07",
+          "C11"
         ]
       }
     },
@@ -190,7 +198,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 153.2,
+      "duration_s": 140.7,
       "by_regime": {
         "still": [
           "C07"
@@ -250,7 +258,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 143.1,
+      "duration_s": 142.5,
       "by_regime": {
         "still": [
           "C04",
@@ -285,16 +293,20 @@
         ],
         "C09/moving": [
           "no_confirmed_before_receipt_block"
+        ],
+        "C11/moving": [
+          "no_confirmed_before_receipt_block"
         ]
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 142.1,
+      "duration_s": 142.4,
       "by_regime": {
         "still": [],
         "moving": [
           "C07",
-          "C09"
+          "C09",
+          "C11"
         ]
       }
     },
@@ -318,7 +330,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 139.3,
+      "duration_s": 140.6,
       "by_regime": {
         "still": [
           "C10"
@@ -350,7 +362,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 138.9,
+      "duration_s": 146.3,
       "by_regime": {
         "still": [
           "C10"
@@ -380,7 +392,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 139.0,
+      "duration_s": 148.5,
       "by_regime": {
         "still": [
           "C10"
@@ -406,7 +418,7 @@
         "C09/moving": "BenchTimeout: no retry button on screen after status unknown within 8 s"
       },
       "not_one_debit": [],
-      "duration_s": 118.2,
+      "duration_s": 125.2,
       "by_regime": {
         "still": [],
         "moving": []
@@ -428,7 +440,7 @@
         "C09/moving": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s"
       },
       "not_one_debit": [],
-      "duration_s": 121.9,
+      "duration_s": 127.5,
       "by_regime": {
         "still": [],
         "moving": []
@@ -454,7 +466,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 138.7,
+      "duration_s": 144.6,
       "by_regime": {
         "still": [
           "C09"
@@ -482,7 +494,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 137.3,
+      "duration_s": 144.7,
       "by_regime": {
         "still": [
           "C09"
@@ -519,7 +531,7 @@
         "C09/moving, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 7 block 54 status 0x1 (debit), nonce 8 block 54 status 0x1 (debit); -50 TEST",
         "C09/moving, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 13 block 71 status 0x1 (debit), nonce 14 block 71 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Confirmed\""
       ],
-      "duration_s": 139.1,
+      "duration_s": 145.4,
       "by_regime": {
         "still": [
           "C09"
@@ -547,13 +559,111 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 137.1,
+      "duration_s": 140.4,
       "by_regime": {
         "still": [
           "C09"
         ],
         "moving": [
           "C09"
+        ]
+      }
+    },
+    {
+      "id": "x1_d1_status_detail",
+      "breaks": "D1",
+      "what": "Reviewer: a detail line inside the status card, under the title, says Payment confirmed while the payment waits.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C04/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C04/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C06/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C06/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C07/still": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C07/moving": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C08/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C08/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C11/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C11/moving": [
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 143.5,
+      "by_regime": {
+        "still": [
+          "C04",
+          "C06",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ],
+        "moving": [
+          "C04",
+          "C06",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ]
+      }
+    },
+    {
+      "id": "x2_d1_revoke_toast",
+      "breaks": "D1",
+      "what": "Reviewer: a toast says Revocation confirmed as soon as the revocation is sent, before its block.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C11/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C11/moving": [
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 144.5,
+      "by_regime": {
+        "still": [
+          "C11"
+        ],
+        "moving": [
+          "C11"
         ]
       }
     },
@@ -649,8 +759,8 @@
         "C09/still, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 16 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/still, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/still, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 18 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/still, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 19 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 20 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 21 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 22 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/still, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 12 block 19 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 21 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 22 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 23 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
         "C09/moving, retry after status unknown, while the first payment waits: 1 payment transaction: nonce 1 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/moving, Pay during unknown, while the first payment waits: 1 payment transaction: nonce 2 block 26 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/moving, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 38 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
@@ -660,10 +770,10 @@
         "C09/moving, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 74 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/moving, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 84 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/moving, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 92 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 105 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 111 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 118 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 128 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\""
+        "C09/moving, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 12 block 105 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 112 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 119 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 129 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\""
       ],
-      "duration_s": 168.6,
+      "duration_s": 168.9,
       "by_regime": {
         "still": [
           "C04",
@@ -678,6 +788,39 @@
           "C08",
           "C09",
           "C11"
+        ]
+      }
+    },
+    {
+      "id": "x3_d3_order_per_day",
+      "breaks": "D3",
+      "what": "Reviewer, on this contract: orderOf also hashes the current day (block.timestamp / 1 days), so the order reopens once a day has passed.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09/still": [
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed"
+        ],
+        "C09/moving": [
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [
+        "C09/still, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 21 block 28 status 0x1 (debit), nonce 22 block 30 status 0x1 (debit); -50 TEST",
+        "C09/moving, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 21 block 112 status 0x1 (debit), nonce 22 block 119 status 0x1 (debit); -50 TEST"
+      ],
+      "duration_s": 142.3,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
         ]
       }
     },
@@ -712,12 +855,12 @@
         "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
       },
       "not_one_debit": [
-        "C09/still, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 21 block 28 status 0x1 (debit), nonce 22 block 29 status 0x1 (debit); -50 TEST",
-        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 25 block 31 status 0x1 (debit), nonce 26 block 32 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Confirmed\"",
-        "C09/moving, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 21 block 113 status 0x1 (debit), nonce 22 block 119 status 0x1 (debit); -50 TEST",
+        "C09/still, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 21 block 28 status 0x1 (debit), nonce 22 block 30 status 0x1 (debit); -50 TEST",
+        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 25 block 32 status 0x1 (debit), nonce 26 block 33 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Confirmed\"",
+        "C09/moving, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 21 block 112 status 0x1 (debit), nonce 22 block 119 status 0x1 (debit); -50 TEST",
         "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 25 block 127 status 0x1 (debit), nonce 26 block 137 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Confirmed\""
       ],
-      "duration_s": 152.6,
+      "duration_s": 158.8,
       "by_regime": {
         "still": [
           "C09"
@@ -750,7 +893,7 @@
         "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
       },
       "not_one_debit": [],
-      "duration_s": 154.1,
+      "duration_s": 157.5,
       "by_regime": {
         "still": [
           "C09"
@@ -793,7 +936,7 @@
         "C09/moving": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s"
       },
       "not_one_debit": [],
-      "duration_s": 135.5,
+      "duration_s": 138.2,
       "by_regime": {
         "still": [
           "C08",
@@ -897,21 +1040,21 @@
         "C09/still, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 18 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/still, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 19 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/still, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 20 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/still, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 21 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 22 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 23 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 24 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/still, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 12 block 21 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 23 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 24 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 25 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
         "C09/moving, retry after status unknown, while the first payment waits: 1 payment transaction: nonce 1 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
         "C09/moving, Pay during unknown, while the first payment waits: 1 payment transaction: nonce 2 block 26 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 39 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 4 block 52 status 0x0 (NotCurrentOrder(), no debit), nonce 5 block 53 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, double click, while the first payment waits: 1 payment transaction: nonce 6 block 59 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 7 block 67 status 0x0 (NotCurrentOrder(), no debit), nonce 8 block 68 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
-        "C09/moving, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 76 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 86 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 94 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 107 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 113 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
-        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 120 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 130 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\""
+        "C09/moving, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 38 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 4 block 51 status 0x0 (NotCurrentOrder(), no debit), nonce 5 block 52 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, double click, while the first payment waits: 1 payment transaction: nonce 6 block 58 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 7 block 66 status 0x0 (NotCurrentOrder(), no debit), nonce 8 block 67 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/moving, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 75 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 84 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 92 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay from a second device, 40 days later on the chain clock, after the first payment landed: 2 payment transactions: nonce 12 block 105 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 112 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 119 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 129 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\""
       ],
-      "duration_s": 170.3,
+      "duration_s": 171.6,
       "by_regime": {
         "still": [
           "C04",
@@ -947,7 +1090,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 137.0,
+      "duration_s": 141.4,
       "by_regime": {
         "still": [
           "C09"
@@ -968,7 +1111,7 @@
       "failed_assertions": {},
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 132.7,
+      "duration_s": 139.2,
       "by_regime": {
         "still": [],
         "moving": []
@@ -985,7 +1128,7 @@
       "failed_assertions": {},
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 144.1,
+      "duration_s": 150.9,
       "by_regime": {
         "still": [],
         "moving": []
@@ -1002,7 +1145,7 @@
       "failed_assertions": {},
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 134.4,
+      "duration_s": 140.7,
       "by_regime": {
         "still": [],
         "moving": []
@@ -1019,7 +1162,7 @@
       "failed_assertions": {},
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 135.5,
+      "duration_s": 142.7,
       "by_regime": {
         "still": [],
         "moving": []
@@ -1036,7 +1179,41 @@
       "failed_assertions": {},
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 133.5,
+      "duration_s": 138.3,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
+    },
+    {
+      "id": "ok4_grant_list_confirmed",
+      "breaks": "D1",
+      "what": "Reviewer: correct app, a grant listed from the indexer (so already in a block) reads \"active, payment confirmed\".",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 137.2,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
+    },
+    {
+      "id": "ok5_already_paid_wording",
+      "breaks": "D1",
+      "what": "Reviewer: correct app, Already paid reads \"this order was confirmed in an earlier transaction\".",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 138.3,
       "by_regime": {
         "still": [],
         "moving": []
@@ -1064,7 +1241,7 @@
       },
       "errors": {},
       "not_one_debit": [],
-      "duration_s": 133.8,
+      "duration_s": 137.8,
       "by_regime": {
         "still": [
           "C10"

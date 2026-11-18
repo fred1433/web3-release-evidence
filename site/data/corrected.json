@@ -3,20 +3,20 @@
   "kind": "Recorded test run",
   "app": "Sample Grants (synthetic application)",
   "variant": "corrected",
-  "run_id": "corrected-20261118T183006Z",
-  "commit": "051f31db2a71bff15e079183e7a7fd3809339250",
+  "run_id": "corrected-20261118T230107Z",
+  "commit": "8e34d34423efd1960591cb563c2a455f6f291e63",
   "worktree_clean": true,
   "chain_id": 31337,
   "setup_block": 9,
   "started": {
-    "utc": "2026-11-18 18:30:06 UTC",
-    "pacific": "2026-11-18 10:30:06 PST"
+    "utc": "2026-11-18 23:01:07 UTC",
+    "pacific": "2026-11-18 15:01:07 PST"
   },
   "finished": {
-    "utc": "2026-11-18 18:32:26 UTC",
-    "pacific": "2026-11-18 10:32:26 PST"
+    "utc": "2026-11-18 23:03:34 UTC",
+    "pacific": "2026-11-18 15:03:34 PST"
   },
-  "duration_s": 140.3,
+  "duration_s": 146.2,
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -56,19 +56,19 @@
       "id": "I1",
       "assertion": "no_confirmed_before_receipt_block",
       "applies_to": "every check that opens the app, in both regimes: all but C05",
-      "text": "Nothing on the page says Confirmed before the block that holds the receipt. On the status line, the receipt of the transaction it names; anywhere else on the page (visible text, tab title, alert and confirm dialogs), the receipt of a transaction that tab sent. The test wallet sends each change to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it. A sentence that says the opposite or the future (\"not confirmed\", \"will be confirmed once it is in a block\") is not a claim."
+      "text": "Nothing on the page says Confirmed too early. On the status line, not before the block that holds the receipt of the transaction it names; a status line that names no transaction (Already paid) is judged like the rest of the page. Anywhere else on the page (every other visible text, the rest of the status card included, the tab title, alert and confirm dialogs), not while a transaction of the same account, sent from any tab, is still outside a block. There the bench cannot tell which transaction a sentence means, so it judges the moment: a fact already in a block (a grant listed from the indexer, an order already paid) may say confirmed, and so may a sentence said while nothing of the account waits. The test wallet sends each change to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it. A sentence that says the opposite or the future (\"not confirmed\", \"will be confirmed once it is in a block\") is not a claim."
     },
     {
       "id": "I2",
       "assertion": "*_debits_once, *_sends_nothing_once_paid, contract_refuses_*",
       "applies_to": "C09, in both regimes",
-      "text": "One order, at most one debit, whatever the number of blocks passed, devices, reloads or wallet errors. The order id comes from the contract (payer, reader, dataset, access period); it never depends on a block number or on a count of payments, and the contract refuses a second debit of it."
+      "text": "One order, at most one debit, in each of the eleven pay-again situations C09 runs: blocks passing while the order is unpaid, a second device opened 40 days later on the chain clock, reloads, a double click and wallet errors. The order id comes from the contract (payer, reader, dataset, access period); in the contract code it depends on no block number, no time and no count of payments, and the contract refuses a second debit of it."
     },
     {
       "id": "I3",
       "assertion": "(waits)",
       "applies_to": "every check",
-      "text": "Every appearance the bench expects (a state, a button, a banner, the indexer) is awaited until a deadline; a passed deadline makes the run Incomplete, never Blocked. The only fixed windows are observation windows (15 s before a payment's block in C07 and C08, 0.5 to 1 s after a click), and what follows them only checks that something did not happen."
+      "text": "Every appearance the bench expects (a state, a button, a banner, the indexer) is awaited until a deadline; a passed deadline makes the run Incomplete, never Blocked. The only fixed windows are observation windows (15 s before a payment's block in C07 and C08, 3 s before the revocation's block in C11, 0.5 to 1 s after a click), and what follows them only checks that something did not happen."
     }
   ],
   "status_rule": "Blocked if any required check fails on a named assertion; otherwise Incomplete if any required check was skipped, timed out or crashed; otherwise Demonstrated checks passed.",
@@ -137,7 +137,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -146,7 +146,7 @@
       "blocks": 0,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 0.45,
+      "duration_s": 0.33,
       "trace": {
         "rule": {
           "text": "The balance a user sees is the balance the chain holds.",
@@ -191,7 +191,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -200,7 +200,7 @@
       "blocks": 2,
       "empty_blocks": 2,
       "blocks_before_gestures": 2,
-      "duration_s": 0.31,
+      "duration_s": 0.3,
       "trace": {
         "rule": {
           "text": "The balance a user sees is the balance the chain holds.",
@@ -259,7 +259,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -269,7 +269,7 @@
       "blocks": 0,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 0.86,
+      "duration_s": 0.92,
       "trace": {
         "rule": {
           "text": "Nothing is sent without the user's signature.",
@@ -328,7 +328,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -338,7 +338,7 @@
       "blocks": 4,
       "empty_blocks": 4,
       "blocks_before_gestures": 4,
-      "duration_s": 0.98,
+      "duration_s": 0.91,
       "trace": {
         "rule": {
           "text": "Nothing is sent without the user's signature.",
@@ -395,7 +395,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -411,15 +411,13 @@
           "eth_call",
           "eth_chainId",
           "eth_call",
-          "eth_call",
-          "eth_call",
           "wallet_switchEthereumChain"
         ]
       },
       "blocks": 0,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 1.2,
+      "duration_s": 1.14,
       "trace": {
         "rule": {
           "text": "Payments are only sent on the intended chain.",
@@ -476,7 +474,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -493,14 +491,14 @@
           "eth_chainId",
           "eth_call",
           "eth_call",
-          "eth_call",
-          "wallet_switchEthereumChain"
+          "wallet_switchEthereumChain",
+          "eth_call"
         ]
       },
       "blocks": 6,
       "empty_blocks": 6,
       "blocks_before_gestures": 5,
-      "duration_s": 1.21,
+      "duration_s": 1.16,
       "trace": {
         "rule": {
           "text": "Payments are only sent on the intended chain.",
@@ -563,7 +561,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "1 confirmed moment on 1 tab(s) (1 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -591,7 +589,7 @@
       "blocks": 1,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 1.38,
+      "duration_s": 1.43,
       "trace": {
         "rule": {
           "text": "Demo terms v0 must be accepted before any payment.",
@@ -654,7 +652,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "1 confirmed moment on 1 tab(s) (1 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -800,7 +798,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -818,7 +816,7 @@
       "blocks": 1,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 1.44,
+      "duration_s": 1.54,
       "trace": {
         "rule": {
           "text": "A failed payment is never presented as done.",
@@ -885,7 +883,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 1 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -903,7 +901,7 @@
       "blocks": 6,
       "empty_blocks": 5,
       "blocks_before_gestures": 4,
-      "duration_s": 1.45,
+      "duration_s": 1.47,
       "trace": {
         "rule": {
           "text": "A failed payment is never presented as done.",
@@ -930,9 +928,9 @@
           "name": "no_confirmed_before_block",
           "ok": true,
           "observed": [
-            "idle \"No payment yet\" at -15.21s",
-            "awaiting-signature \"Waiting for your wallet\" at -15.05s",
-            "submitted \"Pending: waiting for the network to include it\" at -15.05s",
+            "idle \"No payment yet\" at -15.23s",
+            "awaiting-signature \"Waiting for your wallet\" at -15.06s",
+            "submitted \"Pending: waiting for the network to include it\" at -15.06s",
             "confirmed \"Confirmed\" at +0.25s"
           ],
           "expected": "confirmed only after the block (t >= 0), on the status line and anywhere else on the page"
@@ -965,26 +963,26 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "1 confirmed moment on 1 tab(s) (1 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
         "tx": "0x55f4a7358c7620837f08f18316991ce4ad2f9e3cd3185637c0280c2b77026bb6",
         "block": 10,
         "ui_history": [
-          "idle \"No payment yet\" at -15.21s",
-          "awaiting-signature \"Waiting for your wallet\" at -15.05s",
-          "submitted \"Pending: waiting for the network to include it\" at -15.05s",
+          "idle \"No payment yet\" at -15.23s",
+          "awaiting-signature \"Waiting for your wallet\" at -15.06s",
+          "submitted \"Pending: waiting for the network to include it\" at -15.06s",
           "confirmed \"Confirmed\" at +0.25s"
         ],
-        "pending_s": 15.01,
+        "pending_s": 15.0,
         "blocks_without_the_payment": 0,
         "screenshot": "evidence/corrected/C07-still-confirmed.png"
       },
       "blocks": 1,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 15.66,
+      "duration_s": 15.72,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -1011,10 +1009,10 @@
           "name": "no_confirmed_before_block",
           "ok": true,
           "observed": [
-            "idle \"No payment yet\" at -15.21s",
-            "awaiting-signature \"Waiting for your wallet\" at -15.06s",
-            "submitted \"Pending: waiting for the network to include it\" at -15.05s",
-            "confirmed \"Confirmed\" at +0.23s"
+            "idle \"No payment yet\" at -15.25s",
+            "awaiting-signature \"Waiting for your wallet\" at -15.05s",
+            "submitted \"Pending: waiting for the network to include it\" at -15.04s",
+            "confirmed \"Confirmed\" at +0.07s"
           ],
           "expected": "confirmed only after the block (t >= 0), on the status line and anywhere else on the page"
         },
@@ -1046,17 +1044,17 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "1 confirmed moment on 1 tab(s) (1 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
         "tx": "0xcb48147168839fecaa1efa70a057ef7a597d0258db86aaab382f323381f7f3ff",
         "block": 29,
         "ui_history": [
-          "idle \"No payment yet\" at -15.21s",
-          "awaiting-signature \"Waiting for your wallet\" at -15.06s",
-          "submitted \"Pending: waiting for the network to include it\" at -15.05s",
-          "confirmed \"Confirmed\" at +0.23s"
+          "idle \"No payment yet\" at -15.25s",
+          "awaiting-signature \"Waiting for your wallet\" at -15.05s",
+          "submitted \"Pending: waiting for the network to include it\" at -15.04s",
+          "confirmed \"Confirmed\" at +0.07s"
         ],
         "pending_s": 15.0,
         "blocks_without_the_payment": 15,
@@ -1065,7 +1063,7 @@
       "blocks": 20,
       "empty_blocks": 19,
       "blocks_before_gestures": 4,
-      "duration_s": 15.64,
+      "duration_s": 15.53,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -1093,7 +1091,7 @@
           "ok": true,
           "observed": [
             "awaiting-signature \"Waiting for your wallet\" at +0.02s",
-            "submitted \"Pending: waiting for the network to include it\" at +0.03s",
+            "submitted \"Pending: waiting for the network to include it\" at +0.02s",
             "unknown \"Status unknown: the network did not answer\" at +0.53s",
             "receipt on chain before the block: none",
             "blocks mined before the bench let the payment in: 0"
@@ -1116,7 +1114,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "1 confirmed moment on 1 tab(s) (1 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -1135,7 +1133,7 @@
               {
                 "state": "submitted",
                 "text": "Pending: waiting for the network to include it",
-                "at_s": 0.03
+                "at_s": 0.02
               },
               {
                 "state": "unknown",
@@ -1145,15 +1143,15 @@
               {
                 "state": "submitted",
                 "text": "Pending: waiting for the network to include it",
-                "at_s": 15.17
+                "at_s": 15.19
               },
               {
                 "state": "confirmed",
                 "text": "Confirmed",
-                "at_s": 15.18
+                "at_s": 15.2
               }
             ],
-            "block_mined_at_s": 15.16
+            "block_mined_at_s": 15.17
           },
           "api": {
             "grants_for_user": 0,
@@ -1169,14 +1167,14 @@
           }
         },
         "outage": "the proxy on the app path answered HTTP 503 to every eth_getTransactionReceipt; the node still answered the bench",
-        "outage_held_s": 15.16,
-        "pending_s": 15.09,
+        "outage_held_s": 15.17,
+        "pending_s": 15.11,
         "cut_requests": 3
       },
       "blocks": 1,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 15.79,
+      "duration_s": 15.72,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -1203,8 +1201,8 @@
           "name": "never_confirmed_without_receipt",
           "ok": true,
           "observed": [
-            "awaiting-signature \"Waiting for your wallet\" at +0.04s",
-            "submitted \"Pending: waiting for the network to include it\" at +0.04s",
+            "awaiting-signature \"Waiting for your wallet\" at +0.03s",
+            "submitted \"Pending: waiting for the network to include it\" at +0.03s",
             "unknown \"Status unknown: the network did not answer\" at +0.54s",
             "receipt on chain before the block: none",
             "blocks mined before the bench let the payment in: 15"
@@ -1227,7 +1225,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "1 confirmed moment on 1 tab(s) (1 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -1241,12 +1239,12 @@
               {
                 "state": "awaiting-signature",
                 "text": "Waiting for your wallet",
-                "at_s": 0.04
+                "at_s": 0.03
               },
               {
                 "state": "submitted",
                 "text": "Pending: waiting for the network to include it",
-                "at_s": 0.04
+                "at_s": 0.03
               },
               {
                 "state": "unknown",
@@ -1256,15 +1254,15 @@
               {
                 "state": "submitted",
                 "text": "Pending: waiting for the network to include it",
-                "at_s": 15.21
+                "at_s": 15.19
               },
               {
                 "state": "confirmed",
                 "text": "Confirmed",
-                "at_s": 15.21
+                "at_s": 15.19
               }
             ],
-            "block_mined_at_s": 15.17
+            "block_mined_at_s": 15.16
           },
           "api": {
             "grants_for_user": 0,
@@ -1280,14 +1278,14 @@
           }
         },
         "outage": "the proxy on the app path answered HTTP 503 to every eth_getTransactionReceipt; the node still answered the bench",
-        "outage_held_s": 15.17,
+        "outage_held_s": 15.16,
         "pending_s": 15.08,
         "cut_requests": 3
       },
       "blocks": 21,
       "empty_blocks": 20,
       "blocks_before_gestures": 5,
-      "duration_s": 15.84,
+      "duration_s": 15.77,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -1481,7 +1479,7 @@
         {
           "name": "wallet_error_then_pay_debits_once_after_it_landed",
           "ok": true,
-          "observed": "1 payment transaction: nonce 23 block 30 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
+          "observed": "1 payment transaction: nonce 23 block 31 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -1500,7 +1498,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "3 confirmed moments on 13 tab(s) (3 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -1521,14 +1519,14 @@
             "result": "1 payment transaction: nonce 1 block 10 status 0x1 (debit); -25 TEST",
             "retry_button": "Check status again",
             "ui_history": [
-              "idle \"No payment yet\" at -0.12s",
+              "idle \"No payment yet\" at -0.11s",
               "awaiting-signature \"Waiting for your wallet\" at +0.03s",
               "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.55s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.58s",
+              "unknown \"Status unknown: the network did not answer\" at +0.54s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.57s",
               "confirmed \"Confirmed\" at +1.86s"
             ],
-            "block_mined_at_s": 1.6
+            "block_mined_at_s": 1.62
           },
           {
             "scenario": "Pay during unknown",
@@ -1545,10 +1543,10 @@
             ],
             "result": "1 payment transaction: nonce 3 block 12 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.12s",
+              "idle \"No payment yet\" at -0.14s",
               "awaiting-signature \"Waiting for your wallet\" at +0.03s",
               "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.53s"
+              "unknown \"Status unknown: the network did not answer\" at +0.54s"
             ]
           },
           {
@@ -1566,9 +1564,9 @@
             ],
             "result": "1 payment transaction: nonce 5 block 14 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at +0.59s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.64s",
-              "unknown \"Status unknown: the network did not answer\" at +1.15s"
+              "idle \"No payment yet\" at +0.56s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.60s",
+              "unknown \"Status unknown: the network did not answer\" at +1.11s"
             ]
           },
           {
@@ -1594,16 +1592,16 @@
             ],
             "result": "2 payment transactions: nonce 7 block 16 status 0x1 (debit), nonce 8 block 16 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.14s",
+              "idle \"No payment yet\" at -0.18s",
               "awaiting-signature \"Waiting for your wallet\" at +0.02s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.02s",
-              "unknown \"Status unknown: the network did not answer\" at +0.53s"
+              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
+              "unknown \"Status unknown: the network did not answer\" at +0.54s"
             ],
             "second_device_history": [
-              "idle \"No payment yet\" at +0.63s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.82s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.82s",
-              "unknown \"Status unknown: the network did not answer\" at +1.33s"
+              "idle \"No payment yet\" at +0.65s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.76s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.77s",
+              "unknown \"Status unknown: the network did not answer\" at +1.28s"
             ]
           },
           {
@@ -1621,10 +1619,10 @@
             ],
             "result": "1 payment transaction: nonce 10 block 18 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.12s",
+              "idle \"No payment yet\" at -0.11s",
               "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "confirmed \"Confirmed\" at +0.80s"
+              "submitted \"Pending: waiting for the network to include it\" at +0.04s",
+              "confirmed \"Confirmed\" at +0.81s"
             ]
           },
           {
@@ -1650,12 +1648,12 @@
             ],
             "result": "2 payment transactions: nonce 12 block 20 status 0x1 (debit), nonce 13 block 20 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
             "ui_history": [
-              "idle \"No payment yet\" at -0.15s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.02s",
-              "error \"Something went wrong\" at +0.02s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.09s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.09s",
-              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.86s"
+              "idle \"No payment yet\" at -0.14s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
+              "error \"Something went wrong\" at +0.04s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.11s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.12s",
+              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.89s"
             ]
           },
           {
@@ -1674,14 +1672,14 @@
             "result": "1 payment transaction: nonce 15 block 22 status 0x1 (debit); -25 TEST",
             "retry_button": "Check status again",
             "ui_history": [
-              "idle \"No payment yet\" at -0.13s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
+              "idle \"No payment yet\" at -0.17s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.02s",
               "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.54s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.60s",
-              "confirmed \"Confirmed\" at +0.61s"
+              "unknown \"Status unknown: the network did not answer\" at +0.53s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.57s",
+              "confirmed \"Confirmed\" at +0.58s"
             ],
-            "block_mined_at_s": 0.56
+            "block_mined_at_s": 0.54
           },
           {
             "scenario": "Pay during unknown",
@@ -1698,10 +1696,10 @@
             ],
             "result": "1 payment transaction: nonce 17 block 24 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.15s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.54s"
+              "idle \"No payment yet\" at -0.12s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.01s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.02s",
+              "unknown \"Status unknown: the network did not answer\" at +0.53s"
             ]
           },
           {
@@ -1720,14 +1718,14 @@
             "result": "1 payment transaction: nonce 19 block 26 status 0x1 (debit); -25 TEST",
             "ui_history": [
               "idle \"No payment yet\" at +0.57s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.60s",
-              "unknown \"Status unknown: the network did not answer\" at +1.12s"
+              "submitted \"Pending: waiting for the network to include it\" at +0.62s",
+              "unknown \"Status unknown: the network did not answer\" at +1.14s"
             ]
           },
           {
-            "scenario": "Pay from a second device",
+            "scenario": "Pay from a second device, 40 days later on the chain clock",
             "ordering": "after the first payment landed",
-            "blocks": 1,
+            "blocks": 2,
             "payments": [
               {
                 "tx": "0xc9a94e5811e996d6bfaa91ae1301791ae9c3a10ecb4d5a4b4634dfdf5e4c1bae",
@@ -1739,14 +1737,14 @@
             ],
             "result": "1 payment transaction: nonce 21 block 28 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.18s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.04s",
+              "idle \"No payment yet\" at -0.15s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.02s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
               "unknown \"Status unknown: the network did not answer\" at +0.54s"
             ],
             "second_device_history": [
-              "idle \"No payment yet\" at +0.63s",
-              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.69s"
+              "idle \"No payment yet\" at +0.65s",
+              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.70s"
             ]
           },
           {
@@ -1755,19 +1753,19 @@
             "blocks": 1,
             "payments": [
               {
-                "tx": "0xa00163b74d97739cec26a057d8e6575228b37d28e4ed873a957730e9c567c9cb",
+                "tx": "0xedda9d4b53f91a1820ecd70ad3070c0f885b7d7c041775a3e8610f1255c97111",
                 "nonce": 23,
-                "block": 30,
+                "block": 31,
                 "status": "0x1",
                 "intent": "0x4e128079478a1abb8390dddc7d94951e6ad7876e0271a89dd072b5fde4d49962"
               }
             ],
-            "result": "1 payment transaction: nonce 23 block 30 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
+            "result": "1 payment transaction: nonce 23 block 31 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
             "ui_history": [
-              "idle \"No payment yet\" at -0.17s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.02s",
-              "error \"Something went wrong\" at +0.02s",
-              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.89s"
+              "idle \"No payment yet\" at -0.12s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
+              "error \"Something went wrong\" at +0.03s",
+              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.92s"
             ]
           }
         ],
@@ -1782,19 +1780,19 @@
           }
         ],
         "ui_history": [
-          "idle \"No payment yet\" at -0.12s",
+          "idle \"No payment yet\" at -0.11s",
           "awaiting-signature \"Waiting for your wallet\" at +0.03s",
           "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-          "unknown \"Status unknown: the network did not answer\" at +0.55s",
-          "submitted \"Pending: waiting for the network to include it\" at +0.58s",
+          "unknown \"Status unknown: the network did not answer\" at +0.54s",
+          "submitted \"Pending: waiting for the network to include it\" at +0.57s",
           "confirmed \"Confirmed\" at +1.86s"
         ],
-        "retry_block_mined_at_s": 1.6,
+        "retry_block_mined_at_s": 1.62,
         "screenshot": "evidence/corrected/C09-still-after-retry.png",
         "contract_replays": {
           "same_order": {
-            "tx": "0xad26b94590af319597766cbe69bc5c0f8e418ba4e466328a61f33cff67c4a39e",
-            "block": 32,
+            "tx": "0x7fdcfb2d207a23d209f58506a8a8b5992e75fd427d3ef4e1953e8f074df3d243",
+            "block": 33,
             "order": "0xed1d1c9b686c88c014afad3b5dd6d9c47ec3357b347b0888d552dc6797b8f40f",
             "status": "0x0",
             "error": "OrderAlreadyPaid()",
@@ -1802,8 +1800,8 @@
             "wanted": "OrderAlreadyPaid"
           },
           "other_id": {
-            "tx": "0x9160aeeade8d63c1716918c3ce4cb13772b10c747211c9c28015f6049e71510c",
-            "block": 33,
+            "tx": "0xb20b74e6808a9bbb9e010267a764a89e11f6a78c09e1771bfa78cbf6cb9bc4f2",
+            "block": 34,
             "order": "0x73fd72e90a0334a555fac5cc3fcc72446bad4194f6b4f114014ef81c61cb1b07",
             "status": "0x0",
             "error": "NotCurrentOrder()",
@@ -1813,18 +1811,18 @@
           "path": "eth_sendTransaction straight to the node, no interface"
         }
       },
-      "blocks": 24,
+      "blocks": 25,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 25.49,
+      "duration_s": 25.44,
       "trace": {
         "rule": {
           "text": "One order, at most one debit.",
           "fictitious": false
         },
         "allowed": "Check the same transaction again. While the first payment waits, a duplicate that the contract reverts: it costs gas and moves no TEST.",
-        "forbidden": "A second debit for the same order, whatever the number of blocks, devices, reloads or wallet errors.",
-        "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
+        "forbidden": "A second debit for the same order, in any of the pay-again situations this check runs.",
+        "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid, and once the first payment landed the chain clock moves 40 days before the second device opens. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
         "layer": "interface + chain",
         "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; each pay-again done while the first payment waits and again after it landed; waits with a deadline; direct block and mempool scan; direct contract calls"
       }
@@ -1896,25 +1894,25 @@
         {
           "name": "reload_then_pay_debits_once",
           "ok": true,
-          "observed": "1 payment transaction: nonce 5 block 40 status 0x1 (debit); -25 TEST",
+          "observed": "1 payment transaction: nonce 5 block 41 status 0x1 (debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
           "name": "second_device_debits_once",
           "ok": true,
-          "observed": "2 payment transactions: nonce 7 block 54 status 0x1 (debit), nonce 8 block 54 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST",
+          "observed": "2 payment transactions: nonce 7 block 55 status 0x1 (debit), nonce 8 block 55 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
           "name": "double_click_debits_once",
           "ok": true,
-          "observed": "1 payment transaction: nonce 10 block 61 status 0x1 (debit); -25 TEST",
+          "observed": "1 payment transaction: nonce 10 block 62 status 0x1 (debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
           "name": "wallet_error_then_pay_debits_once",
           "ok": true,
-          "observed": "2 payment transactions: nonce 12 block 70 status 0x1 (debit), nonce 13 block 70 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
+          "observed": "2 payment transactions: nonce 12 block 71 status 0x1 (debit), nonce 13 block 71 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -1938,7 +1936,7 @@
         {
           "name": "retry_sends_no_new_payment_after_it_landed",
           "ok": true,
-          "observed": "1 eth_sendTransaction from the app; 1 payment transaction: nonce 15 block 79 status 0x1 (debit)",
+          "observed": "1 eth_sendTransaction from the app; 1 payment transaction: nonce 15 block 80 status 0x1 (debit)",
           "expected": "1 eth_sendTransaction; 1 payment transaction"
         },
         {
@@ -1950,7 +1948,7 @@
         {
           "name": "retry_debits_once_after_it_landed",
           "ok": true,
-          "observed": "1 payment transaction: nonce 15 block 79 status 0x1 (debit); -25 TEST",
+          "observed": "1 payment transaction: nonce 15 block 80 status 0x1 (debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -1968,7 +1966,7 @@
         {
           "name": "pay_during_unknown_debits_once_after_it_landed",
           "ok": true,
-          "observed": "1 payment transaction: nonce 17 block 90 status 0x1 (debit); -25 TEST",
+          "observed": "1 payment transaction: nonce 17 block 91 status 0x1 (debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -1986,7 +1984,7 @@
         {
           "name": "reload_then_pay_debits_once_after_it_landed",
           "ok": true,
-          "observed": "1 payment transaction: nonce 19 block 99 status 0x1 (debit); -25 TEST",
+          "observed": "1 payment transaction: nonce 19 block 100 status 0x1 (debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -1998,7 +1996,7 @@
         {
           "name": "second_device_debits_once_after_it_landed",
           "ok": true,
-          "observed": "1 payment transaction: nonce 21 block 113 status 0x1 (debit); -25 TEST",
+          "observed": "1 payment transaction: nonce 21 block 114 status 0x1 (debit); -25 TEST",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -2010,7 +2008,7 @@
         {
           "name": "wallet_error_then_pay_debits_once_after_it_landed",
           "ok": true,
-          "observed": "1 payment transaction: nonce 23 block 125 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
+          "observed": "1 payment transaction: nonce 23 block 127 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
           "expected": "one debit: -25 TEST"
         },
         {
@@ -2029,7 +2027,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "3 confirmed moments on 13 tab(s) (3 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -2052,12 +2050,12 @@
             "ui_history": [
               "idle \"No payment yet\" at -0.14s",
               "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.04s",
-              "unknown \"Status unknown: the network did not answer\" at +0.55s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.85s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
+              "unknown \"Status unknown: the network did not answer\" at +0.54s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.84s",
               "confirmed \"Confirmed\" at +2.13s"
             ],
-            "block_mined_at_s": 1.93
+            "block_mined_at_s": 1.91
           },
           {
             "scenario": "Pay during unknown",
@@ -2074,30 +2072,30 @@
             ],
             "result": "1 payment transaction: nonce 3 block 27 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.15s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.02s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.54s"
+              "idle \"No payment yet\" at -0.18s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.05s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.08s",
+              "unknown \"Status unknown: the network did not answer\" at +0.58s"
             ]
           },
           {
             "scenario": "reload, then Pay",
             "ordering": "while the first payment waits",
-            "blocks": 8,
+            "blocks": 9,
             "payments": [
               {
                 "tx": "0x42809c8746c7ac09731141b869ba7cde914e3175b02f406fe97ec4a49089dbc1",
                 "nonce": 5,
-                "block": 40,
+                "block": 41,
                 "status": "0x1",
                 "intent": "0xa2925f64073f9869d054044fe358b0b004bc750c3eb080d2ff6455abd3c672e4"
               }
             ],
-            "result": "1 payment transaction: nonce 5 block 40 status 0x1 (debit); -25 TEST",
+            "result": "1 payment transaction: nonce 5 block 41 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at +0.62s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.64s",
-              "unknown \"Status unknown: the network did not answer\" at +1.16s"
+              "idle \"No payment yet\" at +1.60s",
+              "submitted \"Pending: waiting for the network to include it\" at +1.63s",
+              "unknown \"Status unknown: the network did not answer\" at +2.14s"
             ]
           },
           {
@@ -2106,33 +2104,33 @@
             "blocks": 10,
             "payments": [
               {
-                "tx": "0xf987f526bfceeda26b0169fe1e4cb752746a6bdd1c9e105b12900f8fce305d9e",
+                "tx": "0x2367681f3245a4377770b73734b6559a27978af5117a56bf74f7debc3cc07b2d",
                 "nonce": 7,
-                "block": 54,
+                "block": 55,
                 "status": "0x1",
                 "intent": "0x4027ff7bd5e1912ffeb40228b0827056269ec541debec3dd16fa83f5c39bd9d9"
               },
               {
-                "tx": "0x1ef3b3a16fee9c6f5dc4a4d57583c3208f1d3bb94d3385aab770574dd30f38f9",
+                "tx": "0xab2484be6530b1521439ebddc0f76e8aa5d6c476744fe2cd9bab1603d18bb4d6",
                 "nonce": 8,
-                "block": 54,
+                "block": 55,
                 "status": "0x0",
                 "intent": "0x4027ff7bd5e1912ffeb40228b0827056269ec541debec3dd16fa83f5c39bd9d9",
                 "reason": "OrderAlreadyPaid()"
               }
             ],
-            "result": "2 payment transactions: nonce 7 block 54 status 0x1 (debit), nonce 8 block 54 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST",
+            "result": "2 payment transactions: nonce 7 block 55 status 0x1 (debit), nonce 8 block 55 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.12s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.54s"
+              "idle \"No payment yet\" at -0.13s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.05s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.06s",
+              "unknown \"Status unknown: the network did not answer\" at +0.57s"
             ],
             "second_device_history": [
-              "idle \"No payment yet\" at +2.30s",
-              "awaiting-signature \"Waiting for your wallet\" at +2.46s",
-              "submitted \"Pending: waiting for the network to include it\" at +2.46s",
-              "unknown \"Status unknown: the network did not answer\" at +2.97s"
+              "idle \"No payment yet\" at +2.26s",
+              "awaiting-signature \"Waiting for your wallet\" at +2.40s",
+              "submitted \"Pending: waiting for the network to include it\" at +2.41s",
+              "unknown \"Status unknown: the network did not answer\" at +2.92s"
             ]
           },
           {
@@ -2141,19 +2139,19 @@
             "blocks": 3,
             "payments": [
               {
-                "tx": "0xb3b37917a731db6dc7dc8b4b43dfcb906858893eb47cf81b6fd0efc5800f3eb1",
+                "tx": "0x65c534bc87f4cd1661da2258b2284f208b957213b87adc2b9b0307f8c70d3774",
                 "nonce": 10,
-                "block": 61,
+                "block": 62,
                 "status": "0x1",
                 "intent": "0x7b070947b100541ee509498b6ed3d0baa108cc0911b0fbcd35010a7038171c90"
               }
             ],
-            "result": "1 payment transaction: nonce 10 block 61 status 0x1 (debit); -25 TEST",
+            "result": "1 payment transaction: nonce 10 block 62 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.11s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.04s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.06s",
-              "confirmed \"Confirmed\" at +0.82s"
+              "idle \"No payment yet\" at -0.18s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
+              "confirmed \"Confirmed\" at +0.80s"
             ]
           },
           {
@@ -2162,29 +2160,29 @@
             "blocks": 5,
             "payments": [
               {
-                "tx": "0x641128cf0e8468303aa14cd8e6f57d86755e6556d90fdbc50606f9d3f70d8664",
+                "tx": "0x0f77a20223d29994fd54835463a1d96d1f2477f987f8a54533f821d5714a4ff0",
                 "nonce": 12,
-                "block": 70,
+                "block": 71,
                 "status": "0x1",
                 "intent": "0x7cde35172ba4db65e8ec4c5e2e593733f15135d000dce046c7f46446e1a40b71"
               },
               {
-                "tx": "0x7036b62ea1c0acd76a47aa6911206c9afc7329a923cf1e6183cfd157c98d4d4e",
+                "tx": "0x95e9604c997eaef9990d98d8e78d4412743aa7a2a4e12fcae94476b24a820c70",
                 "nonce": 13,
-                "block": 70,
+                "block": 71,
                 "status": "0x0",
                 "intent": "0x7cde35172ba4db65e8ec4c5e2e593733f15135d000dce046c7f46446e1a40b71",
                 "reason": "OrderAlreadyPaid()"
               }
             ],
-            "result": "2 payment transactions: nonce 12 block 70 status 0x1 (debit), nonce 13 block 70 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
+            "result": "2 payment transactions: nonce 12 block 71 status 0x1 (debit), nonce 13 block 71 status 0x0 (OrderAlreadyPaid(), no debit); -25 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
             "ui_history": [
-              "idle \"No payment yet\" at -0.13s",
+              "idle \"No payment yet\" at -0.14s",
               "awaiting-signature \"Waiting for your wallet\" at +0.03s",
               "error \"Something went wrong\" at +0.03s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.26s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.26s",
-              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +1.03s"
+              "awaiting-signature \"Waiting for your wallet\" at +0.30s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.30s",
+              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +1.07s"
             ]
           },
           {
@@ -2193,24 +2191,24 @@
             "blocks": 7,
             "payments": [
               {
-                "tx": "0x5a628215f700fb7e9c0221b0305c1553033a2e9b0a5e0d4fc8b0775285608907",
+                "tx": "0xbbf6305954196501762fbc0b7ab626262a5a203e3fc0ed35b5a35c33e0a1f20f",
                 "nonce": 15,
-                "block": 79,
+                "block": 80,
                 "status": "0x1",
                 "intent": "0x88736df3f0307f4a0bf035ec8fa8dd22dbba6dda73336f0ef9859d3f3b23bca0"
               }
             ],
-            "result": "1 payment transaction: nonce 15 block 79 status 0x1 (debit); -25 TEST",
+            "result": "1 payment transaction: nonce 15 block 80 status 0x1 (debit); -25 TEST",
             "retry_button": "Check status again",
             "ui_history": [
-              "idle \"No payment yet\" at -0.12s",
+              "idle \"No payment yet\" at -0.13s",
               "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-              "unknown \"Status unknown: the network did not answer\" at +0.54s",
-              "submitted \"Pending: waiting for the network to include it\" at +1.50s",
-              "confirmed \"Confirmed\" at +1.51s"
+              "submitted \"Pending: waiting for the network to include it\" at +0.04s",
+              "unknown \"Status unknown: the network did not answer\" at +0.55s",
+              "submitted \"Pending: waiting for the network to include it\" at +1.47s",
+              "confirmed \"Confirmed\" at +1.48s"
             ],
-            "block_mined_at_s": 1.44
+            "block_mined_at_s": 1.42
           },
           {
             "scenario": "Pay during unknown",
@@ -2218,19 +2216,19 @@
             "blocks": 6,
             "payments": [
               {
-                "tx": "0x51787ebdc70f937faadbcea768148cb6e5f46d9d878da2fcc73400b0d07a76aa",
+                "tx": "0x554842879f6c24e2047d0cfc570e478e61b97754bf1a1ac3e8e9a0daa9df5f33",
                 "nonce": 17,
-                "block": 90,
+                "block": 91,
                 "status": "0x1",
                 "intent": "0xcd3aad948ac672f57f943ba4be80cf7bb19ab22d00e73ef9d0d7df96ee4397b7"
               }
             ],
-            "result": "1 payment transaction: nonce 17 block 90 status 0x1 (debit); -25 TEST",
+            "result": "1 payment transaction: nonce 17 block 91 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.13s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.07s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.08s",
-              "unknown \"Status unknown: the network did not answer\" at +0.58s"
+              "idle \"No payment yet\" at -0.18s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.04s",
+              "unknown \"Status unknown: the network did not answer\" at +0.54s"
             ]
           },
           {
@@ -2239,43 +2237,43 @@
             "blocks": 8,
             "payments": [
               {
-                "tx": "0x70a98b9e4b0892c2b7aa94988763319713ac35f6064067e4430da16aa0855703",
+                "tx": "0x81790d50db189de3d0ba9aece102d59caf7efb85c325e20a88fb7122874e6347",
                 "nonce": 19,
-                "block": 99,
+                "block": 100,
                 "status": "0x1",
                 "intent": "0x6a17307f5b5654580321873931892038656432125e88dfb712b30e3ff5ab3e6f"
               }
             ],
-            "result": "1 payment transaction: nonce 19 block 99 status 0x1 (debit); -25 TEST",
+            "result": "1 payment transaction: nonce 19 block 100 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at +0.65s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.69s",
-              "unknown \"Status unknown: the network did not answer\" at +1.21s"
+              "idle \"No payment yet\" at +0.66s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.70s",
+              "unknown \"Status unknown: the network did not answer\" at +1.22s"
             ]
           },
           {
-            "scenario": "Pay from a second device",
+            "scenario": "Pay from a second device, 40 days later on the chain clock",
             "ordering": "after the first payment landed",
-            "blocks": 9,
+            "blocks": 10,
             "payments": [
               {
-                "tx": "0x4cc14d0dd84047569dd0ddff0f5fd7820d5e2975ef707afbde7376a4a4cf8831",
+                "tx": "0x13f52cce6854a95ab1569dfacc18e2bdf3989e30715135da9c7160f3ff1de5a2",
                 "nonce": 21,
-                "block": 113,
+                "block": 114,
                 "status": "0x1",
                 "intent": "0x02625f14298c476206ab201da36d47aa409151a61448cf5dca3b92bff947f4da"
               }
             ],
-            "result": "1 payment transaction: nonce 21 block 113 status 0x1 (debit); -25 TEST",
+            "result": "1 payment transaction: nonce 21 block 114 status 0x1 (debit); -25 TEST",
             "ui_history": [
-              "idle \"No payment yet\" at -0.14s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "submitted \"Pending: waiting for the network to include it\" at +0.04s",
-              "unknown \"Status unknown: the network did not answer\" at +0.54s"
+              "idle \"No payment yet\" at -0.15s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.07s",
+              "submitted \"Pending: waiting for the network to include it\" at +0.08s",
+              "unknown \"Status unknown: the network did not answer\" at +0.59s"
             ],
             "second_device_history": [
               "idle \"No payment yet\" at +2.06s",
-              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +2.13s"
+              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +2.14s"
             ]
           },
           {
@@ -2284,19 +2282,19 @@
             "blocks": 5,
             "payments": [
               {
-                "tx": "0x8dbe5dbbd249f3c018bc9d5edea7df5ea9c991eef9de3029699ac033f7ea3dbd",
+                "tx": "0x75c0ebc43e3ca37e78def203117de1bdf1f3214dbe0fbaf4f132a692ac525554",
                 "nonce": 23,
-                "block": 125,
+                "block": 127,
                 "status": "0x1",
                 "intent": "0x4e128079478a1abb8390dddc7d94951e6ad7876e0271a89dd072b5fde4d49962"
               }
             ],
-            "result": "1 payment transaction: nonce 23 block 125 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
+            "result": "1 payment transaction: nonce 23 block 127 status 0x1 (debit); -25 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Already paid: this order went through in an earlier transaction. No second debit.\", at the end: \"Already paid: this order went through in an earlier transaction. No second debit.\"",
             "ui_history": [
-              "idle \"No payment yet\" at -0.13s",
-              "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-              "error \"Something went wrong\" at +0.03s",
-              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.92s"
+              "idle \"No payment yet\" at -0.18s",
+              "awaiting-signature \"Waiting for your wallet\" at +0.05s",
+              "error \"Something went wrong\" at +0.05s",
+              "already-paid \"Already paid: this order went through in an earlier transaction. No second debit.\" at +0.89s"
             ]
           }
         ],
@@ -2313,17 +2311,17 @@
         "ui_history": [
           "idle \"No payment yet\" at -0.14s",
           "awaiting-signature \"Waiting for your wallet\" at +0.03s",
-          "submitted \"Pending: waiting for the network to include it\" at +0.04s",
-          "unknown \"Status unknown: the network did not answer\" at +0.55s",
-          "submitted \"Pending: waiting for the network to include it\" at +0.85s",
+          "submitted \"Pending: waiting for the network to include it\" at +0.03s",
+          "unknown \"Status unknown: the network did not answer\" at +0.54s",
+          "submitted \"Pending: waiting for the network to include it\" at +0.84s",
           "confirmed \"Confirmed\" at +2.13s"
         ],
-        "retry_block_mined_at_s": 1.93,
+        "retry_block_mined_at_s": 1.91,
         "screenshot": "evidence/corrected/C09-moving-after-retry.png",
         "contract_replays": {
           "same_order": {
-            "tx": "0x6b61924b7e4500be603f2d98d7fbc36542c58f0d42b0d00bbfa968094650e21f",
-            "block": 129,
+            "tx": "0xaf70aa34a3ee0e52b3141d1108f2c2e0c39a20aab15f44aa8cadfda4c64e8ed3",
+            "block": 131,
             "order": "0xed1d1c9b686c88c014afad3b5dd6d9c47ec3357b347b0888d552dc6797b8f40f",
             "status": "0x0",
             "error": "OrderAlreadyPaid()",
@@ -2331,8 +2329,8 @@
             "wanted": "OrderAlreadyPaid"
           },
           "other_id": {
-            "tx": "0xffebfdefc1ee9b91693edf6c1962f2a0ca08dd2d0e603d363d6fa967534d8005",
-            "block": 130,
+            "tx": "0xd15bfebd3581832e4cf667918ee64171c2fddc5e6545560ef63b2a00d353e37f",
+            "block": 132,
             "order": "0x73fd72e90a0334a555fac5cc3fcc72446bad4194f6b4f114014ef81c61cb1b07",
             "status": "0x0",
             "error": "NotCurrentOrder()",
@@ -2342,18 +2340,18 @@
           "path": "eth_sendTransaction straight to the node, no interface"
         }
       },
-      "blocks": 121,
-      "empty_blocks": 97,
+      "blocks": 123,
+      "empty_blocks": 98,
       "blocks_before_gestures": 66,
-      "duration_s": 31.82,
+      "duration_s": 33.14,
       "trace": {
         "rule": {
           "text": "One order, at most one debit.",
           "fictitious": false
         },
         "allowed": "Check the same transaction again. While the first payment waits, a duplicate that the contract reverts: it costs gas and moves no TEST.",
-        "forbidden": "A second debit for the same order, whatever the number of blocks, devices, reloads or wallet errors.",
-        "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
+        "forbidden": "A second debit for the same order, in any of the pay-again situations this check runs.",
+        "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid, and once the first payment landed the chain clock moves 40 days before the second device opens. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
         "layer": "interface + chain",
         "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; each pay-again done while the first payment waits and again after it landed; waits with a deadline; direct block and mempool scan; direct contract calls"
       }
@@ -2402,7 +2400,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 2 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -2419,7 +2417,7 @@
       "blocks": 4,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 0.4,
+      "duration_s": 0.37,
       "trace": {
         "rule": {
           "text": "Only the admin edits the allowlist.",
@@ -2476,7 +2474,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "0 confirmed moments on 2 tab(s) (0 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -2493,7 +2491,7 @@
       "blocks": 8,
       "empty_blocks": 4,
       "blocks_before_gestures": 4,
-      "duration_s": 0.47,
+      "duration_s": 0.62,
       "trace": {
         "rule": {
           "text": "Only the admin edits the allowlist.",
@@ -2550,7 +2548,7 @@
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "2 confirmed moments on 1 tab(s) (2 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
@@ -2562,7 +2560,7 @@
       "blocks": 2,
       "empty_blocks": 0,
       "blocks_before_gestures": 0,
-      "duration_s": 0.69,
+      "duration_s": 3.68,
       "trace": {
         "rule": {
           "text": "Revoked access ends once the revocation is indexed.",
@@ -2572,7 +2570,7 @@
         "forbidden": "Serving the data after the revocation is mined and indexed.",
         "criterion": "With the reader's identity simulated by a request header (the demo has no reader sign-in), the API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
         "layer": "chain + API",
-        "method": "Playwright revoke, indexer catch-up, API requests; the reader's identity is simulated by a request header"
+        "method": "Playwright revoke held 3 s in the mempool before its block, indexer catch-up, API requests; the reader's identity is simulated by a request header"
       }
     },
     {
@@ -2612,26 +2610,26 @@
         {
           "name": "api_refuses_after_revoke",
           "ok": true,
-          "observed": "HTTP 403 at indexed block 16",
-          "expected": "HTTP 403 once block 16 is indexed"
+          "observed": "HTTP 403 at indexed block 19",
+          "expected": "HTTP 403 once block 19 is indexed"
         },
         {
           "name": "no_confirmed_before_receipt_block",
           "ok": true,
           "observed": "2 confirmed moments on 1 tab(s) (2 on the status line, 0 elsewhere on the page), each after its block",
-          "expected": "every confirmed moment, on the status line or anywhere on the page, after the block holding its receipt"
+          "expected": "on the status line, confirmed after the block holding the receipt it names; elsewhere on the page, confirmed only while no transaction of the account waits outside a block"
         }
       ],
       "evidence": {
-        "revoke_block": 16,
+        "revoke_block": 19,
         "api_before": 200,
         "api_after": 403,
         "reader_identity": "simulated: declared in the x-reader-address request header, no reader sign-in"
       },
-      "blocks": 7,
-      "empty_blocks": 5,
+      "blocks": 10,
+      "empty_blocks": 8,
       "blocks_before_gestures": 5,
-      "duration_s": 0.82,
+      "duration_s": 3.69,
       "trace": {
         "rule": {
           "text": "Revoked access ends once the revocation is indexed.",
@@ -2641,7 +2639,7 @@
         "forbidden": "Serving the data after the revocation is mined and indexed.",
         "criterion": "With the reader's identity simulated by a request header (the demo has no reader sign-in), the API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
         "layer": "chain + API",
-        "method": "Playwright revoke, indexer catch-up, API requests; the reader's identity is simulated by a request header"
+        "method": "Playwright revoke held 3 s in the mempool before its block, indexer catch-up, API requests; the reader's identity is simulated by a request header"
       }
     }
   ],
@@ -2652,7 +2650,7 @@
     },
     {
       "item": "Notifications outside the page",
-      "why": "I1 covers the status line, every other visible text on the page, the tab title and alert or confirm dialogs. Browser or system notifications, sounds, and the wallet's own popups are not observed."
+      "why": "I1 covers the status line, the rest of the status card, every other visible text on the page, the tab title and alert or confirm dialogs. Browser or system notifications, sounds, and the wallet's own popups are not observed."
     },
     {
       "item": "A duplicate sent while the first payment still waits, from a device that does not know about it",
@@ -2664,7 +2662,7 @@
     },
     {
       "item": "Economic and security audit of the contract",
-      "why": "The checks exercise three rules the contract enforces on its own (allowlist, admin role, at most one debit per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+      "why": "The checks exercise three rules the contract enforces on its own (allowlist, admin role, at most one debit per order). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
     },
     {
       "item": "Gas spikes and congestion on a public network",
