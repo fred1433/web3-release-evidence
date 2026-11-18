@@ -225,6 +225,7 @@ class RpcProxy:
         self.counts = {}
         self.events = []  # writes, signatures and cut calls, with time
         self.lookups = []  # every receipt or transaction lookup the app made, with its hash
+        self.refused = []  # eth_sendTransaction calls the node answered with an error
         self.lock = threading.Lock()
         proxy = self
 
@@ -270,6 +271,14 @@ class RpcProxy:
                 self.send_header('content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(out)
+                if method == 'eth_sendTransaction':
+                    try:
+                        err = json.loads(out).get('error')
+                    except Exception:
+                        err = None
+                    if err:  # the node refused it: nothing was sent
+                        with proxy.lock:
+                            proxy.refused.append({'t': int(time.time() * 1000), 'error': str(err.get('message'))[:200]})
 
         self.port = free_port()
         self.url = f'http://127.0.0.1:{self.port}'
@@ -283,6 +292,7 @@ class RpcProxy:
             self.counts = {}
             self.events = []
             self.lookups = []
+            self.refused = []
 
     def cut(self, *methods):
         with self.lock:

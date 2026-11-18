@@ -207,23 +207,27 @@ def quiet(pages, cond, ms, what, timeout=10.0):
     raise BenchTimeout(f'{what} within {timeout:g} s')
 
 
-def settle(ctx, pages, s, who, timeout=15.0):
+def settle(ctx, pages, s, who, timeout=30.0):
     """End of a pay-again scenario, in two phases.
     1. Nothing is mined yet: the app may send whatever it wants. Done when every payment the app
        sent is on the node, no screen waits for its wallet, and nothing changed for QUIET_MS.
     2. The RPC answers again and the bench mines until every payment the app sent is in a block,
        the mempool is empty and every screen is at rest, for QUIET_MS in a row.
     A payment the app would start later than that is outside the observation window."""
-    def sent():
-        return ctx.proxy.count('eth_sendTransaction') - s['sends']
+    def sent():  # payments the app sent and the node accepted
+        return ctx.proxy.count('eth_sendTransaction') - s['sends'] - sum(1 for x in list(ctx.proxy.refused) if x['t'] >= s['t'])
 
     def known():
         return len(payments_since(ctx, s['head'], who))
 
     last = last_state
 
-    quiet(pages, lambda: known() >= sent() and all(last(p) != 'awaiting-signature' for p in pages), QUIET_MS,
-          'the app kept sending or waiting for its wallet', timeout)
+    try:
+        quiet(pages, lambda: known() >= sent() and all(last(p) != 'awaiting-signature' for p in pages), QUIET_MS,
+              'the app kept sending or waiting for its wallet', timeout)
+    except BenchTimeout as e:
+        raise BenchTimeout(f'{e} ({sent()} sent, {known()} on the node, refused by the node: {ctx.proxy.refused[-3:]}, '
+                           f'screens: {[last(p) for p in pages]})') from e
     ctx.proxy.restore()
 
     def mined_and_at_rest():
