@@ -1,8 +1,8 @@
 {
-  "finished": "2026-11-18 16:19:19 UTC",
-  "commit": "082cc5abbf32bc2a853aa1dd8b864729e3d8f75e",
-  "as_expected": 18,
-  "total": 18,
+  "finished": "2026-11-18 19:28:38 UTC",
+  "commit": "92d79fee2b8ec871b8898d09a6baee68617cc591",
+  "as_expected": 29,
+  "total": 29,
   "mutants": [
     {
       "id": "late_d1",
@@ -13,14 +13,28 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C08/moving": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ]
       },
       "errors": {},
-      "duration_s": 49.0
+      "not_one_debit": [],
+      "duration_s": 210.7,
+      "by_regime": {
+        "still": [
+          "C08"
+        ],
+        "moving": [
+          "C08"
+        ]
+      }
     },
     {
       "id": "unknown_then_confirmed",
@@ -31,14 +45,28 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C08/moving": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ]
       },
       "errors": {},
-      "duration_s": 29.3
+      "not_one_debit": [],
+      "duration_s": 138.2,
+      "by_regime": {
+        "still": [
+          "C08"
+        ],
+        "moving": [
+          "C08"
+        ]
+      }
     },
     {
       "id": "label_lies",
@@ -49,18 +77,40 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "outage_shown_as_unknown",
+          "outage_shown_as_unknown_after_it_landed",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/moving": [
+          "outage_shown_as_unknown",
+          "outage_shown_as_unknown_after_it_landed",
           "no_confirmed_before_receipt_block"
         ]
       },
       "errors": {},
-      "duration_s": 29.7
+      "not_one_debit": [],
+      "duration_s": 138.7,
+      "by_regime": {
+        "still": [
+          "C08",
+          "C09"
+        ],
+        "moving": [
+          "C08",
+          "C09"
+        ]
+      }
     },
     {
       "id": "m1_confirm_on_retry",
@@ -71,12 +121,182 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
+        "C09/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/moving": [
           "no_confirmed_before_receipt_block"
         ]
       },
       "errors": {},
-      "duration_s": 29.9
+      "not_one_debit": [],
+      "duration_s": 149.5,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
+    },
+    {
+      "id": "n1_d1_optimistic_2s",
+      "breaks": "D1",
+      "what": "Reviewer: RPC healthy, no receipt for 2 s, Confirmed if the node knows the transaction.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C07/still": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C07/moving": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 153.3,
+      "by_regime": {
+        "still": [
+          "C07"
+        ],
+        "moving": [
+          "C07"
+        ]
+      }
+    },
+    {
+      "id": "n1b_d1_optimistic_5s",
+      "breaks": "D1",
+      "what": "Reviewer: the same after 5 s.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C07/still": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C07/moving": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 153.2,
+      "by_regime": {
+        "still": [
+          "C07"
+        ],
+        "moving": [
+          "C07"
+        ]
+      }
+    },
+    {
+      "id": "n2_d1_toast",
+      "breaks": "D1",
+      "what": "Reviewer: a toast outside the status line says Payment confirmed as soon as the transaction is sent.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C04/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C04/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C06/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C06/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C07/still": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C07/moving": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C08/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C08/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/moving": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C11/still": [
+          "no_confirmed_before_receipt_block"
+        ],
+        "C11/moving": [
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 143.1,
+      "by_regime": {
+        "still": [
+          "C04",
+          "C06",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ],
+        "moving": [
+          "C04",
+          "C06",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ]
+      }
+    },
+    {
+      "id": "confirm_on_next_block",
+      "breaks": "D1",
+      "what": "Confirmed as soon as any new block arrives after sending, whether or not it holds the payment. Only the moving chain can catch it: on the still chain the next block is always the one with the payment.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C07/moving": [
+          "no_confirmed_before_block",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/moving": [
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 142.1,
+      "by_regime": {
+        "still": [],
+        "moving": [
+          "C07",
+          "C09"
+        ]
+      }
     },
     {
       "id": "weak_d2",
@@ -87,13 +307,26 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C10": [
+        "C10/still": [
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
       "errors": {},
-      "duration_s": 30.1
+      "not_one_debit": [],
+      "duration_s": 139.3,
+      "by_regime": {
+        "still": [
+          "C10"
+        ],
+        "moving": [
+          "C10"
+        ]
+      }
     },
     {
       "id": "allowlisted_admin",
@@ -104,14 +337,28 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C10": [
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
       "errors": {},
-      "duration_s": 29.4
+      "not_one_debit": [],
+      "duration_s": 138.9,
+      "by_regime": {
+        "still": [
+          "C10"
+        ],
+        "moving": [
+          "C10"
+        ]
+      }
     },
     {
       "id": "wrong_error",
@@ -122,33 +369,48 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C10": [
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove"
         ]
       },
       "errors": {},
-      "duration_s": 29.3
+      "not_one_debit": [],
+      "duration_s": 139.0,
+      "by_regime": {
+        "still": [
+          "C10"
+        ],
+        "moving": [
+          "C10"
+        ]
+      }
     },
     {
       "id": "no_retry",
       "breaks": "D3",
-      "what": "No retry button after status unknown.",
-      "expected": "Blocked",
-      "outcome": "Blocked",
+      "what": "No retry button after status unknown. The bench waits for the button until its deadline, so a missing button ends Incomplete, not Blocked (it was Blocked before every appearance got a deadline).",
+      "expected": "Incomplete",
+      "outcome": "Incomplete",
       "as_expected": true,
-      "exit": 1,
-      "failed_assertions": {
-        "C09": [
-          "retry_offered",
-          "retry_checks_same_transaction",
-          "screen_ends_confirmed"
-        ]
-      },
+      "exit": 3,
+      "failed_assertions": {},
       "errors": {
-        "C08": "BenchTimeout: the screen did not end on confirmed within 10 s"
+        "C08/still": "BenchTimeout: after the block the screen neither ended the payment nor offered to check again within 10 s",
+        "C08/moving": "BenchTimeout: after the block the screen neither ended the payment nor offered to check again within 10 s",
+        "C09/still": "BenchTimeout: no retry button on screen after status unknown within 8 s",
+        "C09/moving": "BenchTimeout: no retry button on screen after status unknown within 8 s"
       },
-      "duration_s": 37.9
+      "not_one_debit": [],
+      "duration_s": 118.2,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
     },
     {
       "id": "retry_noop",
@@ -160,10 +422,17 @@
       "exit": 3,
       "failed_assertions": {},
       "errors": {
-        "C08": "BenchTimeout: the screen did not end on confirmed within 10 s",
-        "C09": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s"
+        "C08/still": "BenchTimeout: the status line did not end the payment within 10 s",
+        "C08/moving": "BenchTimeout: the status line did not end the payment within 10 s",
+        "C09/still": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s",
+        "C09/moving": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s"
       },
-      "duration_s": 36.8
+      "not_one_debit": [],
+      "duration_s": 121.9,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
     },
     {
       "id": "pay_unlocked",
@@ -174,111 +443,536 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
-          "pay_locked_while_unknown"
+        "C09/still": [
+          "pay_locked_while_unknown",
+          "pay_locked_while_unknown_after_it_landed"
+        ],
+        "C09/moving": [
+          "pay_locked_while_unknown",
+          "pay_locked_while_unknown_after_it_landed"
         ]
       },
       "errors": {},
-      "duration_s": 30.1
+      "not_one_debit": [],
+      "duration_s": 138.7,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
     },
     {
       "id": "no_storage",
       "breaks": "D3",
-      "what": "Nothing survives a reload: the transaction in progress is kept in memory only.",
+      "what": "Nothing survives a reload: the payment in progress is kept in memory only.",
       "expected": "Blocked",
       "outcome": "Blocked",
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
+        "C09/still": [
+          "reload_resumes_same_transaction"
+        ],
+        "C09/moving": [
           "reload_resumes_same_transaction"
         ]
       },
       "errors": {},
-      "duration_s": 29.8
+      "not_one_debit": [],
+      "duration_s": 137.3,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
     },
     {
-      "id": "contract_no_intent",
+      "id": "contract_no_paid_check",
       "breaks": "D3",
-      "what": "The contract no longer refuses a paid intent.",
+      "what": "The contract no longer refuses a second payment of a paid order.",
       "expected": "Blocked",
       "outcome": "Blocked",
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
+        "C09/still": [
           "second_device_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "contract_refuses_same_order"
+        ],
+        "C09/moving": [
+          "second_device_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_order"
         ]
       },
       "errors": {},
-      "duration_s": 30.0
+      "not_one_debit": [
+        "C09/still, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 7 block 16 status 0x1 (debit), nonce 8 block 16 status 0x1 (debit); -50 TEST",
+        "C09/still, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 13 block 20 status 0x1 (debit), nonce 14 block 20 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Confirmed\"",
+        "C09/moving, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 7 block 54 status 0x1 (debit), nonce 8 block 54 status 0x1 (debit); -50 TEST",
+        "C09/moving, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 13 block 71 status 0x1 (debit), nonce 14 block 71 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Confirmed\""
+      ],
+      "duration_s": 139.1,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
     },
     {
-      "id": "retry_repays_same_intent",
+      "id": "contract_trusts_order_id",
       "breaks": "D3",
-      "what": "The retry pays again with the same intent: one debit, one reverted duplicate.",
+      "what": "The contract refuses a paid order id, but accepts any id the caller sends instead of the open order.",
       "expected": "Blocked",
       "outcome": "Blocked",
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment"
+        "C09/still": [
+          "contract_refuses_other_order_id"
+        ],
+        "C09/moving": [
+          "contract_refuses_other_order_id"
+        ]
+      },
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 137.1,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
+    },
+    {
+      "id": "n3_d3_order_per_block",
+      "breaks": "D3",
+      "what": "Reviewer, on this contract: orderOf also hashes block.number, so the order id changes with every block.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C04/still": [
+          "payment_confirmed"
+        ],
+        "C04/moving": [
+          "payment_confirmed"
+        ],
+        "C07/still": [
+          "receipt_status_1",
+          "tokens_moved_once",
+          "grant_active_on_chain",
+          "api_matches_chain"
+        ],
+        "C07/moving": [
+          "receipt_status_1",
+          "tokens_moved_once",
+          "grant_active_on_chain",
+          "api_matches_chain"
+        ],
+        "C08/still": [
+          "ends_confirmed_after_block"
+        ],
+        "C08/moving": [
+          "ends_confirmed_after_block"
+        ],
+        "C09/still": [
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_during_unknown_debits_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed"
+        ],
+        "C09/moving": [
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_during_unknown_debits_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed"
+        ],
+        "C11/still": [
+          "payment_confirmed",
+          "api_serves_reader_while_active"
+        ],
+        "C11/moving": [
+          "payment_confirmed",
+          "api_serves_reader_while_active"
         ]
       },
       "errors": {
-        "C08": "BenchTimeout: the screen did not end on confirmed within 10 s",
-        "C09": "BenchTimeout: the screen did not end on confirmed within 10 s"
+        "C09/still": "BenchError: no payment from scenario 1 to replay",
+        "C09/moving": "BenchError: no payment from scenario 1 to replay",
+        "C11/still": "BenchTimeout: no Revoke button for grant #1 within 8 s",
+        "C11/moving": "BenchTimeout: no Revoke button for grant #1 within 8 s"
       },
-      "duration_s": 38.2
+      "not_one_debit": [
+        "C09/still, retry after status unknown, while the first payment waits: 1 payment transaction: nonce 1 block 10 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay during unknown, while the first payment waits: 1 payment transaction: nonce 2 block 11 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 12 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 4 block 13 status 0x0 (NotCurrentOrder(), no debit), nonce 5 block 13 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, double click, while the first payment waits: 1 payment transaction: nonce 6 block 14 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 7 block 15 status 0x0 (NotCurrentOrder(), no debit), nonce 8 block 15 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/still, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 16 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 18 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 19 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 20 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 21 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 22 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/moving, retry after status unknown, while the first payment waits: 1 payment transaction: nonce 1 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay during unknown, while the first payment waits: 1 payment transaction: nonce 2 block 26 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 38 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 4 block 51 status 0x0 (NotCurrentOrder(), no debit), nonce 5 block 51 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, double click, while the first payment waits: 1 payment transaction: nonce 6 block 57 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 7 block 65 status 0x0 (NotCurrentOrder(), no debit), nonce 8 block 66 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/moving, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 74 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 84 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 92 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 105 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 111 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 118 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 128 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\""
+      ],
+      "duration_s": 168.6,
+      "by_regime": {
+        "still": [
+          "C04",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ],
+        "moving": [
+          "C04",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ]
+      }
     },
     {
-      "id": "browser_intent",
+      "id": "previous_corrected_e5008da",
       "breaks": "D3",
-      "what": "The intent is made in the browser again instead of being asked from the contract.",
+      "what": "The corrected app of commit e5008da, unchanged: its intent counted the payments already made, so once the first payment was in a block a second Pay (second device, or after a wallet error) was a new intent. A reviewer showed -50 TEST on it.",
       "expected": "Blocked",
       "outcome": "Blocked",
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
+        "C09/still": [
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C09/moving": [
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ]
+      },
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "not_one_debit": [
+        "C09/still, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 21 block 28 status 0x1 (debit), nonce 22 block 29 status 0x1 (debit); -50 TEST",
+        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 25 block 31 status 0x1 (debit), nonce 26 block 32 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Confirmed\"",
+        "C09/moving, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 21 block 113 status 0x1 (debit), nonce 22 block 119 status 0x1 (debit); -50 TEST",
+        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 25 block 127 status 0x1 (debit), nonce 26 block 137 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Confirmed\""
+      ],
+      "duration_s": 152.6,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
+    },
+    {
+      "id": "no_paid_check",
+      "breaks": "D3",
+      "what": "The app never asks the contract whether the order is paid: after a wallet error it reopens Pay and sends a duplicate, which the contract reverts.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09/still": [
+          "second_device_sends_nothing_once_paid",
+          "wallet_error_then_pay_sends_nothing_once_paid"
+        ],
+        "C09/moving": [
+          "second_device_sends_nothing_once_paid",
+          "wallet_error_then_pay_sends_nothing_once_paid"
+        ]
+      },
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "not_one_debit": [],
+      "duration_s": 154.1,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
+    },
+    {
+      "id": "retry_repays_same_order",
+      "breaks": "D3",
+      "what": "The retry pays again with the same order: one debit, one reverted duplicate.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C08/still": [
+          "ends_confirmed_after_block"
+        ],
+        "C08/moving": [
+          "ends_confirmed_after_block"
+        ],
+        "C09/still": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "pay_locked_while_unknown"
+        ],
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "pay_locked_while_unknown"
+        ]
+      },
+      "errors": {
+        "C09/still": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s",
+        "C09/moving": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s"
+      },
+      "not_one_debit": [],
+      "duration_s": 135.5,
+      "by_regime": {
+        "still": [
+          "C08",
+          "C09"
+        ],
+        "moving": [
+          "C08",
+          "C09"
+        ]
+      }
+    },
+    {
+      "id": "browser_order",
+      "breaks": "D3",
+      "what": "The order id is made in the browser again instead of being asked from the contract.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C04/still": [
+          "payment_confirmed"
+        ],
+        "C04/moving": [
+          "payment_confirmed"
+        ],
+        "C07/still": [
+          "receipt_status_1",
+          "tokens_moved_once",
+          "grant_active_on_chain",
+          "api_matches_chain"
+        ],
+        "C07/moving": [
+          "receipt_status_1",
+          "tokens_moved_once",
+          "grant_active_on_chain",
+          "api_matches_chain"
+        ],
+        "C08/still": [
+          "ends_confirmed_after_block"
+        ],
+        "C08/moving": [
+          "ends_confirmed_after_block"
+        ],
+        "C09/still": [
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_during_unknown_debits_once",
+          "reload_then_pay_debits_once",
           "second_device_debits_once",
-          "wallet_error_then_pay_debits_once"
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed"
+        ],
+        "C09/moving": [
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_during_unknown_debits_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed"
+        ],
+        "C11/still": [
+          "payment_confirmed",
+          "api_serves_reader_while_active"
+        ],
+        "C11/moving": [
+          "payment_confirmed",
+          "api_serves_reader_while_active"
         ]
       },
-      "errors": {},
-      "duration_s": 30.9
+      "errors": {
+        "C09/still": "BenchError: no payment from scenario 1 to replay",
+        "C09/moving": "BenchError: no payment from scenario 1 to replay",
+        "C11/still": "BenchTimeout: no Revoke button for grant #1 within 8 s",
+        "C11/moving": "BenchTimeout: no Revoke button for grant #1 within 8 s"
+      },
+      "not_one_debit": [
+        "C09/still, retry after status unknown, while the first payment waits: 1 payment transaction: nonce 1 block 10 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay during unknown, while the first payment waits: 1 payment transaction: nonce 2 block 11 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 12 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 4 block 13 status 0x0 (NotCurrentOrder(), no debit), nonce 5 block 14 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, double click, while the first payment waits: 1 payment transaction: nonce 6 block 15 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 7 block 16 status 0x0 (NotCurrentOrder(), no debit), nonce 8 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/still, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 18 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 19 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 20 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 21 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 22 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/still, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 23 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 24 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/moving, retry after status unknown, while the first payment waits: 1 payment transaction: nonce 1 block 17 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay during unknown, while the first payment waits: 1 payment transaction: nonce 2 block 26 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, reload, then Pay, while the first payment waits: 1 payment transaction: nonce 3 block 39 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay from a second device, while the first payment waits: 2 payment transactions: nonce 4 block 52 status 0x0 (NotCurrentOrder(), no debit), nonce 5 block 53 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, double click, while the first payment waits: 1 payment transaction: nonce 6 block 59 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, while the first payment waits: 2 payment transactions: nonce 7 block 67 status 0x0 (NotCurrentOrder(), no debit), nonce 8 block 68 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\"",
+        "C09/moving, retry after status unknown, after the first payment landed: 1 payment transaction: nonce 9 block 76 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay during unknown, after the first payment landed: 1 payment transaction: nonce 10 block 86 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, reload, then Pay, after the first payment landed: 1 payment transaction: nonce 11 block 94 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay from a second device, after the first payment landed: 2 payment transactions: nonce 12 block 107 status 0x0 (NotCurrentOrder(), no debit), nonce 13 block 113 status 0x0 (NotCurrentOrder(), no debit); -0 TEST",
+        "C09/moving, Pay again after a wallet error, after the first payment landed: 2 payment transactions: nonce 14 block 120 status 0x0 (NotCurrentOrder(), no debit), nonce 15 block 130 status 0x0 (NotCurrentOrder(), no debit); -0 TEST; screen after the wallet error: \"Something went wrong\", once the payment landed: \"Something went wrong\", at the end: \"Failed: the contract rejected the payment\""
+      ],
+      "duration_s": 170.3,
+      "by_regime": {
+        "still": [
+          "C04",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ],
+        "moving": [
+          "C04",
+          "C07",
+          "C08",
+          "C09",
+          "C11"
+        ]
+      }
     },
     {
-      "id": "m3_new_intent_after_wallet_error",
+      "id": "m3_new_order_after_wallet_error",
       "breaks": "D3",
-      "what": "After any wallet error the app forgets the order and makes a new intent in the browser.",
+      "what": "After any wallet error the app forgets the order and makes a new id in the browser.",
       "expected": "Blocked",
       "outcome": "Blocked",
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C09": [
-          "wallet_error_then_pay_debits_once"
+        "C09/still": [
+          "wallet_error_then_pay_sends_nothing_once_paid"
+        ],
+        "C09/moving": [
+          "wallet_error_then_pay_sends_nothing_once_paid"
         ]
       },
       "errors": {},
-      "duration_s": 29.5
+      "not_one_debit": [],
+      "duration_s": 137.0,
+      "by_regime": {
+        "still": [
+          "C09"
+        ],
+        "moving": [
+          "C09"
+        ]
+      }
     },
     {
       "id": "m3_as_written",
       "breaks": "D3",
-      "what": "The reviewer's M3 line as written: the browser record is wiped on any wallet error. The intent no longer lives there, so this changes nothing: the next Pay asks the contract and gets the same intent.",
+      "what": "The M3 line of an earlier review, as written: the browser record is wiped on any wallet error. The order id does not live there, so this changes nothing: the next Pay asks the contract and gets the same order.",
       "expected": "Demonstrated checks passed",
       "outcome": "Demonstrated checks passed",
       "as_expected": true,
       "exit": 0,
       "failed_assertions": {},
       "errors": {},
-      "duration_s": 29.5
+      "not_one_debit": [],
+      "duration_s": 132.7,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
     },
     {
       "id": "m4_slow_retry",
@@ -290,7 +984,63 @@
       "exit": 0,
       "failed_assertions": {},
       "errors": {},
-      "duration_s": 33.7
+      "not_one_debit": [],
+      "duration_s": 144.1,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
+    },
+    {
+      "id": "ok1_retry_after_400ms",
+      "breaks": "waits",
+      "what": "Reviewer: correct app, the retry button appears 400 ms after unknown.",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 134.4,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
+    },
+    {
+      "id": "ok2_banner_after_500ms",
+      "breaks": "waits",
+      "what": "Reviewer: correct app, the wrong-network banner appears 500 ms after chainChanged.",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 135.5,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
+    },
+    {
+      "id": "ok3_wording",
+      "breaks": "D1",
+      "what": "Reviewer: correct app, the pending status reads \"Sent: it will be confirmed once it is in a block\".",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "not_one_debit": [],
+      "duration_s": 133.5,
+      "by_regime": {
+        "still": [],
+        "moving": []
+      }
     },
     {
       "id": "ci_only_d2",
@@ -301,14 +1051,28 @@
       "as_expected": true,
       "exit": 1,
       "failed_assertions": {
-        "C10": [
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
       "errors": {},
-      "duration_s": 29.3
+      "not_one_debit": [],
+      "duration_s": 133.8,
+      "by_regime": {
+        "still": [
+          "C10"
+        ],
+        "moving": [
+          "C10"
+        ]
+      }
     }
   ]
 }

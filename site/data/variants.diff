@@ -1,26 +1,29 @@
 diff -ru variants/faulty/SampleGrants.sol variants/corrected/SampleGrants.sol
---- variants/faulty/SampleGrants.sol	2026-11-18 11:27:43
-+++ variants/corrected/SampleGrants.sol	2026-11-18 12:45:25
-@@ -13,6 +13,10 @@
+--- variants/faulty/SampleGrants.sol	2026-11-18 13:53:17
++++ variants/corrected/SampleGrants.sol	2026-11-18 13:53:05
+@@ -13,6 +13,12 @@
      ITestToken public immutable token;
      uint256 public grantCount;
      mapping(address => bool) public allowlisted;
-+    // At most one debit per intent: an intent id the payer already used is refused.
-+    mapping(address => mapping(bytes32 => bool)) public intentPaid;
-+    // Orders each payer has paid for one reader and one dataset. The next order's intent derives from it.
-+    mapping(address => mapping(address => mapping(bytes32 => uint256))) public ordersPaid;
++    // One order, at most one debit. An order is one payer granting one reader one dataset, for one
++    // access period. Its id never depends on a block number or on a count of payments.
++    mapping(bytes32 => bool) public orderPaid;
++    // Access periods that ended by revocation, per payer, reader and dataset. A revocation closes the
++    // period of a paid order; the next grant of the same reader and dataset is then a new order.
++    mapping(address => mapping(address => mapping(bytes32 => uint256))) public periodsEnded;
  
      struct Grant {
          address owner;
-@@ -31,6 +35,7 @@
+@@ -31,6 +37,8 @@
      error NotAllowlisted();
      error NotGrantOwner();
      error GrantNotActive();
-+    error IntentAlreadyPaid();
++    error OrderAlreadyPaid();
++    error NotCurrentOrder();
  
      modifier onlyAdmin() {
          if (msg.sender != admin) revert NotAdmin();
-@@ -42,15 +47,23 @@
+@@ -42,15 +50,26 @@
          token = token_;
      }
  
@@ -32,74 +35,95 @@ diff -ru variants/faulty/SampleGrants.sol variants/corrected/SampleGrants.sol
          emit Allowlisted(account, allowed);
      }
  
--    // The payment intent id is accepted and not checked: the same intent can be paid twice.
+-    // The order id is accepted and not checked: the same order can be paid twice.
 -    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32) external returns (uint256 grantId) {
-+    /// The intent of the payer's next order for this reader and dataset, derived from the order
-+    /// itself. Until that order is paid, every device, every browser and every retry gets the same id.
-+    function intentFor(address payer, address reader, bytes32 dataset) external view returns (bytes32) {
-+        return keccak256(abi.encode(payer, reader, dataset, ordersPaid[payer][reader][dataset]));
++    /// The id of the payer's open order for this reader and dataset. It is the same on every device, every
++    /// browser and every retry, however many blocks pass, until the order is paid and its grant revoked.
++    function orderOf(address payer, address reader, bytes32 dataset) public view returns (bytes32) {
++        return keccak256(abi.encode(payer, reader, dataset, periodsEnded[payer][reader][dataset]));
 +    }
 +
-+    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32 intent) external returns (uint256 grantId) {
++    /// Pays the order `order`. A second payment of the same order is refused, and so is an id that is
++    /// not the payer's open order for this reader and dataset: the contract, not the interface, keeps
++    /// the rule "one order, at most one debit".
++    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32 order) external returns (uint256 grantId) {
          if (!allowlisted[msg.sender]) revert NotAllowlisted();
-+        if (intentPaid[msg.sender][intent]) revert IntentAlreadyPaid();
-+        intentPaid[msg.sender][intent] = true;
-+        ordersPaid[msg.sender][reader][dataset] += 1;
++        if (orderPaid[order]) revert OrderAlreadyPaid();
++        if (order != orderOf(msg.sender, reader, dataset)) revert NotCurrentOrder();
++        orderPaid[order] = true;
          token.transferFrom(msg.sender, reader, amount);
          grantId = ++grantCount;
          grants[grantId] = Grant(msg.sender, reader, dataset, amount, true);
+@@ -62,6 +81,7 @@
+         if (g.owner != msg.sender) revert NotGrantOwner();
+         if (!g.active) revert GrantNotActive();
+         g.active = false;
++        periodsEnded[msg.sender][g.reader][g.dataset] += 1;
+         emit Revoked(grantId, msg.sender);
+     }
+ }
 diff -ru variants/faulty/flow.js variants/corrected/flow.js
---- variants/faulty/flow.js	2026-11-18 12:45:48
-+++ variants/corrected/flow.js	2026-11-18 12:45:48
-@@ -1,27 +1,43 @@
+--- variants/faulty/flow.js	2026-11-18 13:53:17
++++ variants/corrected/flow.js	2026-11-18 13:53:17
+@@ -1,27 +1,53 @@
  // How the interface follows a payment after the wallet returns a transaction hash.
 -// Faulty version, as shipped before the release review.
 +// Corrected version: "Confirmed" only from a receipt included in a block.
 +// After repeated RPC failures the status is "unknown", and the retry action
 +// checks the SAME transaction again instead of paying a second time.
  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
--const randomIntent = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
+-const randomOrder = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
 -export const RETRY_LABEL = 'Try the payment again';
 +const pad = (hex) => hex.replace(/^0x/, '').padStart(64, '0');
 +export const RETRY_LABEL = 'Check status again';
  
--// No memory of a payment in progress: the Pay button stays active and every click is a new intent,
+-// No memory of a payment in progress: the Pay button stays active and every click is a new order id,
 -// made in the browser.
 -export function createPayments() {
-+// The payment intent is not made in the browser. The contract derives it from the order
-+// (payer, reader, dataset, orders already paid), so every device, every browser and every
-+// retry that pays the same unpaid order sends the same intent, and the contract refuses an
-+// intent that was already paid: at most one debit per order.
-+// The browser only remembers the transaction in progress (localStorage), to lock the Pay
-+// button while it is pending or unknown and to resume following it after a reload.
++// The order id is not made in the browser. The contract derives it from the order itself (payer,
++// reader, dataset, access period), so every device, every browser and every retry that pays the same
++// order sends the same id, however many blocks pass, and the contract refuses a second debit of it.
++// The browser writes the order id down before anything is sent, and the transaction in progress once
++// the wallet returns it (localStorage): that locks the Pay button while a payment is pending or
++// unknown and lets the app follow it again after a reload. Before Pay is opened again, the app asks
++// the contract whether the order is already paid.
 +export function createPayments({ wallet, cfg, storage = window.localStorage }) {
 +  const key = (a) => 'sample-grants:payment:' + a;
 +  const read = (a) => { try { return JSON.parse(storage.getItem(key(a)) || 'null'); } catch (_) { return null; } };
 +  const write = (a, v) => { try { if (v) storage.setItem(key(a), JSON.stringify(v)); else storage.removeItem(key(a)); } catch (_) { /* memory lock still holds */ } };
 +  const call = (data) => wallet.request({ method: 'eth_call', params: [{ to: cfg.grants, data }, 'latest'] });
++  const openOrder = (a) => call(cfg.selectors.orderOf + pad(a) + pad(cfg.reader) + pad(cfg.datasetId));
 +  const inFlight = new Set();
    return {
 -    locked: () => false,
--    begin: async () => randomIntent(),
+-    begin: async () => randomOrder(),
 -    sent() {},
 -    abandon() {},
 -    settled() {},
 -    pending: () => null,
--    intentOf: () => null,
+-    orderOf: () => null,
 -    paid: async () => false,
 +    locked: (a) => inFlight.has(a) || Boolean(read(a)?.hash),
 +    async begin(a) {
 +      inFlight.add(a);
-+      try { return await call(cfg.selectors.intentFor + pad(a) + pad(cfg.reader) + pad(cfg.datasetId)); } catch (e) { inFlight.delete(a); throw e; }
++      try {
++        const order = read(a)?.order || await openOrder(a);
++        write(a, { order });
++        return order;
++      } catch (e) { inFlight.delete(a); throw e; }
 +    },
-+    sent(a, hash, intent) { write(a, { hash, intent }); },
-+    // A refusal sent nothing. Any other error may hide a payment that went out: the next Pay asks the
-+    // contract for the intent again and gets the same one while that payment is unpaid.
++    sent(a, hash, order) { write(a, { order, hash }); },
++    // A refusal sent nothing: the record goes. Any other error may hide a payment that went out: the order
++    // id stays written down, and the next Pay first asks the contract whether that order is paid.
 +    abandon(a, rejected) { inFlight.delete(a); if (rejected) write(a, null); },
 +    settled(a) { inFlight.delete(a); write(a, null); },
 +    pending: (a) => read(a)?.hash || null,
-+    intentOf: (a) => read(a)?.intent || null,
-+    async paid(a, intent) { return Boolean(intent) && BigInt(await call(cfg.selectors.intentPaid + pad(a) + pad(intent))) === 1n; },
++    orderOf: (a) => read(a)?.order || null,
++    // Is this account's order paid? The order written down if there is one, otherwise the open order.
++    async paid(a, order) {
++      const o = order || read(a)?.order || await openOrder(a);
++      return BigInt(await call(cfg.selectors.orderPaid + pad(o))) === 1n;
++    },
    };
  }
  
@@ -110,7 +134,7 @@ diff -ru variants/faulty/flow.js variants/corrected/flow.js
    return null;
  }
  
-@@ -34,22 +50,16 @@
+@@ -34,22 +60,16 @@
        receipt = await wallet.request({ method: 'eth_getTransactionReceipt', params: [hash] });
        failures = 0;
      } catch (e) {
@@ -131,7 +155,7 @@ diff -ru variants/faulty/flow.js variants/corrected/flow.js
      if (receipt && receipt.blockNumber) {
 -      ui.setState(receipt.status === '0x1' ? 'confirmed' : 'reverted', hash);
 +      let state = receipt.status === '0x1' ? 'confirmed' : 'reverted';
-+      // A reverted duplicate is not a failed payment if an earlier transaction paid the same intent.
++      // A reverted duplicate is not a failed payment if an earlier transaction paid the same order.
 +      if (state === 'reverted' && opts.paid) { try { if (await opts.paid()) state = 'already-paid'; } catch (_) { /* stays reverted */ } }
 +      ui.setState(state, hash);
        if (opts.done) opts.done(receipt);

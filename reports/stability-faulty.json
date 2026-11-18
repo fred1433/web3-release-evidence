@@ -1,7 +1,7 @@
 {
   "variant": "faulty",
-  "runs": 20,
-  "commit": "082cc5abbf32bc2a853aa1dd8b864729e3d8f75e",
+  "runs": 10,
+  "commit": "92d79fee2b8ec871b8898d09a6baee68617cc591",
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -13,38 +13,53 @@
   },
   "identical": true,
   "statuses": {
-    "Blocked": 20
+    "Blocked": 10
   },
   "finished": {
-    "utc": "2026-11-18 16:15:35 UTC",
-    "pacific": "2026-11-18 08:15:35 PST"
+    "utc": "2026-11-18 19:02:44 UTC",
+    "pacific": "2026-11-18 11:02:44 PST"
   },
   "detail": [
     {
       "run": 1,
-      "run_id": "faulty-20261118T160517Z",
+      "run_id": "faulty-20261118T183552Z",
       "status": "Blocked",
-      "duration_s": 29.5,
+      "duration_s": 163.6,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -56,41 +71,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 2,
-      "run_id": "faulty-20261118T160547Z",
+      "run_id": "faulty-20261118T183835Z",
       "status": "Blocked",
-      "duration_s": 29.8,
+      "duration_s": 162.0,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -102,41 +189,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 3,
-      "run_id": "faulty-20261118T160616Z",
+      "run_id": "faulty-20261118T184118Z",
       "status": "Blocked",
-      "duration_s": 31.5,
+      "duration_s": 157.6,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -148,41 +307,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 4,
-      "run_id": "faulty-20261118T160648Z",
+      "run_id": "faulty-20261118T184355Z",
       "status": "Blocked",
-      "duration_s": 31.1,
+      "duration_s": 162.6,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -194,41 +425,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 5,
-      "run_id": "faulty-20261118T160719Z",
+      "run_id": "faulty-20261118T184638Z",
       "status": "Blocked",
-      "duration_s": 31.6,
+      "duration_s": 166.8,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -240,41 +543,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 6,
-      "run_id": "faulty-20261118T160751Z",
+      "run_id": "faulty-20261118T184925Z",
       "status": "Blocked",
-      "duration_s": 31.4,
+      "duration_s": 161.7,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -286,41 +661,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 7,
-      "run_id": "faulty-20261118T160822Z",
+      "run_id": "faulty-20261118T185207Z",
       "status": "Blocked",
-      "duration_s": 31.3,
+      "duration_s": 164.9,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -332,41 +779,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 8,
-      "run_id": "faulty-20261118T160854Z",
+      "run_id": "faulty-20261118T185452Z",
       "status": "Blocked",
-      "duration_s": 30.2,
+      "duration_s": 158.3,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -378,41 +897,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 9,
-      "run_id": "faulty-20261118T160924Z",
+      "run_id": "faulty-20261118T185730Z",
       "status": "Blocked",
-      "duration_s": 30.4,
+      "duration_s": 156.9,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -424,41 +1015,113 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C09/moving": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
+        ],
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
+      },
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     },
     {
       "run": 10,
-      "run_id": "faulty-20261118T160954Z",
+      "run_id": "faulty-20261118T190007Z",
       "status": "Blocked",
-      "duration_s": 30.7,
+      "duration_s": 156.7,
       "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+        "C01/still": "passed",
+        "C01/moving": "passed",
+        "C02/still": "passed",
+        "C02/moving": "passed",
+        "C03/still": "passed",
+        "C03/moving": "passed",
+        "C04/still": "passed",
+        "C04/moving": "passed",
+        "C05/still": "passed",
+        "C06/still": "passed",
+        "C06/moving": "passed",
+        "C07/still": "passed",
+        "C07/moving": "passed",
+        "C08/still": "failed",
+        "C08/moving": "failed",
+        "C09/still": "failed",
+        "C09/moving": "failed",
+        "C10/still": "failed",
+        "C10/moving": "failed",
+        "C11/still": "passed",
+        "C11/moving": "passed"
       },
       "failed_assertions": {
-        "C08": [
+        "C08/still": [
           "never_confirmed_without_receipt",
           "outage_shown_as_pending_or_unknown",
           "no_confirmed_before_receipt_block"
         ],
-        "C09": [
+        "C08/moving": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09/still": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -470,41 +1133,24 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 11,
-      "run_id": "faulty-20261118T161025Z",
-      "status": "Blocked",
-      "duration_s": 30.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
+        "C09/moving": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
@@ -516,429 +1162,43 @@
           "second_device_debits_once",
           "double_click_debits_once",
           "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
+          "retry_checks_same_transaction_after_it_landed",
+          "retry_sends_no_new_payment_after_it_landed",
+          "screen_ends_confirmed_after_it_landed",
+          "retry_debits_once_after_it_landed",
+          "pay_locked_while_unknown_after_it_landed",
+          "pay_during_unknown_sends_nothing_once_paid",
+          "pay_during_unknown_debits_once_after_it_landed",
+          "reload_resumes_same_transaction_after_it_landed",
+          "reload_then_pay_sends_nothing_once_paid",
+          "reload_then_pay_debits_once_after_it_landed",
+          "second_device_sends_nothing_once_paid",
+          "second_device_debits_once_after_it_landed",
+          "wallet_error_then_pay_sends_nothing_once_paid",
+          "wallet_error_then_pay_debits_once_after_it_landed",
+          "contract_refuses_same_order",
+          "contract_refuses_other_order_id"
         ],
-        "C10": [
+        "C10/still": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ],
+        "C10/moving": [
           "ordinary_account_cannot_add",
           "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
-      "errors": {}
-    },
-    {
-      "run": 12,
-      "run_id": "faulty-20261118T161056Z",
-      "status": "Blocked",
-      "duration_s": 29.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
+      "errors": {
+        "C09/still": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s",
+        "C09/moving": "BenchTimeout: scenario 6, after the first payment landed: the screen did not end on already-paid within 8 s"
       },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 13,
-      "run_id": "faulty-20261118T161125Z",
-      "status": "Blocked",
-      "duration_s": 30.9,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 14,
-      "run_id": "faulty-20261118T161156Z",
-      "status": "Blocked",
-      "duration_s": 31.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 15,
-      "run_id": "faulty-20261118T161228Z",
-      "status": "Blocked",
-      "duration_s": 31.0,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 16,
-      "run_id": "faulty-20261118T161259Z",
-      "status": "Blocked",
-      "duration_s": 31.9,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 17,
-      "run_id": "faulty-20261118T161331Z",
-      "status": "Blocked",
-      "duration_s": 31.8,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 18,
-      "run_id": "faulty-20261118T161403Z",
-      "status": "Blocked",
-      "duration_s": 30.8,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 19,
-      "run_id": "faulty-20261118T161434Z",
-      "status": "Blocked",
-      "duration_s": 30.7,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 20,
-      "run_id": "faulty-20261118T161504Z",
-      "status": "Blocked",
-      "duration_s": 30.8,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown",
-          "no_confirmed_before_receipt_block"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "retry_debits_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_debits_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_debits_once",
-          "second_device_debits_once",
-          "double_click_debits_once",
-          "wallet_error_then_pay_debits_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
+      "planted_faults_detected": [
+        "D1",
+        "D2",
+        "D3"
+      ]
     }
   ]
 }

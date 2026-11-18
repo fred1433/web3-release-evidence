@@ -623,8 +623,8 @@ table.muts { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-t
       const late = D3_OTHERS.filter(([n]) => failedAt(n + LANDED)).map(([, k]) => k);
       if (early.length) line('Debited twice while it waited', early.join(', '));
       if (late.length) line('Debited twice after it landed', late.join(', '));
-      const cr = [assertion(rc, 'contract_refuses_same_order'), assertion(rc, 'contract_refuses_other_order_id')];
-      if (cr.some((x) => x && !x.ok)) line('Straight on the contract', cr.filter((x) => x && !x.ok).map((x) => fmt(x.observed)).join('; '));
+      const cr = [['the paid order again', assertion(rc, 'contract_refuses_same_order')], ['another id', assertion(rc, 'contract_refuses_other_order_id')]].filter(([, x]) => x && !x.ok);
+      if (cr.length) line('Straight on the contract', cr.map(([k, x]) => `${k}: ${fmt(x.observed)}`).join('; '));
     }
     body.append(ev);
     d.append(el('span', 'fid', f.id), body);
