@@ -44,8 +44,8 @@
       "id": "C04",
       "title": "Terms signed before the payment",
       "layer": "interface + API",
-      "method": "Playwright wallet call log + API",
-      "criterion": "Payment stays locked until the demo terms are signed; the signature precedes the transaction; the API keeps a verified record and refuses a forged one.",
+      "method": "Playwright forced click, wallet call log, API",
+      "criterion": "Payment stays locked until the demo terms are signed, and a forced click on the locked button sends nothing; the signature precedes the transaction; the API keeps a verified record and refuses a forged one.",
       "rule": {
         "text": "Demo terms v0 must be accepted before any payment.",
         "fictitious": true
@@ -96,53 +96,53 @@
       "id": "C08",
       "title": "No confirmed without a receipt during an RPC outage",
       "layer": "interface + chain",
-      "method": "RPC proxy cuts receipts; full UI state history",
-      "criterion": "While the node does not answer receipt requests, the app never shows confirmed: no receipt exists and no block has been mined.",
+      "method": "RPC proxy cuts receipts on the app's path until the screen settles, plus a margin; full history of the status line, state and visible text",
+      "criterion": "While receipt requests from the app are cut, the screen never shows the word confirmed: no receipt exists and no block has been mined. Once the bench restores the RPC and mines, both versions end on Confirmed, so only the history can tell them apart.",
       "rule": {
         "text": "Confirmed means included in a block.",
         "fictitious": false
       },
-      "allowed": "Pending or status unknown.",
+      "allowed": "Pending or status unknown, then Confirmed after the block.",
       "forbidden": "Confirmed at any moment while no receipt exists."
     },
     {
       "id": "C09",
-      "title": "Retry after status unknown pays once",
+      "title": "One payment per intent, however the user retries",
       "layer": "interface + chain",
-      "method": "RPC proxy outage, retry, direct block scan",
-      "criterion": "After status unknown and a retry, exactly one payment is mined for that intent and the user's TEST balance drops by 25 once.",
+      "method": "RPC proxy outage, retry, Pay during unknown, reload, double click; direct block and mempool scan; direct contract call",
+      "criterion": "After status unknown, the retry looks up the same transaction again and the screen ends on Confirmed; clicking Pay during unknown, reloading then paying, and double clicking each leave exactly one payment transaction (mined or reverted) and a single 25 TEST debit; the contract refuses the same intent sent again with IntentAlreadyPaid.",
       "rule": {
         "text": "One payment intent, one payment.",
         "fictitious": false
       },
       "allowed": "Check the same transaction again.",
-      "forbidden": "A second payment for the same intent."
+      "forbidden": "A second payment transaction for the same intent, successful or reverted."
     },
     {
       "id": "C10",
       "title": "Admin function enforced by the contract",
       "layer": "contract",
-      "method": "Direct contract call from an ordinary account",
-      "criterion": "The admin control is hidden for ordinary users, and an ordinary account calling setAllowlisted directly is reverted; the allowlist does not change.",
+      "method": "Direct contract calls from an allowlisted ordinary account, then from the admin",
+      "criterion": "The admin control is hidden for ordinary users; an allowlisted ordinary account calling setAllowlisted directly, to add or to remove, is reverted with NotAdmin and the allowlist does not change; the admin can still add and remove.",
       "rule": {
         "text": "Only the admin edits the allowlist.",
         "fictitious": true
       },
       "allowed": "Admin edits the allowlist.",
-      "forbidden": "Any other account editing it by calling the contract."
+      "forbidden": "Any other account adding or removing an address by calling the contract."
     },
     {
       "id": "C11",
-      "title": "Revoked access stops being served",
+      "title": "Revoked access is refused once indexed",
       "layer": "chain + API",
-      "method": "Playwright revoke, indexer catch-up, API requests",
-      "criterion": "The API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
+      "method": "Playwright revoke, indexer catch-up, API requests; the reader's identity is simulated by a request header",
+      "criterion": "With the reader's identity simulated by a request header (the demo has no reader sign-in), the API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
       "rule": {
-        "text": "Revoked access ends at the confirmed revocation.",
+        "text": "Revoked access ends once the revocation is indexed.",
         "fictitious": true
       },
       "allowed": "Read while the grant is active.",
-      "forbidden": "Serving the data after the revocation is on chain."
+      "forbidden": "Serving the data after the revocation is mined and indexed."
     }
   ],
   "not_covered": [
@@ -151,8 +151,12 @@
       "why": "The bench drives an EIP-1193 test provider. It proves the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
     },
     {
+      "item": "Reader authentication",
+      "why": "The reader's identity is simulated: the API trusts the address declared in a request header. C11 shows that the API applies the grant state to that identity, not that the caller owns it."
+    },
+    {
       "item": "Economic and security audit of the contract",
-      "why": "The checks prove five rules on one contract. They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+      "why": "The checks prove three rules the contract enforces on its own (allowlist, admin role, one payment per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
     },
     {
       "item": "Gas spikes and congestion on a public network",

@@ -6,6 +6,8 @@ A release bench for EVM dApps. It drives the interface with Playwright and a tes
 - `Incomplete`: no failure, but a required check was skipped, timed out or crashed. The denominator never shrinks.
 - `Demonstrated checks passed`: every required check ran and passed.
 
+Waiting is never a verdict: when something the bench waits for does not happen in time (a screen state, a transaction in the mempool, the indexer catching up), the check ends in error and the run is `Incomplete`. Only a named assertion that fails is a detection.
+
 Every report also says `Client MVP: not assessed`. The bench runs here against **Sample Grants**, a synthetic app built for this demo: a holder grants a reader access to a fictitious dataset, pays the reader 25 `TEST` units, and can revoke the grant. Local chain only, development accounts, no real funds, no private key anywhere in this repository.
 
 Page with the recorded runs: https://theaipipe.com/demos/web3-release-evidence/
@@ -17,13 +19,17 @@ Page with the recorded runs: https://theaipipe.com/demos/web3-release-evidence/
 | `variants/faulty` | Blocked | C08, C09, C10 |
 | `variants/corrected` | Demonstrated checks passed | none |
 
-Three faults are planted in `variants/faulty` (`variants/faults.json`); `variants/corrected` is the same app with the three fixes and nothing else (`variants.diff`). The checks are identical for both.
+Three faults are planted in `variants/faulty` (`variants/faults.json`); `variants/corrected` is the same app with the three fixes and nothing else (`variants.diff`). The checks are identical for both. A planted fault counts as detected only when its own critical assertion fails.
 
-| Fault | What happens | Found by |
+| Fault | What happens | Found by (critical assertion) |
 | --- | --- | --- |
-| D1 | The receipt request fails, the app falls back to the transaction lookup and shows **Confirmed** while the transaction is still in the mempool. | C08, from the full history of the status element, not its final state |
-| D2 | `setAllowlisted` has no `onlyAdmin`. The interface hides it, the contract does not refuse it. | C10, a direct call to the contract from an ordinary account |
-| D3 | After "status unknown", the retry button sends a second payment. | C09, a scan of the mined blocks: two payments for one intent |
+| D1 | The receipt request fails, the app falls back to the transaction lookup and shows **Confirmed** while the transaction is still in the mempool. | C08 (`never_confirmed_without_receipt`). Receipt requests are cut on the app's path until the screen settles, plus 5 seconds; the node still answers the bench. Then the bench restores the RPC and mines, and both versions end on Confirmed: only the timed history of the status line, state and visible text, tells them apart. |
+| D2 | `setAllowlisted` has no `onlyAdmin`. The interface hides it, the contract does not refuse it. | C10 (`ordinary_account_cannot_add`). An allowlisted ordinary account calls the contract directly, to add and to remove; both must revert with `NotAdmin()`, and the admin must still be able to edit. |
+| D3 | After "status unknown", the retry button sends a second payment. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, and the contract accepts the same payment intent twice. | C09 (`retry_sends_no_new_payment`). The retry must look up the same transaction, send nothing new, and end on Confirmed. Then three other ways to pay again (Pay during "unknown", reload then pay, double click with no outage) must each leave exactly one payment transaction on chain, mined or reverted. Finally the same intent, sent straight to the contract, must revert with `IntentAlreadyPaid()`. |
+
+The corrected app keeps the payment in progress per account in `localStorage` until its receipt arrives, locks the Pay button while it is pending or unknown, resumes following it after a reload, and reuses its intent id, which the contract refuses a second time.
+
+C11 checks revocation with the reader's identity simulated: the API trusts the address declared in the `x-reader-address` header, and the demo has no reader sign-in. It shows that the API applies the grant state to that identity once the revocation is mined and indexed, not that the caller owns the address.
 
 Reports: `reports/faulty.json`, `reports/corrected.json`. Twenty independent runs per variant: `reports/stability-*.json`. A run with one check removed: `reports/corrected-skip-C08.json` (status `Incomplete`).
 
@@ -37,8 +43,8 @@ bench (bench/checks.py) ─────────────┴──── r
 ```
 
 - `anvil --no-mining`: the bench mines with `evm_mine`, so the moment between "sent" and "in a block" is observable. Each check starts from the same `evm_snapshot`.
-- The app only reaches the node through `RpcProxy` (`bench/harness.py`), which can answer HTTP 503 to `eth_getTransactionReceipt` or any other method. The bench reads anvil directly, so it knows what the chain holds while the app is being lied to.
-- `bench/wallet.js` is an EIP-1193 test provider: it answers `eth_requestAccounts`, `wallet_switchEthereumChain` (4902 for an unknown chain), user refusal (4001) and forwards the rest, including `personal_sign` and `eth_sendTransaction`. It records every wallet call and every change of the status element.
+- The app only reaches the node through `RpcProxy` (`bench/harness.py`), which can answer HTTP 503 to `eth_getTransactionReceipt` or any other method, and logs every receipt or transaction lookup with its hash. The bench reads anvil directly, block by block and in the mempool, so it knows what the chain holds while the app is being lied to.
+- `bench/wallet.js` is an EIP-1193 test provider: it answers `eth_requestAccounts`, `wallet_switchEthereumChain` (4902 for an unknown chain), user refusal (4001) and forwards the rest, including `personal_sign` and `eth_sendTransaction`. It records every wallet call and every change of the status line, its state and its visible text.
 - `bench/required-checks.json` maps each check to an acceptance criterion and a rule (marked when the rule is fictitious), with what is allowed and what is forbidden. `bench/status.py` turns the results into the status.
 
 ## Run it
@@ -55,21 +61,24 @@ python bench/run.py --variant faulty                      # Blocked, exit code 1
 python bench/run.py --variant corrected                   # Demonstrated checks passed, exit code 0
 python bench/run.py --variant corrected --skip C08 --out reports/corrected-skip-C08.json   # Incomplete, exit code 3
 python bench/run.py --variant corrected --repeat 20        # writes reports/stability-corrected.json
-python bench/run.py --variant faulty --expect Blocked     # exit 0 only if the status is Blocked (CI)
+python bench/run.py --variant faulty --expect Blocked --expect-detected D1,D2,D3
+    # exit 0 only if the status is Blocked AND exactly D1, D2 and D3 were detected on their critical
+    # assertions, the failed checks are exactly C08, C09 and C10, and no check errored or was left out
+python bench/run.py --variant corrected --expect "Demonstrated checks passed" --expect-detected none
 ```
 
-One run takes about 15 seconds. CI runs both variants on every push (`.github/workflows/release-evidence.yml`).
+One run takes about 35 seconds. CI runs both variants on every push (`.github/workflows/release-evidence.yml`) with the last two commands.
 
 ## Pointing it at another dApp
 
-Ready in the bench: the RPC proxy and its outage modes, the test wallet, manual mining with snapshots, the state history recorder, the direct chain reads, the manifest and the status rule, the JSON report and CI.
+Ready in the bench: the RPC proxy and its outage modes, the test wallet, manual mining with snapshots, the status line recorder, the direct chain and mempool reads, the manifest and the status rule, the JSON report and CI.
 
 Depends on the product: the contract addresses and ABIs, the indexer or backend and how it reaches the node, the selectors of the screens, the wallet and sign-in flow (SIWE, embedded wallet, account abstraction), the compliance steps (KYC or KYB provider, allowlist source), and which journey goes first. EVM is an assumption of this demo.
 
-Phases: on a testnet, replay the transaction journeys with funded test wallets. Before mainnet, rehearse the deployment on a local fork (`anvil --fork-url <mainnet RPC>`, impersonation, no key) and run read-only configuration checks against mainnet: chain id, deployed bytecode and addresses, admin role held by the expected multisig. A reorg case (`anvil_reorg`) belongs to that rehearsal; it is not built here.
+Phases: on a testnet, replay the transaction journeys with funded test wallets. Before mainnet, rehearse the deployment on a local fork (`anvil --fork-url <mainnet RPC>`, impersonation, no key) and run read-only configuration checks against mainnet: chain id, deployed bytecode and addresses, admin role held by the expected multisig.
 
 ## Not covered
 
-See `not_covered` in any report: real wallet extensions and mobile wallets, an economic or security audit of the contract, gas spikes on a public network, chain reorganisations, the legal drafting of the terms, load and indexer restarts, and the client's own application.
+See `not_covered` in any report: real wallet extensions and mobile wallets, reader authentication, an economic or security audit of the contract, gas spikes on a public network, chain reorganisations, the legal drafting of the terms, load and indexer restarts, and the client's own application.
 
 Built by [The AI Pipe](https://theaipipe.com). MIT licence.

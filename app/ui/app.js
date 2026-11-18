@@ -1,4 +1,4 @@
-import { follow } from '/flow.js';
+import { follow, createPayments } from '/flow.js';
 
 const cfg = await (await fetch('/config.json')).json();
 const $ = (id) => document.getElementById(id);
@@ -6,6 +6,7 @@ const wallet = window.ethereum;
 let account = null;
 let chainOk = false;
 let accepted = false;
+const payments = createPayments();
 
 const TITLES = {
   idle: 'No payment yet',
@@ -23,6 +24,7 @@ const ui = {
     $('status-title').textContent = TITLES[state] || state;
     $('status-hash').textContent = detail && detail.startsWith('0x') ? detail : '';
     if (state !== 'unknown') $('retry').hidden = true;
+    refreshButtons();
   },
   offerRetry(label, action) {
     const b = $('retry');
@@ -42,7 +44,7 @@ $('terms-text').textContent = cfg.terms;
 
 function refreshButtons() {
   $('accept').disabled = !(account && chainOk) || accepted;
-  $('pay').disabled = !(account && chainOk && accepted);
+  $('pay').disabled = !(account && chainOk && accepted) || payments.locked(account);
   $('wrong-net').hidden = !account || chainOk;
 }
 
@@ -89,6 +91,9 @@ async function connect() {
   $('admin').hidden = account !== cfg.admin;
   await onChain(await wallet.request({ method: 'eth_chainId' }));
   wallet.on?.('chainChanged', onChain);
+  const pending = payments.pending(account);
+  if (pending) follow(ui, wallet, pending, { payAgain: pay, done: () => payments.settled(account) });
+  refreshButtons();
   refresh();
   setInterval(refresh, 1000);
 }
@@ -108,26 +113,30 @@ async function accept() {
 }
 
 async function sendTx(data) {
-  if ((await wallet.request({ method: 'eth_chainId' })) !== cfg.chainId) { await onChain('0x0'); return null; }
+  if ((await wallet.request({ method: 'eth_chainId' })) !== cfg.chainId) { await onChain('0x0'); return { hash: null, rejected: false }; }
   ui.setState('awaiting-signature');
   try {
-    return await wallet.request({ method: 'eth_sendTransaction', params: [{ from: account, to: cfg.grants, data }] });
+    return { hash: await wallet.request({ method: 'eth_sendTransaction', params: [{ from: account, to: cfg.grants, data }] }) };
   } catch (e) {
     ui.setState(e.code === 4001 ? 'rejected' : 'error', '');
-    return null;
+    return { hash: null, rejected: e.code === 4001 };
   }
 }
 
 async function pay() {
-  if (!accepted) return;
-  const hash = await sendTx(cfg.selectors.grantAndPay + pad(cfg.reader) + pad(cfg.datasetId) + pad(toHex(cfg.fee)));
-  if (hash) await follow(ui, wallet, hash, pay);
+  if (!accepted || payments.locked(account)) return;
+  const intent = payments.begin(account);
+  refreshButtons();
+  const { hash, rejected } = await sendTx(cfg.selectors.grantAndPay + pad(cfg.reader) + pad(cfg.datasetId) + pad(toHex(cfg.fee)) + pad(intent));
+  if (!hash) { payments.abandon(account, rejected); refreshButtons(); return; }
+  payments.sent(account, hash);
+  await follow(ui, wallet, hash, { payAgain: pay, done: () => payments.settled(account) });
   refresh();
 }
 
 async function revoke(id) {
-  const hash = await sendTx(cfg.selectors.revoke + pad(toHex(id)));
-  if (hash) await follow(ui, wallet, hash, () => revoke(id));
+  const { hash } = await sendTx(cfg.selectors.revoke + pad(toHex(id)));
+  if (hash) await follow(ui, wallet, hash, { payAgain: () => revoke(id) });
   refresh();
 }
 
@@ -139,7 +148,7 @@ $('switch').onclick = async () => {
 };
 $('admin-add').onclick = async () => {
   const addr = $('admin-addr').value.trim().toLowerCase();
-  const hash = await sendTx(cfg.selectors.setAllowlisted + pad(addr) + pad('0x1'));
-  if (hash) await follow(ui, wallet, hash, () => {});
+  const { hash } = await sendTx(cfg.selectors.setAllowlisted + pad(addr) + pad('0x1'));
+  if (hash) await follow(ui, wallet, hash);
 };
 document.body.dataset.ready = '1';

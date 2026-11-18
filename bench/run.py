@@ -4,7 +4,9 @@
     python bench/run.py --variant corrected
     python bench/run.py --variant corrected --skip C08        # a removed check makes the run Incomplete
     python bench/run.py --variant corrected --repeat 20       # stability: 20 independent runs
-    python bench/run.py --variant faulty --expect Blocked     # CI: exit 0 only if the status is the expected one
+    python bench/run.py --variant faulty --expect Blocked --expect-detected D1,D2,D3
+                                     # CI: exit 0 only if the status is Blocked AND exactly these planted
+                                     # faults were detected, each on its critical assertion, with no error
 
 Exit code without --expect: 0 Demonstrated checks passed, 1 Blocked, 3 Incomplete.
 """
@@ -85,9 +87,10 @@ def run_once(variant, skip, evidence_dir, reports_dir, browser, log_dir):
         acc = {'admin': a[0].lower(), 'user': a[1].lower(), 'reader': a[2].lower(), 'user_low': a[3].lower(), 'outsider': a[4].lower()}
         sel = {k: chain.selector(s) for k, s in {
             'balanceOf': 'balanceOf(address)', 'mint': 'mint(address,uint256)', 'approve': 'approve(address,uint256)',
-            'grantAndPay': 'grantAndPay(address,bytes32,uint256)', 'grants': 'grants(uint256)', 'grantCount': 'grantCount()',
+            'grants': 'grants(uint256)', 'grantCount': 'grantCount()',
             'allowlisted': 'allowlisted(address)', 'setAllowlisted': 'setAllowlisted(address,bool)'}.items()}
-        err = {k: chain.selector(k + '()') for k in ('NotAllowlisted', 'NotAdmin')}
+        sel['grantAndPay'] = chain.selector('grantAndPay(address,bytes32,uint256,bytes32)')
+        err = {k: chain.selector(k + '()') for k in ('NotAllowlisted', 'NotAdmin', 'IntentAlreadyPaid')}
         # Deploy and seed the fixture state, then snapshot it.
         token = chain.send_and_mine(acc['admin'], None, token_code)['contractAddress'].lower()
         grants = chain.send_and_mine(acc['admin'], None, grants_code + pad(token))['contractAddress'].lower()
@@ -119,14 +122,15 @@ def run_once(variant, skip, evidence_dir, reports_dir, browser, log_dir):
             ct = time.time()
             try:
                 CHECKS[cid](ctx, c)
-                failed = [x['name'] for x in c.assertions if not x['ok']]
-                outcome = 'failed' if failed else ('passed' if c.assertions else 'error')
                 error = None if c.assertions else 'check recorded no assertion'
             except Exception as e:  # a crash or a timeout is never a detection
-                failed, outcome, error = [x['name'] for x in c.assertions if not x['ok']], 'error', f'{type(e).__name__}: {str(e)[:300]}'
+                error = f'{type(e).__name__}: {str(e)[:300]}'
             finally:
                 ctx.close()
                 stop(app)
+            failed = [x['name'] for x in c.assertions if not x['ok']]
+            # Only a named assertion that failed is a detection; an error with no failed assertion is not.
+            outcome = 'failed' if failed else ('error' if error else 'passed')
             results.append({'id': cid, 'title': spec['title'], 'outcome': outcome,
                             'failed_assertions': failed if outcome == 'failed' else [], 'error': error,
                             'assertions': c.assertions, 'evidence': c.evidence, 'duration_s': round(time.time() - ct, 2)})
@@ -172,15 +176,32 @@ def run_once(variant, skip, evidence_dir, reports_dir, browser, log_dir):
         'errored': verdict['errored'],
         'not_executed': verdict['not_executed'],
         'status_rule': 'Blocked if any required check fails on a named assertion; otherwise Incomplete if any required check was skipped, timed out or crashed; otherwise Demonstrated checks passed.',
-        'planted_faults': [dict(f, detected=by_id.get(f['detected_by'], {}).get('outcome') == 'failed') for f in FAULTS['faults']],
+        'planted_faults': [dict(f, detected=detected(f, by_id)) for f in FAULTS['faults']],
         'checks': results,
         'not_covered': MANIFEST['not_covered'],
-        'decision': {
-            'rule_approval': 'Not given. The demo rules marked fictitious were written for this demo; real rules are approved by the product owner and counsel.',
-            'technical_verification': verdict['status'],
-            'launch_decision': 'Not taken by the bench. A named person signs go or no-go with this report attached.',
-        },
+        'decision': 'The bench fills in the technical result only. The rules marked fictitious were written for this demo and approved by no one; go or no-go is a person\'s decision, taken with this report in hand.',
     }
+
+
+def detected(fault, by_id):
+    """A planted fault counts as detected only if its own critical assertion failed."""
+    r = by_id.get(fault['detected_by'], {})
+    return r.get('outcome') == 'failed' and fault['critical'] in (r.get('failed_assertions') or [])
+
+
+def calibration(report, expected):
+    """Problems with a faulty run that must show exactly the expected detections, or [] if none."""
+    problems = []
+    found = sorted(f['id'] for f in report['planted_faults'] if f['detected'])
+    if found != sorted(expected):
+        problems.append(f"planted faults detected: {', '.join(found) or 'none'}; expected: {', '.join(sorted(expected)) or 'none'}")
+    wanted_checks = sorted(f['detected_by'] for f in report['planted_faults'] if f['id'] in expected)
+    if sorted(report['failed']) != wanted_checks:
+        problems.append(f"failed checks: {', '.join(report['failed']) or 'none'}; expected exactly: {', '.join(wanted_checks) or 'none'}")
+    errors = [r['id'] for r in report['checks'] if r.get('error')]
+    if errors or report['not_executed']:
+        problems.append(f"checks with an error: {', '.join(errors) or 'none'}; not executed: {', '.join(report['not_executed']) or 'none'}")
+    return problems
 
 
 def main():
@@ -191,7 +212,17 @@ def main():
     p.add_argument('--out', help='report path (default reports/<variant>.json)')
     p.add_argument('--repeat', type=int, default=1, help='independent runs, each on a fresh chain (writes reports/stability-<variant>.json)')
     p.add_argument('--expect', choices=[BLOCKED, INCOMPLETE, PASSED], help='exit 0 only if the status equals this')
+    p.add_argument('--expect-detected', metavar='IDS', help='comma-separated planted fault ids (or "none"): exit 0 only if exactly these were detected on their critical assertions, the failed checks are exactly theirs, and no check errored or was left out')
     args = p.parse_args()
+    fault_ids = [f['id'] for f in FAULTS['faults']]
+    expected = None
+    if args.expect_detected is not None:
+        expected = [] if args.expect_detected.strip().lower() == 'none' else [x.strip() for x in args.expect_detected.split(',') if x.strip()]
+        bad = [x for x in expected if x not in fault_ids]
+        if bad or not args.expect_detected.strip():
+            p.error(f"--expect-detected: unknown fault id(s): {', '.join(bad) or '(empty)'}. Known: {', '.join(fault_ids)}, or none")
+        if args.repeat != 1:
+            p.error('--expect-detected works on a single run, not with --repeat')
     unknown = [s for s in args.skip if s not in ids]
     if unknown:
         p.error(f"unknown check id(s): {', '.join(unknown)}. Known: {', '.join(ids)}")
@@ -219,6 +250,11 @@ def main():
                 print(f"  {r['id']} {r['outcome']:8} {r['title']}{'  <- ' + tail if tail else ''}")
             print(f'  report: {os.path.relpath(out, ROOT)}')
             status = report['status']
+            if expected is not None:
+                problems = calibration(report, expected)
+                for f in report['planted_faults']:
+                    print(f"  {f['id']} {'detected' if f['detected'] else 'not detected':13} by {f['detected_by']} on {f['critical']}")
+                print('  calibration: ' + ('exactly the expected detections' if not problems else 'FAILED, ' + '; '.join(problems)))
         else:
             tmp = os.path.join(reports_dir, '.repeat-evidence')
             os.makedirs(tmp, exist_ok=True)
@@ -239,8 +275,9 @@ def main():
             print(f"{args.repeat} runs, identical outcome every time: {summary['identical']} ({summary['statuses']}) -> {os.path.relpath(out, ROOT)}")
             status = runs[-1]['status'] if summary['identical'] else 'unstable'
         browser.close()
-    if args.expect:
-        sys.exit(0 if status == args.expect else 1)
+    if args.expect or expected is not None:
+        ok = (not args.expect or status == args.expect) and (expected is None or not problems)
+        sys.exit(0 if ok else 1)
     sys.exit({PASSED: 0, BLOCKED: 1}.get(status, 3))
 
 

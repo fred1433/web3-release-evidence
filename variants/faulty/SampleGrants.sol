@@ -48,7 +48,8 @@ contract SampleGrants {
         emit Allowlisted(account, allowed);
     }
 
-    function grantAndPay(address reader, bytes32 dataset, uint256 amount) external returns (uint256 grantId) {
+    // The payment intent id is accepted and not checked: the same intent can be paid twice.
+    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32) external returns (uint256 grantId) {
         if (!allowlisted[msg.sender]) revert NotAllowlisted();
         token.transferFrom(msg.sender, reader, amount);
         grantId = ++grantCount;

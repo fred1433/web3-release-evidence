@@ -82,6 +82,10 @@ class Chain:
     def pending_count(self):
         return int(self.rpc('txpool_status')['pending'], 16)
 
+    def pending_txs(self):
+        pool = self.rpc('txpool_content')['pending']
+        return [dict(tx, **{'from': frm.lower()}) for frm, by_nonce in pool.items() for tx in by_nonce.values()]
+
     def receipt(self, h):
         return self.rpc('eth_getTransactionReceipt', [h])
 
@@ -135,6 +139,7 @@ class RpcProxy:
         self.cut_status = 503
         self.counts = {}
         self.events = []  # writes, signatures and cut calls, with time
+        self.lookups = []  # every receipt or transaction lookup the app made, with its hash
         self.lock = threading.Lock()
         proxy = self
 
@@ -155,14 +160,17 @@ class RpcProxy:
             def do_POST(self):
                 body = self.rfile.read(int(self.headers.get('content-length', 0)))
                 try:
-                    method = json.loads(body).get('method', '?')
+                    req = json.loads(body)
+                    method, params = req.get('method', '?'), req.get('params') or []
                 except Exception:
-                    method = '?'
+                    method, params = '?', []
                 with proxy.lock:
                     proxy.counts[method] = proxy.counts.get(method, 0) + 1
                     cut = method in proxy.cut_methods
                     if cut or method in ('eth_sendTransaction', 'personal_sign'):
                         proxy.events.append({'t': int(time.time() * 1000), 'method': method, 'cut': cut})
+                    if method in ('eth_getTransactionReceipt', 'eth_getTransactionByHash') and params:
+                        proxy.lookups.append({'t': int(time.time() * 1000), 'method': method, 'hash': str(params[0]).lower(), 'cut': cut})
                 if cut:
                     self.send_response(proxy.cut_status)
                     self._cors()
@@ -189,6 +197,7 @@ class RpcProxy:
             self.cut_methods = set()
             self.counts = {}
             self.events = []
+            self.lookups = []
 
     def cut(self, *methods):
         with self.lock:
@@ -201,6 +210,10 @@ class RpcProxy:
     def count(self, method):
         with self.lock:
             return self.counts.get(method, 0)
+
+    def lookups_since(self, t, tx_hash):
+        with self.lock:
+            return [x for x in self.lookups if x['t'] >= t and x['hash'] == tx_hash.lower()]
 
     def stop(self):
         self.server.shutdown()

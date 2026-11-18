@@ -1,11 +1,29 @@
 {
-  "about": "Faults planted in variants/faulty. variants/corrected is the same app with these three fixes and nothing else (see variants.diff). The checks are identical for both.",
+  "about": "Faults planted in variants/faulty. variants/corrected is the same app with these three fixes and nothing else (see variants.diff). The checks are identical for both. A fault counts as detected only when its critical assertion fails.",
   "faults": [
-    {"id": "D1", "title": "Confirmed shown without a receipt", "where": "variants/faulty/flow.js", "detected_by": "C08",
-     "what": "When the receipt request fails, the app falls back to the transaction lookup and treats a known transaction as confirmed, although it is still waiting in the mempool."},
-    {"id": "D2", "title": "Admin function open to everyone", "where": "variants/faulty/SampleGrants.sol", "detected_by": "C10",
-     "what": "setAllowlisted lacks onlyAdmin. The interface hides the control, the contract does not refuse it."},
-    {"id": "D3", "title": "Retry pays a second time", "where": "variants/faulty/flow.js", "detected_by": "C09",
-     "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending."}
+    {
+      "id": "D1",
+      "title": "Confirmed shown without a receipt",
+      "where": "variants/faulty/flow.js",
+      "detected_by": "C08",
+      "critical": "never_confirmed_without_receipt",
+      "what": "When the receipt request fails, the app falls back to the transaction lookup and treats a known transaction as confirmed, although it is still waiting in the mempool."
+    },
+    {
+      "id": "D2",
+      "title": "Admin function open to everyone",
+      "where": "variants/faulty/SampleGrants.sol",
+      "detected_by": "C10",
+      "critical": "ordinary_account_cannot_add",
+      "what": "setAllowlisted lacks onlyAdmin. The interface hides the control, the contract does not refuse it."
+    },
+    {
+      "id": "D3",
+      "title": "Retry pays a second time",
+      "where": "variants/faulty/flow.js, variants/faulty/SampleGrants.sol",
+      "detected_by": "C09",
+      "critical": "retry_sends_no_new_payment",
+      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, and the contract accepts the same payment intent twice."
+    }
   ]
 }

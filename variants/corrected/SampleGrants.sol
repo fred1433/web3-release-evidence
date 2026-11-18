@@ -13,6 +13,8 @@ contract SampleGrants {
     ITestToken public immutable token;
     uint256 public grantCount;
     mapping(address => bool) public allowlisted;
+    // One payment per intent: an intent id the payer already used is refused.
+    mapping(address => mapping(bytes32 => bool)) public intentPaid;
 
     struct Grant {
         address owner;
@@ -31,6 +33,7 @@ contract SampleGrants {
     error NotAllowlisted();
     error NotGrantOwner();
     error GrantNotActive();
+    error IntentAlreadyPaid();
 
     modifier onlyAdmin() {
         if (msg.sender != admin) revert NotAdmin();
@@ -48,8 +51,10 @@ contract SampleGrants {
         emit Allowlisted(account, allowed);
     }
 
-    function grantAndPay(address reader, bytes32 dataset, uint256 amount) external returns (uint256 grantId) {
+    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32 intent) external returns (uint256 grantId) {
         if (!allowlisted[msg.sender]) revert NotAllowlisted();
+        if (intentPaid[msg.sender][intent]) revert IntentAlreadyPaid();
+        intentPaid[msg.sender][intent] = true;
         token.transferFrom(msg.sender, reader, amount);
         grantId = ++grantCount;
         grants[grantId] = Grant(msg.sender, reader, dataset, amount, true);

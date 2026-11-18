@@ -13,8 +13,10 @@ jobs:
         include:
           - variant: faulty
             expect: Blocked
+            detected: D1,D2,D3
           - variant: corrected
             expect: Demonstrated checks passed
+            detected: none
     steps:
       - uses: actions/checkout@v7
       - uses: foundry-rs/foundry-toolchain@v1.9.2
@@ -33,7 +35,9 @@ jobs:
       - name: Status rule self-test
         run: python bench/selftest.py
       - name: Run every required check
-        run: python bench/run.py --variant ${{ matrix.variant }} --expect "${{ matrix.expect }}" --out reports/ci-${{ matrix.variant }}.json
+        # Faulty app: Blocked, and exactly D1, D2, D3 detected on their critical assertions, no error, nothing left out.
+        # Corrected app: every required check passed, no planted fault detected.
+        run: python bench/run.py --variant ${{ matrix.variant }} --expect "${{ matrix.expect }}" --expect-detected ${{ matrix.detected }} --out reports/ci-${{ matrix.variant }}.json
       - name: Keep the report and the screenshots
         if: always()
         uses: actions/upload-artifact@v7

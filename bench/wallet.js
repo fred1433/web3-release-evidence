@@ -1,8 +1,8 @@
 // EIP-1193 test provider injected before the page loads (Playwright add_init_script).
 // It answers the wallet-only methods itself (accounts, chain switching, user refusal 4001)
 // and forwards everything else to the RPC endpoint the app is configured with.
-// It also records every wallet call and every change of the interface status, so the
-// bench judges the whole history of what the screen said, not just its final state.
+// It also records every wallet call and every change of the interface status (its state and
+// its visible text), so the bench judges the whole history of what the screen said, not just its final state.
 (() => {
   const cfg = window.__WALLET_CONFIG;
   let chainId = cfg.chainId;
@@ -62,13 +62,15 @@
     const el = document.querySelector('[data-testid="tx-status"]');
     if (!el) return;
     const s = el.dataset.state;
+    const title = el.querySelector('#status-title');
+    const text = title ? title.textContent.trim() : '';
     const last = window.__uiStates[window.__uiStates.length - 1];
-    if (!last || last.state !== s) {
+    if (!last || last.state !== s || last.text !== text) {
       const code = el.querySelector('code');
-      window.__uiStates.push({ state: s, t: Date.now(), hash: code ? code.textContent : '' });
+      window.__uiStates.push({ state: s, text, t: Date.now(), hash: code ? code.textContent : '' });
     }
   };
   document.addEventListener('DOMContentLoaded', () => {
-    new MutationObserver(record).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
+    new MutationObserver(record).observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['data-state'] });
   });
 })();

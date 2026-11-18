@@ -44,7 +44,7 @@ const index = { block: -1, grants: new Map(), lastError: null, topics: {}, selec
 
 async function prepare() {
   const sig = {
-    grantAndPay: 'grantAndPay(address,bytes32,uint256)',
+    grantAndPay: 'grantAndPay(address,bytes32,uint256,bytes32)',
     revoke: 'revoke(uint256)',
     setAllowlisted: 'setAllowlisted(address,bool)',
     balanceOf: 'balanceOf(address)',

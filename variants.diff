@@ -1,7 +1,24 @@
 diff -ru variants/faulty/SampleGrants.sol variants/corrected/SampleGrants.sol
---- variants/faulty/SampleGrants.sol	2026-11-18 10:20:48
-+++ variants/corrected/SampleGrants.sol	2026-11-18 10:20:48
-@@ -42,8 +42,8 @@
+--- variants/faulty/SampleGrants.sol	2026-11-18 11:27:43
++++ variants/corrected/SampleGrants.sol	2026-11-18 11:27:43
+@@ -13,6 +13,8 @@
+     ITestToken public immutable token;
+     uint256 public grantCount;
+     mapping(address => bool) public allowlisted;
++    // One payment per intent: an intent id the payer already used is refused.
++    mapping(address => mapping(bytes32 => bool)) public intentPaid;
+ 
+     struct Grant {
+         address owner;
+@@ -31,6 +33,7 @@
+     error NotAllowlisted();
+     error NotGrantOwner();
+     error GrantNotActive();
++    error IntentAlreadyPaid();
+ 
+     modifier onlyAdmin() {
+         if (msg.sender != admin) revert NotAdmin();
+@@ -42,15 +45,16 @@
          token = token_;
      }
  
@@ -12,46 +29,77 @@ diff -ru variants/faulty/SampleGrants.sol variants/corrected/SampleGrants.sol
          allowlisted[account] = allowed;
          emit Allowlisted(account, allowed);
      }
+ 
+-    // The payment intent id is accepted and not checked: the same intent can be paid twice.
+-    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32) external returns (uint256 grantId) {
++    function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32 intent) external returns (uint256 grantId) {
+         if (!allowlisted[msg.sender]) revert NotAllowlisted();
++        if (intentPaid[msg.sender][intent]) revert IntentAlreadyPaid();
++        intentPaid[msg.sender][intent] = true;
+         token.transferFrom(msg.sender, reader, amount);
+         grantId = ++grantCount;
+         grants[grantId] = Grant(msg.sender, reader, dataset, amount, true);
 diff -ru variants/faulty/flow.js variants/corrected/flow.js
---- variants/faulty/flow.js	2026-11-18 10:23:08
-+++ variants/corrected/flow.js	2026-11-18 10:23:08
-@@ -1,7 +1,9 @@
+--- variants/faulty/flow.js	2026-11-18 11:28:34
++++ variants/corrected/flow.js	2026-11-18 11:28:34
+@@ -1,24 +1,33 @@
  // How the interface follows a payment after the wallet returns a transaction hash.
 -// Faulty version, as shipped before the release review.
 +// Corrected version: "Confirmed" only from a receipt included in a block.
 +// After repeated RPC failures the status is "unknown", and the retry action
 +// checks the SAME transaction again instead of paying a second time.
  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+ const randomIntent = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
 -export const RETRY_LABEL = 'Try the payment again';
 +export const RETRY_LABEL = 'Check status again';
  
- export async function follow(ui, wallet, hash, payAgain) {
-   ui.setState('submitted', hash);
-@@ -11,18 +13,10 @@
-     try {
+-// No memory of a payment in progress: the Pay button stays active and every click is a new intent.
+-export function createPayments() {
++// A payment in progress is remembered per account (localStorage) until its receipt arrives.
++// The Pay button stays locked while it is pending or unknown, a reload resumes following it,
++// and its intent id is reused, so the contract refuses a second payment for the same intent.
++export function createPayments(storage = window.localStorage) {
++  const key = (a) => 'sample-grants:payment:' + a;
++  const read = (a) => { try { return JSON.parse(storage.getItem(key(a)) || 'null'); } catch (_) { return null; } };
++  const write = (a, v) => { try { if (v) storage.setItem(key(a), JSON.stringify(v)); else storage.removeItem(key(a)); } catch (_) { /* memory lock still holds */ } };
++  const inFlight = new Set();
+   return {
+-    locked: () => false,
+-    begin: () => randomIntent(),
+-    sent() {},
+-    abandon() {},
+-    settled() {},
+-    pending: () => null,
++    locked: (a) => inFlight.has(a) || Boolean(read(a)?.hash),
++    begin(a) { inFlight.add(a); const r = read(a) || { intent: randomIntent() }; write(a, r); return r.intent; },
++    sent(a, hash) { write(a, { ...read(a), hash }); },
++    // A refusal sent nothing. Any other error may hide a payment that went out: keep its intent.
++    abandon(a, rejected) { inFlight.delete(a); if (rejected) write(a, null); },
++    settled(a) { inFlight.delete(a); write(a, null); },
++    pending: (a) => read(a)?.hash || null,
+   };
+ }
+ 
+ function lost(ui, wallet, hash, opts) {
+   ui.setState('unknown', hash);
+-  ui.offerRetry(RETRY_LABEL, opts.payAgain || (() => {}));
++  ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, opts));
+   return null;
+ }
+ 
+@@ -31,15 +40,6 @@
        receipt = await wallet.request({ method: 'eth_getTransactionReceipt', params: [hash] });
+       failures = 0;
      } catch (e) {
 -      // The node is flaky: fall back to the transaction lookup.
 -      try {
 -        const tx = await wallet.request({ method: 'eth_getTransactionByHash', params: [hash] });
 -        if (tx) {
 -          ui.setState('confirmed', hash);
+-          if (opts.done) opts.done(tx);
 -          return tx;
 -        }
 -      } catch (_) { /* still down */ }
        failures += 1;
-       if (failures >= 3) {
-         ui.setState('unknown', hash);
--        ui.offerRetry(RETRY_LABEL, payAgain);
-+        ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, payAgain));
-         return null;
-       }
+       if (failures >= 3) return lost(ui, wallet, hash, opts);
        await sleep(250);
-@@ -35,6 +29,6 @@
-     await sleep(250);
-   }
-   ui.setState('unknown', hash);
--  ui.offerRetry(RETRY_LABEL, payAgain);
-+  ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, payAgain));
-   return null;
- }
