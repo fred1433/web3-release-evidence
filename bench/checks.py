@@ -189,6 +189,7 @@ def wait_until(page, what, fn, timeout=10.0):
 AT_REST = ('idle', 'unknown', 'confirmed', 'reverted', 'already-paid', 'rejected', 'error')
 QUIET_MS = 500
 HOLD_MS = 1000
+REVOKE_HOLD_MS = 3000  # C11: how long the revocation waits in the mempool before its block
 
 
 def quiet(pages, cond, ms, what, timeout=10.0):
@@ -958,6 +959,8 @@ def c11(ctx, c):
     appear(page, '[data-testid=revoke-1]', 'no Revoke button for grant #1')
     page.click('[data-testid=revoke-1]')
     wait_pool(ctx, 1)
+    # The revocation waits in the mempool before its block, so a page that announces it early (I1) has time to show it.
+    observe(page, REVOKE_HOLD_MS)
     ctx.chain.mine()
     blk = ctx.chain.head()
     g = grant_on_chain(ctx, 1)
