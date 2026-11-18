@@ -263,7 +263,8 @@ table.muts { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-t
 .muts th, .muts td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px dotted var(--rule); vertical-align: top; }
 .muts th { font-size: 12.5px; color: var(--muted); font-weight: 600; }
 .muts td.id { font-family: var(--mono); color: var(--carbon); overflow-wrap: anywhere; width: 28%; }
-.muts td.out { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+.muts td.out { font-family: var(--mono); font-weight: 600; width: 20%; overflow-wrap: anywhere; }
+.muts td.exp { width: 14%; }
 .muts td.out.bad { color: var(--red); }
 .muts .why { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
 @media (max-width: 720px) {
@@ -676,7 +677,7 @@ table.muts { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-t
       const what = el('td', 'what'); what.append(document.createTextNode(m.what));
       if (where) what.append(el('span', 'why', 'Failed checks, ' + where));
       if (m.not_one_debit && m.not_one_debit.length) what.append(el('span', 'why', m.not_one_debit[0]));
-      row.append(id, what, el('td', null, m.expected), el('td', 'out' + (m.as_expected ? '' : ' bad'), m.outcome));
+      row.append(id, what, el('td', 'exp', m.expected), el('td', 'out' + (m.as_expected ? '' : ' bad'), m.id === 'ci_only_d2' && m.as_expected ? 'calibration failed: only D2 detected' : m.outcome));
       mt.append(row);
     }
     $('mutwrap').hidden = false;
