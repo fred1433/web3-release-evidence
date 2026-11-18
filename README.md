@@ -93,7 +93,7 @@ python bench/mutants.py n3_d3_order_per_block ok1_retry_after_400ms   # some of 
 python bench/mutants.py --shard 2/3 --jobs 2              # one third of them, as CI does
 ```
 
-TIMINGS_PLACEHOLDER
+One run of both regimes takes about two and a half minutes, measured on an Apple Silicon laptop: 140.3 s for `reports/corrected.json` and 161.0 s for `reports/faulty.json`, run side by side; the still chain alone takes 66.0 s (`reports/corrected-still-only.json`). C07 and C08 each hold a payment 15 s in each regime. CI runs both variants on every push (`.github/workflows/release-evidence.yml`) with the two `--expect` commands above, and every mutant in three shards with `bench/mutants.py --shard`.
 
 ## Pointing it at another dApp
 
