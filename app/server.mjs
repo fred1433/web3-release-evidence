@@ -49,8 +49,8 @@ async function prepare() {
     setAllowlisted: 'setAllowlisted(address,bool)',
     balanceOf: 'balanceOf(address)',
     allowlisted: 'allowlisted(address)',
-    intentFor: 'intentFor(address,address,bytes32)',
-    intentPaid: 'intentPaid(address,bytes32)',
+    orderOf: 'orderOf(address,address,bytes32)',
+    orderPaid: 'orderPaid(bytes32)',
   };
   for (const [k, s] of Object.entries(sig)) index.selectors[k] = (await keccak(s)).slice(0, 10);
   index.topics.granted = await keccak('Granted(uint256,address,address,bytes32,uint256)');

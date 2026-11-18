@@ -23,7 +23,7 @@
       "where": "variants/faulty/flow.js, variants/faulty/SampleGrants.sol",
       "detected_by": "C09",
       "critical": "retry_sends_no_new_payment",
-      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, each click makes a new intent in the browser, and the contract accepts the same intent twice."
+      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, each click makes a new order id in the browser, and the contract accepts the same order twice."
     }
   ]
 }

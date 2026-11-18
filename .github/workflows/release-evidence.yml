@@ -49,8 +49,12 @@ jobs:
             reports/logs/
 
   mutants:
-    name: mutants
+    name: mutants ${{ matrix.shard }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ['1/3', '2/3', '3/3']
     steps:
       - uses: actions/checkout@v7
       - uses: foundry-rs/foundry-toolchain@v1.9.2
@@ -67,11 +71,11 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
       - name: Every rule turned false by a mutant
-        # Each mutant must end as it expects (Blocked for most); the job fails otherwise.
-        run: python bench/mutants.py --jobs 2 --out reports/ci-mutants.json
+        # Each mutant must end as it expects (Blocked for most); the job fails otherwise. Three shards side by side.
+        run: python bench/mutants.py --shard ${{ matrix.shard }} --jobs 2 --out reports/ci-mutants.json
       - name: Keep the mutants report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: release-evidence-mutants
+          name: release-evidence-mutants-${{ strategy.job-index }}
           path: reports/ci-mutants.json

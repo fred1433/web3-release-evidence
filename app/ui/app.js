@@ -6,6 +6,7 @@ const wallet = window.ethereum;
 let account = null;
 let chainOk = false;
 let accepted = false;
+let orderPaid = false; // the contract says this account's order is paid (read every second)
 const payments = createPayments({ wallet, cfg });
 
 const TITLES = {
@@ -16,7 +17,7 @@ const TITLES = {
   confirmed: 'Confirmed',
   reverted: 'Failed: the contract rejected the payment',
   unknown: 'Status unknown: the network did not answer',
-  'already-paid': 'Already paid: an earlier transaction for this order went through. This one was refused, no second debit.',
+  'already-paid': 'Already paid: this order went through in an earlier transaction. No second debit.',
   error: 'Something went wrong',
 };
 const ui = {
@@ -45,7 +46,7 @@ $('terms-text').textContent = cfg.terms;
 
 function refreshButtons() {
   $('accept').disabled = !(account && chainOk) || accepted;
-  $('pay').disabled = !(account && chainOk && accepted) || payments.locked(account);
+  $('pay').disabled = !(account && chainOk && accepted) || payments.locked(account) || orderPaid;
   $('wrong-net').hidden = !account || chainOk;
 }
 
@@ -57,6 +58,13 @@ async function onChain(chainId) {
 
 async function refresh() {
   if (!account) return;
+  try {
+    orderPaid = await payments.paid(account);
+    // After a wallet error the payment may have gone out anyway: once the contract says the order is
+    // paid, the screen says so instead of "Something went wrong".
+    if (orderPaid && ['idle', 'error'].includes($('status').dataset.state)) ui.setState('already-paid');
+    refreshButtons();
+  } catch (_) { /* order state stays as last read */ }
   try {
     const bal = await wallet.request({ method: 'eth_call', params: [{ to: cfg.token, data: cfg.selectors.balanceOf + pad(account) }, 'latest'] });
     $('balance').textContent = units(bal);
@@ -94,8 +102,8 @@ async function connect() {
   wallet.on?.('chainChanged', onChain);
   const pending = payments.pending(account);
   if (pending) {
-    const intent = payments.intentOf(account);
-    follow(ui, wallet, pending, { payAgain: pay, done: () => payments.settled(account), paid: () => payments.paid(account, intent) });
+    const order = payments.orderOf(account);
+    follow(ui, wallet, pending, { payAgain: pay, done: () => payments.settled(account), paid: () => payments.paid(account, order) });
   }
   refreshButtons();
   refresh();
@@ -129,14 +137,23 @@ async function sendTx(data) {
 
 async function pay() {
   if (!accepted || payments.locked(account)) return;
-  const asked = payments.begin(account);
+  const asked = payments.begin(account); // locks Pay at once, keeps the order id
   refreshButtons();
-  let intent;
-  try { intent = await asked; } catch (_) { payments.abandon(account, true); ui.setState('error'); return; }
-  const { hash, rejected } = await sendTx(cfg.selectors.grantAndPay + pad(cfg.reader) + pad(cfg.datasetId) + pad(toHex(cfg.fee)) + pad(intent));
-  if (!hash) { payments.abandon(account, rejected); refreshButtons(); return; }
-  payments.sent(account, hash, intent);
-  await follow(ui, wallet, hash, { payAgain: pay, done: () => payments.settled(account), paid: () => payments.paid(account, intent) });
+  let order;
+  try {
+    order = await asked;
+    // Ask the contract before sending: a paid order is never paid again.
+    if (await payments.paid(account, order)) { payments.settled(account); orderPaid = true; ui.setState('already-paid'); return; }
+  } catch (_) { payments.abandon(account, false); ui.setState('error'); refreshButtons(); return; }
+  const { hash, rejected } = await sendTx(cfg.selectors.grantAndPay + pad(cfg.reader) + pad(cfg.datasetId) + pad(toHex(cfg.fee)) + pad(order));
+  if (!hash) {
+    payments.abandon(account, rejected);
+    if (!rejected) { try { if (await payments.paid(account, order)) { orderPaid = true; ui.setState('already-paid'); } } catch (_) { /* stays on the error */ } }
+    refreshButtons();
+    return;
+  }
+  payments.sent(account, hash, order);
+  await follow(ui, wallet, hash, { payAgain: pay, done: () => payments.settled(account), paid: () => payments.paid(account, order) });
   refresh();
 }
 

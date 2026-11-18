@@ -54,10 +54,16 @@ class Chain:
         self._id = 0
         self.mines = []  # wall-clock ms of every evm_mine the bench issued
         self.mined_at = {}  # block hash -> wall-clock ms taken just before the bench mined it
+        # One lock for every request to the node, the bench's and the app's (RpcProxy holds it too), so
+        # that an empty block (below) is made atomically and nothing else reaches the node meanwhile.
+        self.lock = threading.RLock()
+        self._blocks = {}  # mined blocks never change: number -> block with its transactions
+        self.gas_limit = None
 
     def rpc(self, method, params=None):
-        self._id += 1
-        j = post_json(self.url, {'jsonrpc': '2.0', 'id': self._id, 'method': method, 'params': params or []})
+        with self.lock:
+            self._id += 1
+            j = post_json(self.url, {'jsonrpc': '2.0', 'id': self._id, 'method': method, 'params': params or []})
         if 'error' in j:
             raise RpcError(j['error'])
         return j['result']
@@ -69,18 +75,45 @@ class Chain:
         return self.keccak(signature)[:10]
 
     def mine(self):
-        """Mine one block. The time is taken before the block exists, so nothing can have seen it earlier."""
-        t = int(time.time() * 1000)
-        self.mines.append(t)
-        self.rpc('evm_mine')
-        self.mined_at[self.rpc('eth_getBlockByNumber', ['latest', False])['hash']] = t
+        """Mine one block with every transaction waiting in the mempool. The time is taken before the
+        block exists, so nothing can have seen it earlier."""
+        with self.lock:
+            t = int(time.time() * 1000)
+            self.mines.append(t)
+            self.rpc('evm_mine')
+            self.mined_at[self.rpc('eth_getBlockByNumber', ['latest', False])['hash']] = t
+        return t
+
+    def mine_empty(self):
+        """Mine one block that holds none of the waiting transactions: the block gas limit is lowered
+        below the cost of any transaction for that one block, then restored. The waiting transactions
+        stay in the mempool, known to the node, as on a chain where they are outbid."""
+        with self.lock:
+            if self.gas_limit is None:
+                self.gas_limit = int(self.rpc('eth_getBlockByNumber', ['latest', False])['gasLimit'], 16)
+            t = int(time.time() * 1000)
+            self.rpc('evm_setBlockGasLimit', [hex(20000)])
+            try:
+                self.rpc('evm_mine')
+            finally:
+                self.rpc('evm_setBlockGasLimit', [hex(self.gas_limit)])
+            self.mined_at[self.rpc('eth_getBlockByNumber', ['latest', False])['hash']] = t
         return t
 
     def head(self):
         return int(self.rpc('eth_blockNumber'), 16)
 
     def block(self, n):
-        return self.rpc('eth_getBlockByNumber', [hex(n), True])
+        if n not in self._blocks:
+            b = self.rpc('eth_getBlockByNumber', [hex(n), True])
+            if b is None:
+                return None
+            self._blocks[n] = b
+        return self._blocks[n]
+
+    def forget_blocks(self):
+        """After evm_revert, block numbers are reused."""
+        self._blocks = {}
 
     def pending_count(self):
         return int(self.rpc('txpool_status')['pending'], 16)
@@ -133,11 +166,60 @@ class Chain:
         return int(self.rpc('eth_getTransactionCount', [addr, tag]), 16)
 
 
+class BlockProducer:
+    """The moving chain: one block every `interval` seconds while a check runs, and one more just before
+    every user gesture (page load, reload, click, double click, forced click). The blocks are empty:
+    a payment waits in the mempool until the check lets it into a block (Chain.mine), as on a busy
+    chain, so the check still decides when each payment lands while blocks keep coming around it."""
+
+    def __init__(self, chain, interval=1.0):
+        self.chain, self.interval = chain, interval
+        self.count = 0
+        self.at_gesture = 0  # blocks mined just before a user gesture (click, double click, page load, reload)
+        self._count_lock = threading.Lock()
+        self._stop = threading.Event()
+        self._thread = None
+
+    def block_now(self, gesture=False):
+        self.chain.mine_empty()
+        with self._count_lock:
+            self.count += 1
+            self.at_gesture += gesture
+
+    def start(self):
+        self._stop.clear()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+        return self
+
+    def _run(self):
+        while not self._stop.wait(self.interval):
+            try:
+                self.block_now()
+            except Exception:
+                pass
+
+    def stop(self):
+        self._stop.set()
+        if self._thread:
+            self._thread.join(5)
+
+    def wait_blocks(self, n, timeout=10.0):
+        """Wait until n more empty blocks have been produced. Past the deadline: TimeoutError."""
+        target = self.count + n
+        end = time.time() + timeout
+        while self.count < target:
+            if time.time() > end:
+                raise TimeoutError(f'{n} block(s) were not produced within {timeout:g} s')
+            time.sleep(0.05)
+
+
 class RpcProxy:
     """JSON-RPC proxy between the application and the node. Can cut chosen methods."""
 
-    def __init__(self, upstream):
+    def __init__(self, upstream, lock=None):
         self.upstream = upstream
+        self.node_lock = lock or threading.RLock()
         self.cut_methods = set()
         self.cut_status = 503
         self.counts = {}
@@ -181,7 +263,7 @@ class RpcProxy:
                     self.wfile.write(b'injected outage')
                     return
                 req = urllib.request.Request(proxy.upstream, body, {'content-type': 'application/json'})
-                with urllib.request.urlopen(req, timeout=10) as r:
+                with proxy.node_lock, urllib.request.urlopen(req, timeout=10) as r:
                     out = r.read()
                 self.send_response(200)
                 self._cors()

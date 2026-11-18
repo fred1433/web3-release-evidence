@@ -248,6 +248,29 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   footer { padding: 0 16px 32px; }
 }
 @media (prefers-reduced-motion: reduce) { .stamp.thud { animation: none; } }
+.checks .res { display: block; }
+.checks .res .rg { font-family: var(--sans); font-weight: 500; font-size: 11.5px; color: var(--muted); margin-right: 5px; }
+.legend { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+.regimes { margin: 0 0 14px; }
+.regimes p { margin: 0; font-size: 14.5px; color: #2b3542; }
+.invs { margin: 12px 0 0; padding: 0; list-style: none; max-width: 76ch; }
+.invs li { font-size: 15px; color: #2b3542; padding: 6px 0; border-bottom: 1px dotted var(--rule); }
+.invs li:last-child { border-bottom: 0; }
+.invs b { color: var(--ink); }
+details.mutlist { margin-top: 10px; }
+details.mutlist summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+table.muts { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
+.muts th, .muts td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+.muts th { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.muts td.id { font-family: var(--mono); color: var(--carbon); overflow-wrap: anywhere; width: 28%; }
+.muts td.out { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+.muts td.out.bad { color: var(--red); }
+.muts .why { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+@media (max-width: 720px) {
+  .checks .res .rg { display: none; }
+  .muts td.id { width: 40%; }
+  .muts td.what { display: none; }
+}
 </style>
 </head>
 <body>
@@ -313,8 +336,10 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   <div class="row">
     <div class="cap"><h3>Covered</h3><p>Open a line for its rule, what is allowed, what is forbidden, and the assertions.</p></div>
     <div class="body">
+      <div class="split regimes" id="regimes"></div>
+      <p class="legend" id="legend"></p>
       <table class="checks" id="checks"><tbody></tbody></table>
-      <p class="note" id="inv"></p>
+      <ul class="invs" id="inv"></ul>
     </div>
   </div>
   <div class="row">
@@ -333,6 +358,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     <div class="body">
       <p class="decision" id="decision"></p>
       <ul class="proofs" id="proofs"></ul>
+      <details class="mutlist" id="mutwrap" hidden><summary id="mutsum">Every mutant, replayed</summary><table class="muts" id="muts"></table></details>
     </div>
   </div>
 </section>
@@ -349,6 +375,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
           <li>Test wallet: accounts, refusal 4001, chain switching</li>
           <li>Full history of the status line, word for word, not only its last state</li>
           <li>Direct chain and mempool reads, manual mining, snapshots</li>
+          <li>A moving chain: a block every second and before every click, while payments wait</li>
           <li>Required-checks manifest, the three statuses, JSON report, CI</li>
         </ul></div>
         <div><h4>Depends on your product</h4><ul>
@@ -395,23 +422,25 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   let D;
   try {
     const get = async (p, t, n = 0) => { try { const r = await fetch(p); if (!r.ok) throw new Error(p + ' ' + r.status); return t ? r.text() : r.json(); } catch (e) { if (n < 2) { await new Promise((ok) => setTimeout(ok, 400)); return get(p, t, n + 1); } throw e; } };
-    const [faulty, corrected, skip, sf, sc, diff, mut] = await Promise.all([
-      get('data/faulty.json'), get('data/corrected.json'), get('data/corrected-skip-C08.json'),
+    const [faulty, corrected, skip, still, sf, sc, diff, mut] = await Promise.all([
+      get('data/faulty.json'), get('data/corrected.json'), get('data/corrected-skip-C08.json'), get('data/corrected-still-only.json'),
       get('data/stability-faulty.json'), get('data/stability-corrected.json'), get('data/variants.diff', true),
       get('data/mutants.json').catch(() => null)]);
-    D = { faulty, corrected, skip, sf, sc, diff, mut };
+    D = { faulty, corrected, skip, still, sf, sc, diff, mut };
   } catch (e) {
     $('ledger').replaceChildren(el('p', 'err', 'The recorded reports could not be loaded: ' + e.message));
     return;
   }
-  const byId = (r, id) => r.checks.find((c) => c.id === id);
+  const byId = (r, id, regime = 'still') => r.checks.find((c) => c.id === id && (c.regime || 'still') === regime);
+  const runsOf = (r, id) => r.checks.filter((c) => c.id === id);
   const assertion = (c, name) => (c && c.assertions || []).find((x) => x.name === name);
   const short = (h) => h ? h.slice(0, 10) + '…' + h.slice(-6) : '';
   const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
   const say = (n) => words[n] || String(n);
   const secs = (s) => (s >= 0 ? '+' : '') + s.toFixed(2) + ' s';
   const label = (h) => (h.text || h.state).split(':')[0];
-  const isConfirmed = (h) => h.state === 'confirmed' || /(^|[^a-z])confirmed\b/i.test(h.text || '') && !/not confirmed/i.test(h.text || '');
+  const CLAIM = /(?<![a-z])(?<!not )(?<!n't )(?<!be )(?<!yet )(?<!until )confirmed\b/i;
+  const isConfirmed = (h) => h.state === 'confirmed' || CLAIM.test(h.text || '');
   const fmt = (v) => v === null || v === undefined ? 'none' : typeof v === 'boolean' ? String(v)
     : Array.isArray(v) ? v.map(fmt).join(', ') : typeof v === 'object' ? Object.entries(v).map(([k, x]) => `${k}: ${fmt(x)}`).join(', ') : String(v);
   const nameEl = (name) => { const s = el('span'); name.split('_').forEach((p, i, a) => { s.append(document.createTextNode(p + (i < a.length - 1 ? '_' : ''))); if (i < a.length - 1) s.append(el('wbr')); }); return s; };
@@ -501,26 +530,42 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     $('apiblocks').replaceChildren(
       blk(' open' + (bad ? ' hit' : ''), 'Grant register', cols.api.grants_for_user === 0 ? 'Empty for this wallet: the indexer has seen no payment.' : `${cols.api.grants_for_user} grant(s) for this wallet.`));
     const a = assertion(c8, 'never_confirmed_without_receipt');
+    const m8 = byId(r, 'C08', 'moving');
+    const mcols = m8 && m8.evidence && m8.evidence.columns;
+    let moving = '';
+    if (mcols && (m8.outcome === 'failed' || m8.outcome === 'passed')) {
+      const mh = mcols.interface.history.filter((h) => h.at_s < mcols.interface.block_mined_at_s);
+      const mclaim = m8.outcome === 'failed' ? mh.find(isConfirmed) : null;
+      moving = ` Same check on the moving chain, a block every second: ${say(mcols.chain.blocks_mined_since_click)} blocks passed without the payment, which landed at ${secs(mcols.interface.block_mined_at_s)}; `
+        + (mclaim ? `the screen said "${mclaim.text}" at ${secs(mclaim.at_s)}, ${m8.outcome}.` : `the screen never said confirmed before it, ${m8.outcome}.`);
+    }
     $('finding').replaceChildren(el('span', null, 'Check C08, assertion'), el('span', 'typed', a ? a.name : 'never_confirmed_without_receipt'), el('span', 'res ' + c8.outcome, c8.outcome),
-      el('span', null, bad
+      el('span', null, (bad
         ? `The screen said "${claim.text}" at ${secs(claim.at_s)}; the block holding the payment was mined at ${secs(tMine)}.`
-        : `The screen said "${claim.text}" at ${secs(claim.at_s)} and never the word confirmed before the block, mined at ${secs(tMine)}.`));
+        : `The screen said "${claim.text}" at ${secs(claim.at_s)} and never the word confirmed before the block, mined at ${secs(tMine)}.`) + moving));
   }
   $('switch').addEventListener('click', () => { view = view === 'faulty' ? 'corrected' : 'faulty'; render(true); });
   render(false);
 
   // ---------- section 2 ----------
   const F = D.faulty, C = D.corrected;
-  $('intro2').textContent = `${say(F.counts.required)[0].toUpperCase() + say(F.counts.required).slice(1)} required checks, identical for both versions of the app. Each ties a rule to an allowed behaviour, a forbidden attempt, a result and its evidence. Faulty run: ${F.status}. Corrected run: ${C.status}.`;
+  const ids = [...new Set(F.checks.map((c) => c.id))];
+  const twice = ids.filter((id) => runsOf(F, id).length > 1).length;
+  const regs = F.regimes || [];
+  $('intro2').textContent = `${say(ids.length)[0].toUpperCase() + say(ids.length).slice(1)} required checks, identical for both versions of the app; the ${say(twice)} that open the app run twice, on a still chain and on a moving chain, so ${say(F.counts.required)} runs are required. Each ties a rule to an allowed behaviour, a forbidden attempt, a result and its evidence. Faulty run: ${F.status}. Corrected run: ${C.status}.`;
+  $('regimes').replaceChildren(...regs.map((g) => { const d = el('div'); d.append(el('h4', null, g.title), el('p', null, g.text)); return d; }));
+  const once = ids.filter((id) => runsOf(F, id).length === 1);
+  $('legend').textContent = 'Each result cell: still chain, then moving chain.' + (once.length ? ` ${once.join(', ')} calls the contract without opening the app and runs once.` : '');
   const tb = $('checks').querySelector('tbody');
   const head = el('tr'); const hc = el('td'); const hr = el('div', 'headrow');
   hr.append(el('span', null, 'Check'), el('span', null, ''), el('span', 'layer', 'Layer'), el('span', null, 'Faulty'), el('span', null, 'Corrected'));
   hc.append(hr); head.append(hc); tb.append(head);
-  for (const fc of F.checks) {
-    const cc = byId(C, fc.id);
+  const cell = (runs) => { const c = el('span', 'res'); runs.forEach((x, i) => { const line = el('span', 'res ' + x.outcome); line.append(el('span', 'rg', runs.length > 1 ? x.regime : 'once'), document.createTextNode(x.outcome)); c.append(line); }); return c; };
+  for (const id of ids) {
+    const fr = runsOf(F, id), cr = runsOf(C, id), fc = fr[0];
     const tr = el('tr'); const td = el('td');
     const b = el('button', 'rowbtn'); b.type = 'button'; b.setAttribute('aria-expanded', 'false');
-    b.append(el('span', 'id', fc.id), el('span', 't', fc.title), el('span', 'layer', fc.trace.layer), el('span', 'res ' + fc.outcome, fc.outcome), el('span', 'res ' + cc.outcome, cc.outcome));
+    b.append(el('span', 'id', id), el('span', 't', fc.title), el('span', 'layer', fc.trace.layer), cell(fr), cell(cr));
     const tr2 = el('div', 'trace');
     const chain = el('div', 'chain');
     const rule = el('div'); rule.append(el('b', null, 'Rule'), document.createTextNode(fc.trace.rule.text)); if (fc.trace.rule.fictitious) rule.append(el('span', 'fict', 'fictitious demo rule'));
@@ -529,8 +574,9 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     const me = el('div'); me.append(el('b', null, 'How it is checked'), document.createTextNode(fc.trace.method));
     chain.append(rule, al, fo, me);
     tr2.append(chain, el('p', 'vs', 'Criterion: ' + fc.trace.criterion));
-    for (const [name, rc] of [['Faulty run', fc], ['Corrected run', cc]]) {
-      tr2.append(el('p', 'vs', `${name}: ${rc.outcome}${rc.error ? ' (' + rc.error + ')' : ''}${rc.evidence && rc.evidence.tx ? ', tx ' + short(rc.evidence.tx) + ' in block ' + rc.evidence.block : ''}`));
+    for (const [name, rc] of [...fr.map((x) => ['Faulty run', x]), ...cr.map((x) => ['Corrected run', x])]) {
+      const where = fr.length > 1 ? `, ${rc.regime} chain` : '';
+      tr2.append(el('p', 'vs', `${name}${where}: ${rc.outcome}${rc.error ? ' (' + rc.error + ')' : ''}${rc.evidence && rc.evidence.tx ? ', tx ' + short(rc.evidence.tx) + ' in block ' + rc.evidence.block : ''}${rc.blocks != null ? `, ${rc.blocks} block${rc.blocks === 1 ? '' : 's'} during the check` : ''}`));
       const t = el('table', 'asserts');
       const h = el('tr', 'hd'); h.append(el('th', null, 'Assertion'), el('th', null, 'Observed'), el('th', null, 'Expected')); t.append(h);
       for (const x of rc.assertions) {
@@ -549,6 +595,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
 
   const D3_OTHERS = [['pay_during_unknown_debits_once', 'Pay during unknown'], ['reload_then_pay_debits_once', 'reload then Pay'],
     ['second_device_debits_once', 'a second device'], ['double_click_debits_once', 'a double click'], ['wallet_error_then_pay_debits_once', 'Pay again after a wallet error']];
+  const LANDED = '_after_it_landed';
   const fl = $('faults');
   for (const f of F.planted_faults) {
     const rc = byId(F, f.detected_by), cc = byId(C, f.detected_by);
@@ -556,7 +603,9 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     const d = el('div', 'fault');
     const body = el('div');
     body.append(el('h4', null, f.title), el('p', null, f.what));
-    body.append(el('p', null, `Found by ${f.detected_by} on the faulty run: its critical assertion ${f.critical} ${crit && !crit.ok ? 'failed' : 'did not fail'}. The same check ${cc.outcome} on the corrected run. Source: ${f.where}.`));
+    const inR = (f.detected_in || []).map((g) => 'the ' + g + ' chain').join(' and on ');
+    const cco = runsOf(C, f.detected_by).map((x) => x.outcome);
+    body.append(el('p', null, `Found by ${f.detected_by} on the faulty run: its critical assertion ${f.critical} ${f.detected ? 'failed, on ' + inR : 'did not fail'}. The same check ${[...new Set(cco)].join(' and ')} on the corrected run${cco.length > 1 ? ', in both regimes' : ''}. Source: ${f.where}.`));
     const ev = el('ul', 'ev');
     const line = (k, v) => { const x = el('li'); x.append(el('b', null, k), document.createTextNode(v)); ev.append(x); };
     if (f.id === 'D1' && crit) line('Observed', crit.observed.join(' / '));
@@ -569,8 +618,13 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
       line('Retry button', `"${rc.evidence.retry_button}"`);
       const rd = assertion(rc, 'retry_debits_once');
       if (rd) line('After the retry', fmt(rd.observed));
-      const twice = D3_OTHERS.filter(([n]) => { const x = assertion(rc, n); return x && !x.ok; }).map(([, k]) => k);
-      if (twice.length) line('Also debited twice', twice.join(', ') + (assertion(rc, 'contract_refuses_same_intent')?.ok === false ? '; the contract accepted the same intent again' : ''));
+      const failedAt = (n) => { const x = assertion(rc, n); return x && !x.ok; };
+      const early = D3_OTHERS.filter(([n]) => failedAt(n)).map(([, k]) => k);
+      const late = D3_OTHERS.filter(([n]) => failedAt(n + LANDED)).map(([, k]) => k);
+      if (early.length) line('Debited twice while it waited', early.join(', '));
+      if (late.length) line('Debited twice after it landed', late.join(', '));
+      const cr = [assertion(rc, 'contract_refuses_same_order'), assertion(rc, 'contract_refuses_other_order_id')];
+      if (cr.some((x) => x && !x.ok)) line('Straight on the contract', cr.filter((x) => x && !x.ok).map((x) => fmt(x.observed)).join('; '));
     }
     body.append(ev);
     d.append(el('span', 'fid', f.id), body);
@@ -582,16 +636,23 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     pre.append(cls ? el('span', cls, ln) : document.createTextNode(ln), document.createTextNode('\n'));
   }
 
-  const inv = (F.invariants || [])[0];
-  if (inv) { $('inv').replaceChildren(el('b', null, `Invariant ${inv.id} (${inv.applies_to}). `), document.createTextNode(inv.text + ' Assertion '), el('code', null, inv.assertion), document.createTextNode('.')); }
+  for (const inv of F.invariants || []) {
+    const x = el('li');
+    x.append(el('b', null, `${inv.id} (${inv.applies_to}). `), document.createTextNode(inv.text + (inv.assertion.startsWith('(') ? '' : ' Assertion ')));
+    if (!inv.assertion.startsWith('(')) { x.append(el('code', null, inv.assertion), document.createTextNode('.')); }
+    $('inv').append(x);
+  }
   const nc = $('nc');
   for (const n of F.not_covered) { const x = el('li'); x.append(el('b', null, n.item), el('span', null, n.why)); nc.append(x); }
 
   $('decision').textContent = F.decision;
   const sk = D.skip;
   const stab = (s) => `${s.runs} runs of the ${s.variant} app on a fresh chain each time: ${Object.entries(s.statuses).map(([k, v]) => `${k} ${v} times`).join(', ')}; ${s.identical ? 'every run had the same outcome on every check' : 'outcomes differed between runs'}.`;
+  const st = D.still;
+  const skipped = [...new Set(sk.not_executed.map((k) => k.split('/')[0]))];
   $('proofs').append(
-    el('li', null, `Same corrected app, with check ${sk.not_executed.join(', ')} left out of the run: ${sk.status}, ${sk.counts.executed} of ${sk.counts.required} required checks executed. A smaller run cannot pass.`),
+    el('li', null, `Same corrected app, with check ${skipped.join(', ')} left out of the run: ${sk.status}, ${sk.counts.executed} of ${sk.counts.required} required checks executed. A smaller run cannot pass.`),
+    el('li', null, `Same corrected app, on the still chain only: ${st.status}, ${st.counts.executed} of ${st.counts.required} required checks executed. A run without the moving chain cannot pass either.`),
     el('li', null, stab(D.sf)), el('li', null, stab(D.sc)));
   if (D.mut) {
     const ms = D.mut.mutants;
@@ -600,11 +661,25 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     const pass = ms.filter((m) => m.expected === 'Demonstrated checks passed');
     const li2 = el('li');
     li2.append(document.createTextNode(`${say(ms.length)[0].toUpperCase() + say(ms.length).slice(1)} mutants of the app: ${nBlocked} must end Blocked, `
-      + (nIncomplete ? `${say(nIncomplete)} Incomplete (a retry button that does nothing: a passed deadline is never a detection), ` : '')
+      + (nIncomplete ? `${say(nIncomplete)} Incomplete (no retry button, or one that does nothing: a passed deadline is never a detection), ` : '')
       + `one must fail the CI calibration, and ${say(pass.length)} must pass (`));
     pass.forEach((m, i) => { if (i) li2.append(document.createTextNode(', ')); li2.append(el('code', null, m.id)); });
     li2.append(document.createTextNode(`). ${D.mut.as_expected} of ${D.mut.total} ended as expected. Run `), el('code', null, 'bench/mutants.py'), document.createTextNode(', report in '), el('code', null, 'reports/mutants.json'), document.createTextNode('.'));
     $('proofs').append(li2);
+    $('mutsum').textContent = `Every mutant, replayed: what it breaks, what it must give, what it gave`;
+    const mt = $('muts');
+    const hh = el('tr'); hh.append(el('th', null, 'Mutant'), el('th', 'what', 'What it changes'), el('th', null, 'Expected'), el('th', null, 'Outcome')); mt.append(hh);
+    for (const m of ms) {
+      const row = el('tr');
+      const where = m.by_regime ? Object.entries(m.by_regime).filter(([, v]) => v.length).map(([g, v]) => `${g}: ${v.join(', ')}`).join('; ') : '';
+      const id = el('td', 'id', m.id);
+      const what = el('td', 'what'); what.append(document.createTextNode(m.what));
+      if (where) what.append(el('span', 'why', 'Failed checks, ' + where));
+      if (m.not_one_debit && m.not_one_debit.length) what.append(el('span', 'why', m.not_one_debit[0]));
+      row.append(id, what, el('td', null, m.expected), el('td', 'out' + (m.as_expected ? '' : ' bad'), m.outcome));
+      mt.append(row);
+    }
+    $('mutwrap').hidden = false;
   }
 })();
 </script>

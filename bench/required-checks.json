@@ -1,5 +1,5 @@
 {
-  "about": "Required checks for a release of the Sample Grants synthetic app. Every check maps to one acceptance criterion. A run that does not execute every check here cannot pass. Rules marked fictitious are demo rules: no one has approved them.",
+  "about": "Required checks for a release of the Sample Grants synthetic app. Every check maps to one acceptance criterion. Every check that opens the app runs on a still chain and on a moving chain, and both runs are required. A run that does not execute every required check in every regime cannot pass. Rules marked fictitious are demo rules: no one has approved them.",
   "checks": [
     {
       "id": "C01",
@@ -32,7 +32,7 @@
       "title": "Wrong network blocks sending",
       "layer": "interface",
       "method": "Playwright + test wallet chainChanged",
-      "criterion": "On another chain the app shows a banner, disables payment, sends nothing, and clears the banner after switching back.",
+      "criterion": "On another chain the app shows a banner and disables payment (both awaited with a deadline), a forced click sends nothing, and the banner goes after switching back.",
       "rule": {
         "text": "Payments are only sent on the intended chain.",
         "fictitious": false
@@ -57,14 +57,17 @@
       "id": "C05",
       "title": "Allowlist enforced by the contract",
       "layer": "contract",
-      "method": "Direct contract call from a non-allowlisted account",
+      "method": "Direct contract call from a non-allowlisted account (no interface: runs once)",
       "criterion": "A wallet outside the allowlist calling the contract directly is reverted with NotAllowlisted and no grant is created.",
       "rule": {
         "text": "Only allowlisted wallets may open a grant.",
         "fictitious": true
       },
       "allowed": "Allowlisted wallets open grants.",
-      "forbidden": "A non-allowlisted wallet opening a grant by skipping the interface."
+      "forbidden": "A non-allowlisted wallet opening a grant by skipping the interface.",
+      "regimes": [
+        "still"
+      ]
     },
     {
       "id": "C06",
@@ -81,23 +84,23 @@
     },
     {
       "id": "C07",
-      "title": "Success is confirmed only after the block",
+      "title": "Nothing on the page says confirmed before the block",
       "layer": "interface + API + chain",
-      "method": "Playwright, manual mining, direct chain reads",
-      "criterion": "Nothing says confirmed before the block is mined; then the receipt is status 1, 25 TEST move once, the grant is active on chain and the API agrees.",
+      "method": "Playwright, a payment held 15 s in the mempool before its block (15 empty blocks pass on the moving chain), direct chain reads",
+      "criterion": "With a healthy RPC, the payment waits 15 s in the mempool. Nothing on the page (status line, any other text, tab title, dialog) says confirmed before the block that holds it; then the receipt is status 1, 25 TEST move once, the grant is active on chain and the API agrees.",
       "rule": {
         "text": "Confirmed means included in a block.",
         "fictitious": false
       },
-      "allowed": "Pending while the transaction waits.",
-      "forbidden": "Confirmed before the block, or an API that disagrees with the chain."
+      "allowed": "Pending while the transaction waits, however long and however many blocks pass.",
+      "forbidden": "Confirmed anywhere on the page before the block that holds the payment, or an API that disagrees with the chain."
     },
     {
       "id": "C08",
       "title": "No confirmed without a receipt during an RPC outage",
       "layer": "interface + chain",
-      "method": "RPC proxy cuts receipts on the app's path until the screen settles, plus a margin; full history of the status line, state and visible text",
-      "criterion": "While receipt requests from the app are cut, the screen never shows the word confirmed: no receipt exists and no block has been mined. Once the bench restores the RPC and mines, both versions end on Confirmed, so only the history can tell them apart.",
+      "method": "RPC proxy cuts receipts on the app's path for at least 15 s after the payment reaches the mempool and 5 s after the screen settles; full history of the status line, state and visible text",
+      "criterion": "While receipt requests from the app are cut, the screen never shows the word confirmed: no receipt exists, the payment is still in the mempool. Once the bench restores the RPC and mines, both versions end on Confirmed, so only the history can tell them apart.",
       "rule": {
         "text": "Confirmed means included in a block.",
         "fictitious": false
@@ -107,23 +110,23 @@
     },
     {
       "id": "C09",
-      "title": "At most one debit per payment intent",
+      "title": "One order, at most one debit",
       "layer": "interface + chain",
-      "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; waits with a deadline; direct block and mempool scan; direct contract call",
-      "criterion": "After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once: a duplicate that the contract reverts is listed and not counted as a debit. The contract refuses the same intent sent again with IntentAlreadyPaid. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
+      "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; each pay-again done while the first payment waits and again after it landed; waits with a deadline; direct block and mempool scan; direct contract calls",
+      "criterion": "An order is one payer granting one reader one dataset for one access period. After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once, whether the user acts while the first payment waits or after it landed; on the moving chain blocks pass while the order is unpaid. A duplicate that the contract reverts is listed and not counted as a debit. Once the first payment is in a block, a Pay sends nothing, and after a wallet error the screen says Already paid. Straight on the contract, a paid order sent again is refused with OrderAlreadyPaid and an id that is not the open order with NotCurrentOrder. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
       "rule": {
-        "text": "At most one debit per payment intent.",
+        "text": "One order, at most one debit.",
         "fictitious": false
       },
-      "allowed": "Check the same transaction again. A duplicate that the contract reverts: it costs gas and moves no TEST.",
-      "forbidden": "A second debit for the same payment intent."
+      "allowed": "Check the same transaction again. While the first payment waits, a duplicate that the contract reverts: it costs gas and moves no TEST.",
+      "forbidden": "A second debit for the same order, whatever the number of blocks, devices, reloads or wallet errors."
     },
     {
       "id": "C10",
       "title": "Admin function enforced by the contract",
       "layer": "contract",
       "method": "Direct contract calls from an allowlisted ordinary account, then from the admin",
-      "criterion": "The admin control is hidden for ordinary users; an allowlisted ordinary account calling setAllowlisted directly, to add or to remove, is reverted with NotAdmin and the allowlist does not change; the admin can still add and remove.",
+      "criterion": "The admin control is hidden for ordinary users and shown to the admin; an allowlisted ordinary account calling setAllowlisted directly, to add or to remove, is reverted with NotAdmin and the allowlist does not change; the admin can still add and remove.",
       "rule": {
         "text": "Only the admin edits the allowlist.",
         "fictitious": true
@@ -151,8 +154,12 @@
       "why": "The bench drives an EIP-1193 test provider. It exercises the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
     },
     {
-      "item": "A payment started on another device or with browser storage cleared or refused",
-      "why": "The intent is derived by the contract from the order, not kept by the browser, so these cases cannot debit twice while the order is unpaid; C09 runs the second device (a fresh browser, empty storage), and refused storage takes the same path without being run on its own. What the browser keeps is the Pay lock and the follow-up after a reload: there, the user can still send a duplicate, which the contract reverts at the cost of its gas. Once the first payment is in a block, a new Pay is a new order and a new debit, by design."
+      "item": "Notifications outside the page",
+      "why": "I1 covers the status line, every other visible text on the page, the tab title and alert or confirm dialogs. Browser or system notifications, sounds, and the wallet's own popups are not observed."
+    },
+    {
+      "item": "A duplicate sent while the first payment still waits, from a device that does not know about it",
+      "why": "The order id comes from the contract, so a second device, a cleared or refused browser storage, or a Pay after a wallet error sends the same order id, and the contract refuses a second debit of it in every case C09 runs. What a dApp without a server cannot prevent is the duplicate itself: a device that has never seen the first payment, asked while that payment is not yet in a block, sends a second transaction, which the contract reverts at the cost of its gas. Refused storage takes the same path as the second device without being run on its own."
     },
     {
       "item": "Reader authentication",
@@ -164,7 +171,7 @@
     },
     {
       "item": "Gas spikes and congestion on a public network",
-      "why": "The local chain mines on demand. Stuck, replaced or cancelled transactions under real fee markets are not exercised."
+      "why": "On the moving chain a payment waits in the mempool while empty blocks pass, as an outbid transaction would; real fee markets, replaced or cancelled transactions are not exercised."
     },
     {
       "item": "Chain reorganisations",
@@ -183,8 +190,32 @@
     {
       "id": "I1",
       "assertion": "no_confirmed_before_receipt_block",
-      "applies_to": "every check that opens the app: all but C05",
-      "text": "The status line never says Confirmed before the block that holds the receipt of the transaction it names. The test wallet sends each change of the status line to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it."
+      "applies_to": "every check that opens the app, in both regimes: all but C05",
+      "text": "Nothing on the page says Confirmed before the block that holds the receipt. On the status line, the receipt of the transaction it names; anywhere else on the page (visible text, tab title, alert and confirm dialogs), the receipt of a transaction that tab sent. The test wallet sends each change to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it. A sentence that says the opposite or the future (\"not confirmed\", \"will be confirmed once it is in a block\") is not a claim."
+    },
+    {
+      "id": "I2",
+      "assertion": "*_debits_once, *_sends_nothing_once_paid, contract_refuses_*",
+      "applies_to": "C09, in both regimes",
+      "text": "One order, at most one debit, whatever the number of blocks passed, devices, reloads or wallet errors. The order id comes from the contract (payer, reader, dataset, access period); it never depends on a block number or on a count of payments, and the contract refuses a second debit of it."
+    },
+    {
+      "id": "I3",
+      "assertion": "(waits)",
+      "applies_to": "every check",
+      "text": "Every appearance the bench expects (a state, a button, a banner, the indexer) is awaited until a deadline; a passed deadline makes the run Incomplete, never Blocked. The only fixed windows are observation windows (15 s before a payment's block in C07 and C08, 0.5 to 1 s after a click), and what follows them only checks that something did not happen."
+    }
+  ],
+  "regimes": [
+    {
+      "id": "still",
+      "title": "Still chain",
+      "text": "The bench mines a block only when the check decides: the moment between sent and in a block is held as long as the check needs."
+    },
+    {
+      "id": "moving",
+      "title": "Moving chain",
+      "text": "A block every second while the user acts, and one more just before every page load, reload and click. The blocks are empty: a payment waits in the mempool, known to the node, until the check lets it into a block, as a transaction does on a busy chain. So blocks keep coming while a payment waits, during an outage, between two devices and between two clicks."
     }
   ]
 }

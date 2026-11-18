@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample Grants (synthetic app)</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="app" id="app">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true"></span>Sample Grants</div>
+    <button id="connect" data-testid="connect">Connect wallet</button>
+    <div id="who" class="who" hidden><span id="account" data-testid="account"></span><span id="network" data-testid="network"></span></div>
+  </header>
+  <p class="synthetic">Synthetic application on a local development chain. TEST units have no value.</p>
+
+  <div id="wrong-net" class="banner" data-testid="wrong-network" hidden>
+    <span>Wrong network. This app runs on the local dev chain (31337).</span>
+    <button id="switch" data-testid="switch-network">Switch network</button>
+  </div>
+  <div id="no-wallet" class="banner" hidden>No wallet found in this browser.</div>
+
+  <section class="card" id="grant-card">
+    <h1>Grant read access</h1>
+    <dl class="facts">
+      <dt>Reader</dt><dd>Reviewer R-1 <code id="reader"></code></dd>
+      <dt>Dataset</dt><dd id="dataset"></dd>
+      <dt>Payment</dt><dd><strong>25 TEST</strong> to the reader</dd>
+      <dt>Your balance</dt><dd><span id="balance" data-testid="balance">-</span> TEST</dd>
+    </dl>
+    <div class="terms">
+      <p id="terms-text"></p>
+      <button id="accept" data-testid="accept" disabled>Sign the demo terms</button>
+      <span id="accepted" class="ok" data-testid="accepted" hidden>Terms signed</span>
+    </div>
+    <button id="pay" class="primary" data-testid="pay" disabled>Grant access and pay 25 TEST</button>
+    <div class="status" id="status" data-testid="tx-status" data-state="idle">
+      <span class="dot" aria-hidden="true"></span>
+      <div><strong id="status-title">No payment yet</strong><code id="status-hash"></code></div>
+    </div>
+    <button id="retry" data-testid="retry" hidden></button>
+  </section>
+
+  <section class="card">
+    <h2>Your grants</h2>
+    <ul id="grants" data-testid="grants"><li class="empty">None yet.</li></ul>
+  </section>
+
+  <section class="card admin" id="admin" data-testid="admin-panel" hidden>
+    <h2>Admin: allowlist</h2>
+    <input id="admin-addr" placeholder="0x address" aria-label="Address to allowlist">
+    <button id="admin-add" data-testid="admin-add">Add to allowlist</button>
+  </section>
+</main>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

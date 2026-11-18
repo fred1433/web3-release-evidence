@@ -1,14 +1,16 @@
 """Mutants: each rule must turn false on an app that breaks it.
 
 Every mutant copies the repository into a temporary folder, changes a few lines of the corrected
-app (or of the faulty one for the CI case), runs the whole bench and compares the outcome with
-what the mutant expects. Most must end Blocked. Two must pass: a correct but slow retry, and one
-change that no longer matters since the intent comes from the contract. A retry button that does
-nothing must end Incomplete: the bench never turns "nothing happened before the deadline" into a
-detection.
+app (or of the faulty one for the CI case), runs the whole bench (both regimes) and compares the
+outcome with what the mutant expects. Most must end Blocked. Some must pass: correct but slow apps,
+a correct app with other words on its status line, and one change that no longer matters since the
+order id comes from the contract. A retry button that does nothing, or none at all, must end
+Incomplete: the bench cannot tell a missing button from a slow one without a deadline, and a passed
+deadline is never a detection (it still cannot pass).
 
     python bench/mutants.py                 # all mutants, writes reports/mutants.json
     python bench/mutants.py m1 m4 --jobs 2  # some of them
+    python bench/mutants.py --shard 1/3     # the first third of them (CI runs three shards side by side)
 
 Exit code 0 only if every mutant ended as expected.
 """
@@ -22,8 +24,20 @@ RETRY = "  ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, opts));\n  
 LOCKED = "    locked: (a) => inFlight.has(a) || Boolean(read(a)?.hash),"
 ABANDON = "    abandon(a, rejected) { inFlight.delete(a); if (rejected) write(a, null); },"
 ADMIN = "    function setAllowlisted(address account, bool allowed) external onlyAdmin {"
+HEAD = "  ui.setState('submitted', hash);\n  let failures = 0;"
+TAIL = "    await sleep(250);\n  }\n  return lost(ui, wallet, hash, opts);"
+ORDER_OF = "        return keccak256(abi.encode(payer, reader, dataset, periodsEnded[payer][reader][dataset]));"
+RANDOM_ID = "'0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('')"
+PREVIOUS = 'bench/fixtures/e5008da'  # the corrected app of commit e5008da, the one a reviewer showed debiting twice
 
-# id: (rule it breaks, what it does, expected status, [(file, old, new), ...])
+
+def optimistic(ms):
+    """The reviewer's D1 mutant: with a healthy RPC and no receipt after `ms`, Confirmed if the node knows the transaction."""
+    return [(CF, HEAD, HEAD + "\n  const tStart = Date.now(); let optimistic = false;"),
+            (CF, TAIL, f"    if (!optimistic && Date.now() - tStart > {ms}) {{ try {{ const tx = await wallet.request({{ method: 'eth_getTransactionByHash', params: [hash] }}); if (tx) {{ optimistic = true; ui.setState('confirmed', hash); }} }} catch (_) {{}} }}\n" + TAIL)]
+
+
+# id: (rule it breaks, what it does, expected status, [(file, old, new), ...] or ('fixture', folder))
 MUTANTS = {
     'late_d1': ('D1', 'Confirmed from the transaction lookup after about 3 s of failed receipts.', BLOCKED, [
         (CF, "      failures += 1;\n      if (failures >= 3) return lost(ui, wallet, hash, opts);",
@@ -34,33 +48,52 @@ MUTANTS = {
         (APP, "  unknown: 'Status unknown: the network did not answer',", "  unknown: 'Confirmed',")]),
     'm1_confirm_on_retry': ('D1', 'Check status again shows Confirmed as soon as the node knows the transaction, before any block.', BLOCKED, [
         (CF, RETRY, "  ui.offerRetry(RETRY_LABEL, async () => {\n    try {\n      const tx = await wallet.request({ method: 'eth_getTransactionByHash', params: [hash] });\n      if (tx) { ui.setState('confirmed', hash); if (opts.done) opts.done(tx); return tx; }\n    } catch (_) { /* still down */ }\n    return follow(ui, wallet, hash, opts);\n  });\n  return null;")]),
+    'n1_d1_optimistic_2s': ('D1', 'Reviewer: RPC healthy, no receipt for 2 s, Confirmed if the node knows the transaction.', BLOCKED, optimistic(2000)),
+    'n1b_d1_optimistic_5s': ('D1', 'Reviewer: the same after 5 s.', BLOCKED, optimistic(5000)),
+    'n2_d1_toast': ('D1', 'Reviewer: a toast outside the status line says Payment confirmed as soon as the transaction is sent.', BLOCKED, [
+        (APP, "    $('status').dataset.state = state;", "    if (state === 'submitted') { let t = document.getElementById('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); document.body.append(t); } t.textContent = 'Payment confirmed'; }\n    $('status').dataset.state = state;")]),
+    'confirm_on_next_block': ('D1', 'Confirmed as soon as any new block arrives after sending, whether or not it holds the payment. Only the moving chain can catch it: on the still chain the next block is always the one with the payment.', BLOCKED, [
+        (CF, HEAD, HEAD + "\n  const head0 = await wallet.request({ method: 'eth_blockNumber' });"),
+        (CF, TAIL, "    try { if (BigInt(await wallet.request({ method: 'eth_blockNumber' })) > BigInt(head0)) { ui.setState('confirmed', hash); if (opts.done) opts.done(null); return null; } } catch (_) {}\n" + TAIL)]),
     'weak_d2': ('D2', 'Only adding is guarded: anyone can remove anyone.', BLOCKED, [
         (CS, ADMIN, "    function setAllowlisted(address account, bool allowed) external {\n        if (allowed && msg.sender != admin) revert NotAdmin();")]),
     'allowlisted_admin': ('D2', 'Any allowlisted account can edit the allowlist.', BLOCKED, [
         (CS, ADMIN, "    function setAllowlisted(address account, bool allowed) external {\n        if (msg.sender != admin && !allowlisted[msg.sender]) revert NotAdmin();")]),
     'wrong_error': ('D2', 'Refused, but with another error than NotAdmin.', BLOCKED, [
         (CS, ADMIN, "    function setAllowlisted(address account, bool allowed) external {\n        if (msg.sender != admin) revert NotAllowlisted();")]),
-    'no_retry': ('D3', 'No retry button after status unknown.', BLOCKED, [(CF, RETRY, "  return null;")]),
+    'no_retry': ('D3', 'No retry button after status unknown. The bench waits for the button until its deadline, so a missing button ends Incomplete, not Blocked (it was Blocked before every appearance got a deadline).', INCOMPLETE, [(CF, RETRY, "  return null;")]),
     'retry_noop': ('D3', 'The retry button does nothing. Nothing happening is a passed deadline, not a detection: the run ends Incomplete, which cannot pass either.', INCOMPLETE, [(CF, RETRY, "  ui.offerRetry(RETRY_LABEL, () => {});\n  return null;")]),
     'pay_unlocked': ('D3', 'The Pay button is never locked (the contract still reverts the duplicate).', BLOCKED, [(CF, LOCKED, "    locked: () => false,")]),
-    'no_storage': ('D3', 'Nothing survives a reload: the transaction in progress is kept in memory only.', BLOCKED, [
+    'no_storage': ('D3', 'Nothing survives a reload: the payment in progress is kept in memory only.', BLOCKED, [
         (CF, "export function createPayments({ wallet, cfg, storage = window.localStorage }) {",
          "export function createPayments({ wallet, cfg, storage = { m: new Map(), getItem(k) { return this.m.get(k) ?? null; }, setItem(k, v) { this.m.set(k, v); }, removeItem(k) { this.m.delete(k); } } }) {")]),
-    'contract_no_intent': ('D3', 'The contract no longer refuses a paid intent.', BLOCKED, [
-        (CS, "        if (intentPaid[msg.sender][intent]) revert IntentAlreadyPaid();\n", "")]),
-    'retry_repays_same_intent': ('D3', 'The retry pays again with the same intent: one debit, one reverted duplicate.', BLOCKED, [
+    'contract_no_paid_check': ('D3', 'The contract no longer refuses a second payment of a paid order.', BLOCKED, [
+        (CS, "        if (orderPaid[order]) revert OrderAlreadyPaid();\n", "")]),
+    'contract_trusts_order_id': ('D3', 'The contract refuses a paid order id, but accepts any id the caller sends instead of the open order.', BLOCKED, [
+        (CS, "        if (order != orderOf(msg.sender, reader, dataset)) revert NotCurrentOrder();\n", "")]),
+    'n3_d3_order_per_block': ('D3', 'Reviewer, on this contract: orderOf also hashes block.number, so the order id changes with every block.', BLOCKED, [
+        (CS, ORDER_OF, ORDER_OF.replace("[dataset]));", "[dataset], block.number));"))]),
+    'previous_corrected_e5008da': ('D3', 'The corrected app of commit e5008da, unchanged: its intent counted the payments already made, so once the first payment was in a block a second Pay (second device, or after a wallet error) was a new intent. A reviewer showed -50 TEST on it.', BLOCKED, ('fixture', PREVIOUS)),
+    'no_paid_check': ('D3', 'The app never asks the contract whether the order is paid: after a wallet error it reopens Pay and sends a duplicate, which the contract reverts.', BLOCKED, [
+        (CF, "      const o = order || read(a)?.order || await openOrder(a);\n      return BigInt(await call(cfg.selectors.orderPaid + pad(o))) === 1n;", "      return false;")]),
+    'retry_repays_same_order': ('D3', 'The retry pays again with the same order: one debit, one reverted duplicate.', BLOCKED, [
         (CF, LOCKED, "    locked: () => false,"), (CF, RETRY, "  ui.offerRetry(RETRY_LABEL, opts.payAgain);\n  return null;")]),
-    'browser_intent': ('D3', 'The intent is made in the browser again instead of being asked from the contract.', BLOCKED, [
-        (CF, "      try { return await call(cfg.selectors.intentFor + pad(a) + pad(cfg.reader) + pad(cfg.datasetId)); } catch (e) { inFlight.delete(a); throw e; }",
-         "      return '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');")]),
-    'm3_new_intent_after_wallet_error': ('D3', 'After any wallet error the app forgets the order and makes a new intent in the browser.', BLOCKED, [
-        (CF, ABANDON, "    abandon(a, rejected) { inFlight.delete(a); write(a, null); forgot.add(a); },"),
+    'browser_order': ('D3', 'The order id is made in the browser again instead of being asked from the contract.', BLOCKED, [
+        (CF, "        const order = read(a)?.order || await openOrder(a);", f"        const order = {RANDOM_ID};")]),
+    'm3_new_order_after_wallet_error': ('D3', 'After any wallet error the app forgets the order and makes a new id in the browser.', BLOCKED, [
+        (CF, ABANDON, "    abandon(a, rejected) { inFlight.delete(a); write(a, null); if (!rejected) forgot.add(a); },"),
         (CF, "  const inFlight = new Set();", "  const inFlight = new Set();\n  const forgot = new Set();"),
-        (CF, "      inFlight.add(a);\n      try {", "      inFlight.add(a);\n      if (forgot.has(a)) return '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');\n      try {")]),
-    'm3_as_written': ('D3', 'The reviewer\'s M3 line as written: the browser record is wiped on any wallet error. The intent no longer lives there, so this changes nothing: the next Pay asks the contract and gets the same intent.', PASSED, [
+        (CF, "      inFlight.add(a);\n      try {", f"      inFlight.add(a);\n      if (forgot.has(a)) return {RANDOM_ID};\n      try {{")]),
+    'm3_as_written': ('D3', 'The M3 line of an earlier review, as written: the browser record is wiped on any wallet error. The order id does not live there, so this changes nothing: the next Pay asks the contract and gets the same order.', PASSED, [
         (CF, ABANDON, "    abandon(a) { inFlight.delete(a); write(a, null); },")]),
     'm4_slow_retry': ('waits', 'Correct but slow: the retry checks the same transaction after a 2 s backoff.', PASSED, [
         (CF, RETRY, "  ui.offerRetry(RETRY_LABEL, async () => { await sleep(2000); return follow(ui, wallet, hash, opts); });\n  return null;")]),
+    'ok1_retry_after_400ms': ('waits', 'Reviewer: correct app, the retry button appears 400 ms after unknown.', PASSED, [
+        (CF, RETRY, "  setTimeout(() => ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, opts)), 400);\n  return null;")]),
+    'ok2_banner_after_500ms': ('waits', 'Reviewer: correct app, the wrong-network banner appears 500 ms after chainChanged.', PASSED, [
+        (APP, "  wallet.on?.('chainChanged', onChain);", "  wallet.on?.('chainChanged', (id) => setTimeout(() => onChain(id), 500));")]),
+    'ok3_wording': ('D1', 'Reviewer: correct app, the pending status reads "Sent: it will be confirmed once it is in a block".', PASSED, [
+        (APP, "  submitted: 'Pending: waiting for the network to include it',", "  submitted: 'Sent: it will be confirmed once it is in a block',")]),
     'ci_only_d2': ('CI', 'A faulty app that keeps only D2 (D1 and D3 fixed) must fail the CI calibration.', 'calibration fails', None),
 }
 
@@ -79,6 +112,13 @@ def apply(dst, name):
         s = open(os.path.join(dst, CS)).read()
         assert s.count(ADMIN) == 1
         open(os.path.join(dst, FS), 'w').write(s.replace(ADMIN, ADMIN.replace(' onlyAdmin', '')))
+        return
+    if isinstance(changes, tuple) and changes[0] == 'fixture':  # whole files, at the same paths
+        src = os.path.join(ROOT, changes[1])
+        for d, _, files in os.walk(src):
+            for f in files:
+                rel = os.path.relpath(os.path.join(d, f), src)
+                shutil.copy(os.path.join(d, f), os.path.join(dst, rel))
         return
     for f, old, new in changes:
         path = os.path.join(dst, f)
@@ -100,8 +140,11 @@ def run_one(name, base):
     r = subprocess.run([sys.executable, os.path.join(dst, 'bench', 'run.py')] + args + ['--out', out], capture_output=True, text=True)
     rep = json.load(open(out)) if os.path.exists(out) else {}
     status = rep.get('status', 'no report')
-    failed = {c['id']: c['failed_assertions'] for c in rep.get('checks', []) if c.get('failed_assertions')}
-    errors = {c['id']: c['error'] for c in rep.get('checks', []) if c.get('error')}
+    failed = {c['key']: c['failed_assertions'] for c in rep.get('checks', []) if c.get('failed_assertions')}
+    errors = {c['key']: c['error'] for c in rep.get('checks', []) if c.get('error')}
+    # The debit lines of every C09 scenario that moved more than 25 TEST, as the report wrote them.
+    debits = [f"{c['key']}, {x['scenario']}, {x['ordering']}: {x['result']}" for c in rep.get('checks', []) if c['id'] == 'C09'
+              for x in (c.get('evidence') or {}).get('scenarios', []) if '-25 TEST' not in x['result']]
     calib = next((l.split('calibration: ', 1)[1] for l in r.stdout.splitlines() if 'calibration: ' in l), None)
     if name == 'ci_only_d2':
         ok = r.returncode != 0 and calib is not None and calib.startswith('FAILED')
@@ -110,7 +153,8 @@ def run_one(name, base):
         ok = status == expected
         outcome = status
     return {'id': name, 'breaks': rule, 'what': what, 'expected': expected, 'outcome': outcome, 'as_expected': ok,
-            'exit': r.returncode, 'failed_assertions': failed, 'errors': errors, 'duration_s': rep.get('duration_s')}
+            'exit': r.returncode, 'failed_assertions': failed, 'errors': errors, 'not_one_debit': debits, 'duration_s': rep.get('duration_s'),
+            'by_regime': {g: sorted({c['id'] for c in rep.get('checks', []) if c.get('regime') == g and c['outcome'] == 'failed'}) for g in ('still', 'moving')}}
 
 
 def main():
@@ -118,6 +162,7 @@ def main():
     p.add_argument('names', nargs='*', help='mutant ids (default: all). Known: ' + ', '.join(MUTANTS))
     p.add_argument('--jobs', type=int, default=1, help='mutants run at the same time (default 1)')
     p.add_argument('--out', help='report path (default reports/mutants.json when every mutant runs)')
+    p.add_argument('--shard', metavar='I/N', help='run only the I-th of N equal slices of the mutant list')
     args = p.parse_args()
     unknown = [n for n in args.names if n not in MUTANTS]
     if unknown:
@@ -125,6 +170,13 @@ def main():
     if args.jobs < 1:
         p.error('--jobs must be 1 or more')
     names = args.names or list(MUTANTS)
+    if args.shard:
+        try:
+            i, n = (int(x) for x in args.shard.split('/'))
+            assert 1 <= i <= n
+        except Exception:
+            p.error('--shard takes I/N with 1 <= I <= N, for example 2/3')
+        names = names[i - 1::n]
     results = {}
     with tempfile.TemporaryDirectory(prefix='mutants-') as base:
         with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as ex:
@@ -137,7 +189,7 @@ def main():
     ordered = [results[n] for n in names]
     good = sum(1 for x in ordered if x['as_expected'])
     print(f'{good} of {len(ordered)} mutants ended as expected')
-    out = args.out or (os.path.join(ROOT, 'reports', 'mutants.json') if not args.names else None)
+    out = args.out or (os.path.join(ROOT, 'reports', 'mutants.json') if not (args.names or args.shard) else None)
     if out:
         commit = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=ROOT).stdout.strip() or None
         json.dump({'finished': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'), 'commit': commit,

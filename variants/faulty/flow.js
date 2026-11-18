@@ -1,20 +1,20 @@
 // How the interface follows a payment after the wallet returns a transaction hash.
 // Faulty version, as shipped before the release review.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const randomIntent = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
+const randomOrder = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
 export const RETRY_LABEL = 'Try the payment again';
 
-// No memory of a payment in progress: the Pay button stays active and every click is a new intent,
+// No memory of a payment in progress: the Pay button stays active and every click is a new order id,
 // made in the browser.
 export function createPayments() {
   return {
     locked: () => false,
-    begin: async () => randomIntent(),
+    begin: async () => randomOrder(),
     sent() {},
     abandon() {},
     settled() {},
     pending: () => null,
-    intentOf: () => null,
+    orderOf: () => null,
     paid: async () => false,
   };
 }
