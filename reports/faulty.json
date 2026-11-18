@@ -3,20 +3,20 @@
   "kind": "Recorded test run",
   "app": "Sample Grants (synthetic application)",
   "variant": "faulty",
-  "run_id": "faulty-20261118T133146Z",
-  "commit": "b685a08c480ef7fa10467416b641693cfabb4d99",
+  "run_id": "faulty-20261118T145850Z",
+  "commit": "c7b71566307fd5793e16c83224414fd96646cfcb",
   "worktree_clean": true,
   "chain_id": 31337,
   "setup_block": 9,
   "started": {
-    "utc": "2026-11-18 13:31:46 UTC",
-    "pacific": "2026-11-18 05:31:46 PST"
+    "utc": "2026-11-18 14:58:50 UTC",
+    "pacific": "2026-11-18 06:58:50 PST"
   },
   "finished": {
-    "utc": "2026-11-18 13:32:01 UTC",
-    "pacific": "2026-11-18 05:32:01 PST"
+    "utc": "2026-11-18 14:59:25 UTC",
+    "pacific": "2026-11-18 06:59:25 PST"
   },
-  "duration_s": 14.7,
+  "duration_s": 35.0,
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -50,6 +50,7 @@
       "title": "Confirmed shown without a receipt",
       "where": "variants/faulty/flow.js",
       "detected_by": "C08",
+      "critical": "never_confirmed_without_receipt",
       "what": "When the receipt request fails, the app falls back to the transaction lookup and treats a known transaction as confirmed, although it is still waiting in the mempool.",
       "detected": true
     },
@@ -58,15 +59,17 @@
       "title": "Admin function open to everyone",
       "where": "variants/faulty/SampleGrants.sol",
       "detected_by": "C10",
+      "critical": "ordinary_account_cannot_add",
       "what": "setAllowlisted lacks onlyAdmin. The interface hides the control, the contract does not refuse it.",
       "detected": true
     },
     {
       "id": "D3",
       "title": "Retry pays a second time",
-      "where": "variants/faulty/flow.js",
+      "where": "variants/faulty/flow.js, variants/faulty/SampleGrants.sol",
       "detected_by": "C09",
-      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending.",
+      "critical": "retry_sends_no_new_payment",
+      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, and the contract accepts the same payment intent twice.",
       "detected": true
     }
   ],
@@ -93,14 +96,14 @@
         {
           "name": "displayed_balance_matches_chain",
           "ok": true,
-          "observed": "1000.0 TEST on screen",
-          "expected": "1000.0 TEST on chain"
+          "observed": "1000 TEST on screen",
+          "expected": "1000 TEST on chain"
         }
       ],
       "evidence": {
         "screenshot": "evidence/faulty/C01-connected.png"
       },
-      "duration_s": 0.24,
+      "duration_s": 0.76,
       "trace": {
         "rule": {
           "text": "The balance a user sees is the balance the chain holds.",
@@ -124,6 +127,7 @@
           "name": "ui_says_request_declined",
           "ok": true,
           "observed": [
+            "idle",
             "awaiting-signature",
             "rejected"
           ],
@@ -145,6 +149,7 @@
           "name": "never_confirmed",
           "ok": true,
           "observed": [
+            "idle",
             "awaiting-signature",
             "rejected"
           ],
@@ -155,7 +160,7 @@
         "wallet_answer": "code 4001 (user rejected)",
         "screenshot": "evidence/faulty/C02-declined.png"
       },
-      "duration_s": 0.78,
+      "duration_s": 1.02,
       "trace": {
         "rule": {
           "text": "Nothing is sent without the user's signature.",
@@ -215,11 +220,10 @@
           "personal_sign",
           "eth_chainId",
           "eth_call",
-          "eth_call",
           "wallet_switchEthereumChain"
         ]
       },
-      "duration_s": 1.69,
+      "duration_s": 1.89,
       "trace": {
         "rule": {
           "text": "Payments are only sent on the intended chain.",
@@ -246,6 +250,12 @@
           "expected": true
         },
         {
+          "name": "nothing_sent_before_terms",
+          "ok": true,
+          "observed": "0 sent, 0 pending",
+          "expected": "0 sent, 0 pending"
+        },
+        {
           "name": "terms_signed_before_transaction",
           "ok": true,
           "observed": "personal_sign at call 3, eth_sendTransaction at call 5",
@@ -254,8 +264,8 @@
         {
           "name": "api_holds_verified_acceptance",
           "ok": true,
-          "observed": "HTTP 200, verified=True",
-          "expected": "HTTP 200, verified=True"
+          "observed": "HTTP 200, verified true",
+          "expected": "HTTP 200, verified true"
         },
         {
           "name": "api_refuses_forged_acceptance",
@@ -273,12 +283,11 @@
           "eth_chainId",
           "eth_sendTransaction",
           "eth_getTransactionReceipt",
-          "eth_getTransactionReceipt",
           "eth_call"
         ],
         "acceptance_signature": "0x1d2af7dafc84d28115\u2026"
       },
-      "duration_s": 0.52,
+      "duration_s": 1.14,
       "trace": {
         "rule": {
           "text": "Demo terms v0 must be accepted before any payment.",
@@ -286,9 +295,9 @@
         },
         "allowed": "Sign the terms, then pay.",
         "forbidden": "A payment before the terms, or an acceptance record signed by another key.",
-        "criterion": "Payment stays locked until the demo terms are signed; the signature precedes the transaction; the API keeps a verified record and refuses a forged one.",
+        "criterion": "Payment stays locked until the demo terms are signed, and a forced click on the locked button sends nothing; the signature precedes the transaction; the API keeps a verified record and refuses a forged one.",
         "layer": "interface + API",
-        "method": "Playwright wallet call log + API"
+        "method": "Playwright forced click, wallet call log, API"
       }
     },
     {
@@ -307,8 +316,8 @@
         {
           "name": "revert_reason_is_NotAllowlisted",
           "ok": true,
-          "observed": "0x06fb10a9",
-          "expected": "0x06fb10a9 NotAllowlisted()"
+          "observed": "NotAllowlisted()",
+          "expected": "NotAllowlisted()"
         },
         {
           "name": "no_grant_created",
@@ -318,12 +327,12 @@
         }
       ],
       "evidence": {
-        "tx": "0x8b601df273d3f3e8d3acfb5eb6689925e599385f1b8fed7317380884cb41049a",
+        "tx": "0x44acf16fab339fa5879bb70ba67cc602c489c91e272e2ab2ad26dfbad87b00c3",
         "block": 10,
         "caller": "outsider (not allowlisted, holds TEST, has approved)",
         "path": "eth_sendTransaction straight to the node, no interface"
       },
-      "duration_s": 0.01,
+      "duration_s": 0.05,
       "trace": {
         "rule": {
           "text": "Only allowlisted wallets may open a grant.",
@@ -352,25 +361,20 @@
         {
           "name": "token_balances_unchanged",
           "ok": true,
-          "observed": [
-            0.0,
-            0.0
-          ],
-          "expected": [
-            0.0,
-            0.0
-          ]
+          "observed": "user_low 0, reader 0",
+          "expected": "user_low 0, reader 0"
         },
         {
           "name": "native_balance_down_by_fee_only",
           "ok": true,
-          "observed": "42450563612856 wei",
-          "expected": "42450563612856 wei (gasUsed x effectiveGasPrice)"
+          "observed": "43222617575612 wei",
+          "expected": "43222617575612 wei (gasUsed x effectiveGasPrice)"
         },
         {
           "name": "ui_says_failed",
           "ok": true,
           "observed": [
+            "idle",
             "awaiting-signature",
             "submitted",
             "reverted"
@@ -381,6 +385,7 @@
           "name": "never_confirmed",
           "ok": true,
           "observed": [
+            "idle",
             "awaiting-signature",
             "submitted",
             "reverted"
@@ -389,17 +394,18 @@
         }
       ],
       "evidence": {
-        "tx": "0x4524589f441a540a5ce7d2a39708676c95736cbabca517376bc79a821093c388",
+        "tx": "0x516e9ee8f679d03f8eee2de9cbcc61232b7359680d6a04dffbab879fb993fd04",
         "block": 10,
         "gas_limit": 300000,
-        "gas_used": 32556,
+        "gas_used": 33148,
         "states_before_block": [
+          "idle",
           "awaiting-signature",
           "submitted"
         ],
         "screenshot": "evidence/faulty/C06-failed.png"
       },
-      "duration_s": 1.35,
+      "duration_s": 1.61,
       "trace": {
         "rule": {
           "text": "A failed payment is never presented as done.",
@@ -423,9 +429,10 @@
           "name": "no_confirmed_before_block",
           "ok": true,
           "observed": [
-            "awaiting-signature at -1.06s",
-            "submitted at -1.05s",
-            "confirmed at +0.22s"
+            "idle \"No payment yet\" at -1.30s",
+            "awaiting-signature \"Waiting for your wallet\" at -1.01s",
+            "submitted \"Pending: waiting for the network to include it\" at -1.00s",
+            "confirmed \"Confirmed\" at +0.04s"
           ],
           "expected": "confirmed only after the block (t >= 0)"
         },
@@ -438,47 +445,34 @@
         {
           "name": "tokens_moved_once",
           "ok": true,
-          "observed": "user -25.0, reader +25.0",
+          "observed": "user -25, reader +25",
           "expected": "user -25, reader +25"
         },
         {
           "name": "grant_active_on_chain",
           "ok": true,
-          "observed": {
-            "owner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-            "reader": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-            "paid": 25000000000000000000,
-            "active": true
-          },
+          "observed": "grant #1 active, owner 0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
           "expected": "grant #1 active, owned by user"
         },
         {
           "name": "api_matches_chain",
           "ok": true,
-          "observed": {
-            "id": "1",
-            "owner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-            "reader": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-            "dataset": "0x4b93da463636a47984dc0eb92d4da5e12cfadf9e7990f54f51653c96d1df87ce",
-            "paid": "25000000000000000000",
-            "active": true,
-            "grantedBlock": 10,
-            "grantedTx": "0x7b63c5d11bc289df145d6596b08f0382a606f7c98c6d9d494d86d51c30df8b53"
-          },
+          "observed": "API grant #1 active, owner 0x70997970c51812dc3a010c7d01b50e0d17dc79c8, paid 25 TEST",
           "expected": "API grant #1 equals the chain"
         }
       ],
       "evidence": {
-        "tx": "0x7b63c5d11bc289df145d6596b08f0382a606f7c98c6d9d494d86d51c30df8b53",
+        "tx": "0xb1238e9313c1d5b6b964a245718845d29ae124af78250bba462536d9dde7b13f",
         "block": 10,
         "ui_history": [
-          "awaiting-signature at -1.06s",
-          "submitted at -1.05s",
-          "confirmed at +0.22s"
+          "idle \"No payment yet\" at -1.30s",
+          "awaiting-signature \"Waiting for your wallet\" at -1.01s",
+          "submitted \"Pending: waiting for the network to include it\" at -1.00s",
+          "confirmed \"Confirmed\" at +0.04s"
         ],
         "screenshot": "evidence/faulty/C07-confirmed.png"
       },
-      "duration_s": 1.6,
+      "duration_s": 2.33,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -505,19 +499,25 @@
           "name": "never_confirmed_without_receipt",
           "ok": false,
           "observed": [
-            "awaiting-signature at +0.02s",
-            "submitted at +0.03s",
-            "confirmed at +0.03s",
-            "receipt on chain: None",
-            "blocks mined since the click: 0"
+            "awaiting-signature \"Waiting for your wallet\" at +0.02s",
+            "submitted \"Pending: waiting for the network to include it\" at +0.03s",
+            "confirmed \"Confirmed\" at +0.04s",
+            "receipt on chain before the block: none",
+            "blocks mined before the bench mined: 0"
           ],
-          "expected": "no confirmed while the receipt does not exist"
+          "expected": "the word confirmed never shown before the block that holds the receipt"
         },
         {
           "name": "outage_shown_as_pending_or_unknown",
           "ok": false,
-          "observed": "confirmed",
-          "expected": "submitted or unknown"
+          "observed": "confirmed: \"Confirmed\"",
+          "expected": "submitted or unknown, without the word confirmed"
+        },
+        {
+          "name": "ends_confirmed_after_block",
+          "ok": true,
+          "observed": "confirmed: \"Confirmed\", receipt status 0x1",
+          "expected": "confirmed: \"Confirmed\", receipt status 0x1"
         }
       ],
       "evidence": {
@@ -526,12 +526,25 @@
           "interface": {
             "status": "Confirmed",
             "state": "confirmed",
+            "tx": "0xff468a37ed9f9e4605727cebe6ab6f4a84c37c1170b46dc2435cef8f5c5887ab",
             "history": [
-              "awaiting-signature at +0.02s",
-              "submitted at +0.03s",
-              "confirmed at +0.03s"
+              {
+                "state": "awaiting-signature",
+                "text": "Waiting for your wallet",
+                "at_s": 0.02
+              },
+              {
+                "state": "submitted",
+                "text": "Pending: waiting for the network to include it",
+                "at_s": 0.03
+              },
+              {
+                "state": "confirmed",
+                "text": "Confirmed",
+                "at_s": 0.04
+              }
             ],
-            "tx": "0x7b63c5d11bc289df145d6596b08f0382a606f7c98c6d9d494d86d51c30df8b53"
+            "block_mined_at_s": 5.13
           },
           "api": {
             "grants_for_user": 0,
@@ -546,92 +559,215 @@
             "user_test_balance_unchanged": true
           }
         },
-        "outage": "proxy answered HTTP 503 to every eth_getTransactionReceipt; the bench read the node directly",
+        "outage": "the proxy on the app path answered HTTP 503 to every eth_getTransactionReceipt; the node still answered the bench",
+        "outage_held_s": 5.13,
         "cut_requests": 1
       },
-      "duration_s": 2.87,
+      "duration_s": 5.77,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
           "fictitious": false
         },
-        "allowed": "Pending or status unknown.",
+        "allowed": "Pending or status unknown, then Confirmed after the block.",
         "forbidden": "Confirmed at any moment while no receipt exists.",
-        "criterion": "While the node does not answer receipt requests, the app never shows confirmed: no receipt exists and no block has been mined.",
+        "criterion": "While receipt requests from the app are cut, the screen never shows the word confirmed: no receipt exists and no block has been mined. Once the bench restores the RPC and mines, both versions end on Confirmed, so only the history can tell them apart.",
         "layer": "interface + chain",
-        "method": "RPC proxy cuts receipts; full UI state history"
+        "method": "RPC proxy cuts receipts on the app's path until the screen settles, plus a margin; full history of the status line, state and visible text"
       }
     },
     {
       "id": "C09",
-      "title": "Retry after status unknown pays once",
+      "title": "One payment per intent, however the user retries",
       "outcome": "failed",
       "failed_assertions": [
-        "one_payment_mined_per_intent",
-        "test_debited_once"
+        "retry_checks_same_transaction",
+        "retry_sends_no_new_payment",
+        "screen_ends_confirmed",
+        "one_payment_on_chain",
+        "test_debited_once",
+        "pay_locked_while_unknown",
+        "pay_during_unknown_pays_once",
+        "reload_resumes_same_transaction",
+        "reload_then_pay_pays_once",
+        "double_click_pays_once",
+        "contract_refuses_same_intent"
       ],
       "error": null,
       "assertions": [
         {
           "name": "outage_shown_as_unknown",
           "ok": true,
-          "observed": [
-            "awaiting-signature",
-            "submitted",
-            "unknown"
-          ],
-          "expected": "unknown"
+          "observed": "unknown: \"Status unknown: the network did not answer\"",
+          "expected": "unknown, without the word confirmed"
         },
         {
-          "name": "one_payment_mined_per_intent",
+          "name": "retry_offered",
+          "ok": true,
+          "observed": "\"Try the payment again\"",
+          "expected": "a retry button on screen"
+        },
+        {
+          "name": "retry_checks_same_transaction",
           "ok": false,
-          "observed": "2 payment(s) mined: nonce 1, nonce 2",
-          "expected": "1 payment"
+          "observed": "0 receipt or transaction lookups for the first transaction in the 1.5 s after the retry",
+          "expected": "at least 1 lookup for the first transaction"
+        },
+        {
+          "name": "retry_sends_no_new_payment",
+          "ok": false,
+          "observed": "2 eth_sendTransaction from the app; 2 payment transactions: nonce 1 waiting in the mempool, nonce 2 waiting in the mempool",
+          "expected": "1 eth_sendTransaction; 1 payment transaction"
+        },
+        {
+          "name": "screen_ends_confirmed",
+          "ok": false,
+          "observed": "confirmed: \"Confirmed\" for another transaction",
+          "expected": "confirmed: \"Confirmed\" for the first transaction"
+        },
+        {
+          "name": "one_payment_on_chain",
+          "ok": false,
+          "observed": "2 payment transactions: nonce 1 block 10 status 0x1, nonce 2 block 10 status 0x1",
+          "expected": "1 payment transaction, status 0x1"
         },
         {
           "name": "test_debited_once",
           "ok": false,
-          "observed": "-50.0 TEST",
+          "observed": "-50 TEST",
           "expected": "-25 TEST"
+        },
+        {
+          "name": "pay_locked_while_unknown",
+          "ok": false,
+          "observed": "Pay button active",
+          "expected": "Pay button disabled"
+        },
+        {
+          "name": "pay_during_unknown_pays_once",
+          "ok": false,
+          "observed": "2 payment transactions: nonce 3 block 11 status 0x1, nonce 4 block 11 status 0x1, -50 TEST",
+          "expected": "1 payment transaction, -25 TEST"
+        },
+        {
+          "name": "reload_resumes_same_transaction",
+          "ok": false,
+          "observed": "after reload the status line follows no transaction: idle",
+          "expected": "the pending transaction, followed again"
+        },
+        {
+          "name": "reload_then_pay_pays_once",
+          "ok": false,
+          "observed": "2 payment transactions: nonce 5 block 12 status 0x1, nonce 6 block 12 status 0x1, -50 TEST",
+          "expected": "1 payment transaction, -25 TEST"
+        },
+        {
+          "name": "double_click_pays_once",
+          "ok": false,
+          "observed": "2 payment transactions: nonce 7 block 13 status 0x1, nonce 8 block 13 status 0x1, -50 TEST",
+          "expected": "1 payment transaction, -25 TEST"
+        },
+        {
+          "name": "contract_refuses_same_intent",
+          "ok": false,
+          "observed": "status 0x1, error none",
+          "expected": "status 0x0, IntentAlreadyPaid()"
         }
       ],
       "evidence": {
         "retry_button": "Try the payment again",
         "payments": [
           {
-            "tx": "0x7b63c5d11bc289df145d6596b08f0382a606f7c98c6d9d494d86d51c30df8b53",
+            "tx": "0x9a92c60f987696e38e38ea7d6a133f8e9c7ac447114876bde6b1529575901105",
             "nonce": 1,
             "block": 10,
-            "status": "0x1"
+            "status": "0x1",
+            "intent": "0x56ddf3725061626dc8353b839d82474a60bf100678c6b2dc7f89c42c3971cec6"
           },
           {
-            "tx": "0xf3a1fcb2b89d75b5b1210db5cb408944ea7397a6cc1cb17c92f920432e13ba2a",
+            "tx": "0x6445b38d8f96276426eb52aec9ab1e65ff19b287ae37d3e50392f8a708cf3626",
             "nonce": 2,
             "block": 10,
-            "status": "0x1"
+            "status": "0x1",
+            "intent": "0x8a3e074cfa1113eb60f23a9d5e78b0ccdab7ddf2115f88bbb4ad27d2b0c7e8e2"
           }
         ],
         "ui_history": [
-          "awaiting-signature at +0.01s",
-          "submitted at +0.01s",
-          "unknown at +0.52s",
-          "awaiting-signature at +0.55s",
-          "submitted at +0.56s",
-          "confirmed at +2.08s"
+          "idle \"No payment yet\" at -0.14s",
+          "awaiting-signature \"Waiting for your wallet\" at +0.02s",
+          "submitted \"Pending: waiting for the network to include it\" at +0.02s",
+          "unknown \"Status unknown: the network did not answer\" at +0.54s",
+          "awaiting-signature \"Waiting for your wallet\" at +0.57s",
+          "submitted \"Pending: waiting for the network to include it\" at +0.57s",
+          "confirmed \"Confirmed\" at +2.11s"
         ],
-        "screenshot": "evidence/faulty/C09-after-retry.png"
+        "screenshot": "evidence/faulty/C09-after-retry.png",
+        "pay_during_unknown": [
+          {
+            "tx": "0x3e1cdf0e4ea0c966bf6e21bf2f8807e3ef46250fbb99509f04dcc28a4325615b",
+            "nonce": 3,
+            "block": 11,
+            "status": "0x1",
+            "intent": "0x6ea9f3fa94741e66c7bf8eaf20afb306854169102712d063e2e4ffea742ba0b1"
+          },
+          {
+            "tx": "0x5910648047f57340a4d9acba32d1a7840689028c6c4c1a97ada91666d984c36f",
+            "nonce": 4,
+            "block": 11,
+            "status": "0x1",
+            "intent": "0x170411a07f7395202a5809cca265aa459c7cb0b193d81979a2c5ea18214611ec"
+          }
+        ],
+        "reload_then_pay": [
+          {
+            "tx": "0x5eaa82279820da94656eba6c557e49f93e2719d669f5bb9b3ec11625d1ac351e",
+            "nonce": 5,
+            "block": 12,
+            "status": "0x1",
+            "intent": "0xe43f4ecc4d3bd8a79414e5405225b915798c3d5431958556981147a253b80f1d"
+          },
+          {
+            "tx": "0x5a810e94e049767d8a21a1f6644cbcd3628af62972d0a8c7c2d0c83aee8b4689",
+            "nonce": 6,
+            "block": 12,
+            "status": "0x1",
+            "intent": "0x1e96f5c603a2baa0d3145adc57399de93e1ac905af752c0f13083828caee793d"
+          }
+        ],
+        "double_click": [
+          {
+            "tx": "0x2754c2d15f6b802cc61713b321a443b2fc2a6900cf430d2655f6847053f41436",
+            "nonce": 7,
+            "block": 13,
+            "status": "0x1",
+            "intent": "0x2ec6515959381c29fa9180d78b266d1243de3b04ced3f20065b07d6d65a15e54"
+          },
+          {
+            "tx": "0x84070a7508ad8193556a1287c6fe917c305bc84fc075984886b7a5b2fba04035",
+            "nonce": 8,
+            "block": 13,
+            "status": "0x1",
+            "intent": "0x3e5fb86887bbd75a964ea55996c2976a998469247711ce8cbf90a1fb08f7d248"
+          }
+        ],
+        "same_intent_replay": {
+          "tx": "0x8991899f107df693cf1facdd699c960cb5df93117d3fc4294b2eee4c544918b0",
+          "block": 14,
+          "intent": "0x56ddf3725061626dc8353b839d82474a60bf100678c6b2dc7f89c42c3971cec6",
+          "path": "eth_sendTransaction straight to the node, no interface"
+        }
       },
-      "duration_s": 2.65,
+      "duration_s": 13.45,
       "trace": {
         "rule": {
           "text": "One payment intent, one payment.",
           "fictitious": false
         },
         "allowed": "Check the same transaction again.",
-        "forbidden": "A second payment for the same intent.",
-        "criterion": "After status unknown and a retry, exactly one payment is mined for that intent and the user's TEST balance drops by 25 once.",
+        "forbidden": "A second payment transaction for the same intent, successful or reverted.",
+        "criterion": "After status unknown, the retry looks up the same transaction again and the screen ends on Confirmed; clicking Pay during unknown, reloading then paying, and double clicking each leave exactly one payment transaction (mined or reverted) and a single 25 TEST debit; the contract refuses the same intent sent again with IntentAlreadyPaid.",
         "layer": "interface + chain",
-        "method": "RPC proxy outage, retry, direct block scan"
+        "method": "RPC proxy outage, retry, Pay during unknown, reload, double click; direct block and mempool scan; direct contract call"
       }
     },
     {
@@ -639,7 +775,8 @@
       "title": "Admin function enforced by the contract",
       "outcome": "failed",
       "failed_assertions": [
-        "direct_admin_call_rejected",
+        "ordinary_account_cannot_add",
+        "ordinary_account_cannot_remove",
         "allowlist_unchanged"
       ],
       "error": null,
@@ -647,45 +784,61 @@
         {
           "name": "admin_control_hidden_for_user",
           "ok": true,
-          "observed": false,
-          "expected": false
+          "observed": "admin panel hidden",
+          "expected": "admin panel hidden"
         },
         {
-          "name": "direct_admin_call_rejected",
+          "name": "ordinary_account_cannot_add",
           "ok": false,
-          "observed": "status 0x1, simulated error None",
-          "expected": "status 0x0, 0x7bfa4b9f NotAdmin()"
+          "observed": "status 0x1, error none",
+          "expected": "status 0x0, NotAdmin()"
+        },
+        {
+          "name": "ordinary_account_cannot_remove",
+          "ok": false,
+          "observed": "status 0x1, error none",
+          "expected": "status 0x0, NotAdmin()"
         },
         {
           "name": "allowlist_unchanged",
           "ok": false,
-          "observed": "allowlisted(outsider) = True",
-          "expected": "False"
+          "observed": "outsider allowlisted true, user_low allowlisted false",
+          "expected": "outsider allowlisted false, user_low allowlisted true"
+        },
+        {
+          "name": "admin_can_edit_allowlist",
+          "ok": true,
+          "observed": "admin panel shown; add status 0x1, remove status 0x1",
+          "expected": "admin panel shown; add status 0x1, remove status 0x1"
         }
       ],
       "evidence": {
-        "tx": "0x3014571c0a4ed04a3f4085b0128f40b1c592b11bf56fc3fe7eac4c58ff9cf84a",
+        "tx": "0x4fdd59b352928631596a6449df85691a207b8a9757701ab94610a1b54bb367b4",
         "block": 10,
-        "caller": "ordinary account, not the admin",
-        "call": "setAllowlisted(self, true)",
+        "remove_tx": "0x4fcaf1d88c4df4317015246d9762900d7b66589a9a160e58120f01d39525247a",
+        "caller": "user: allowlisted, not the admin",
+        "calls": [
+          "setAllowlisted(outsider, true)",
+          "setAllowlisted(user_low, false)"
+        ],
         "path": "eth_sendTransaction straight to the node, no interface"
       },
-      "duration_s": 0.15,
+      "duration_s": 0.45,
       "trace": {
         "rule": {
           "text": "Only the admin edits the allowlist.",
           "fictitious": true
         },
         "allowed": "Admin edits the allowlist.",
-        "forbidden": "Any other account editing it by calling the contract.",
-        "criterion": "The admin control is hidden for ordinary users, and an ordinary account calling setAllowlisted directly is reverted; the allowlist does not change.",
+        "forbidden": "Any other account adding or removing an address by calling the contract.",
+        "criterion": "The admin control is hidden for ordinary users; an allowlisted ordinary account calling setAllowlisted directly, to add or to remove, is reverted with NotAdmin and the allowlist does not change; the admin can still add and remove.",
         "layer": "contract",
-        "method": "Direct contract call from an ordinary account"
+        "method": "Direct contract calls from an allowlisted ordinary account, then from the admin"
       }
     },
     {
       "id": "C11",
-      "title": "Revoked access stops being served",
+      "title": "Revoked access is refused once indexed",
       "outcome": "passed",
       "failed_assertions": [],
       "error": null,
@@ -705,8 +858,8 @@
         {
           "name": "grant_inactive_on_chain",
           "ok": true,
-          "observed": false,
-          "expected": false
+          "observed": "grant #1 inactive",
+          "expected": "grant #1 inactive"
         },
         {
           "name": "api_refuses_after_revoke",
@@ -718,19 +871,20 @@
       "evidence": {
         "revoke_block": 11,
         "api_before": 200,
-        "api_after": 403
+        "api_after": 403,
+        "reader_identity": "simulated: declared in the x-reader-address request header, no reader sign-in"
       },
-      "duration_s": 0.6,
+      "duration_s": 0.84,
       "trace": {
         "rule": {
-          "text": "Revoked access ends at the confirmed revocation.",
+          "text": "Revoked access ends once the revocation is indexed.",
           "fictitious": true
         },
         "allowed": "Read while the grant is active.",
-        "forbidden": "Serving the data after the revocation is on chain.",
-        "criterion": "The API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
+        "forbidden": "Serving the data after the revocation is mined and indexed.",
+        "criterion": "With the reader's identity simulated by a request header (the demo has no reader sign-in), the API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
         "layer": "chain + API",
-        "method": "Playwright revoke, indexer catch-up, API requests"
+        "method": "Playwright revoke, indexer catch-up, API requests; the reader's identity is simulated by a request header"
       }
     }
   ],
@@ -740,8 +894,12 @@
       "why": "The bench drives an EIP-1193 test provider. It proves the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
     },
     {
+      "item": "Reader authentication",
+      "why": "The reader's identity is simulated: the API trusts the address declared in a request header. C11 shows that the API applies the grant state to that identity, not that the caller owns it."
+    },
+    {
       "item": "Economic and security audit of the contract",
-      "why": "The checks prove five rules on one contract. They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+      "why": "The checks prove three rules the contract enforces on its own (allowlist, admin role, one payment per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
     },
     {
       "item": "Gas spikes and congestion on a public network",
@@ -764,9 +922,5 @@
       "why": "Not assessed. This run tests a synthetic app built to carry three known faults."
     }
   ],
-  "decision": {
-    "rule_approval": "Not given. The demo rules marked fictitious were written for this demo; real rules are approved by the product owner and counsel.",
-    "technical_verification": "Blocked",
-    "launch_decision": "Not taken by the bench. A named person signs go or no-go with this report attached."
-  }
+  "decision": "The bench fills in the technical result only. The rules marked fictitious were written for this demo and approved by no one; go or no-go is a person's decision, taken with this report in hand."
 }

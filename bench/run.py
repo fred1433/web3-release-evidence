@@ -219,8 +219,8 @@ def main():
     if args.expect_detected is not None:
         expected = [] if args.expect_detected.strip().lower() == 'none' else [x.strip() for x in args.expect_detected.split(',') if x.strip()]
         bad = [x for x in expected if x not in fault_ids]
-        if bad or not args.expect_detected.strip():
-            p.error(f"--expect-detected: unknown fault id(s): {', '.join(bad) or '(empty)'}. Known: {', '.join(fault_ids)}, or none")
+        if bad or (not expected and args.expect_detected.strip().lower() != 'none'):
+            p.error(f"--expect-detected: unknown fault id(s): {', '.join(bad) or '(empty list)'}. Known: {', '.join(fault_ids)}, or none")
         if args.repeat != 1:
             p.error('--expect-detected works on a single run, not with --repeat')
     unknown = [s for s in args.skip if s not in ids]

@@ -1,7 +1,7 @@
 {
   "variant": "faulty",
   "runs": 20,
-  "commit": "b685a08c480ef7fa10467416b641693cfabb4d99",
+  "commit": "c7b71566307fd5793e16c83224414fd96646cfcb",
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -16,15 +16,15 @@
     "Blocked": 20
   },
   "finished": {
-    "utc": "2026-11-18 13:37:55 UTC",
-    "pacific": "2026-11-18 05:37:55 PST"
+    "utc": "2026-11-18 15:10:40 UTC",
+    "pacific": "2026-11-18 07:10:40 PST"
   },
   "detail": [
     {
       "run": 1,
-      "run_id": "faulty-20261118T133254Z",
+      "run_id": "faulty-20261118T150001Z",
       "status": "Blocked",
-      "duration_s": 15.1,
+      "duration_s": 30.8,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -44,11 +44,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -56,9 +66,9 @@
     },
     {
       "run": 2,
-      "run_id": "faulty-20261118T133309Z",
+      "run_id": "faulty-20261118T150032Z",
       "status": "Blocked",
-      "duration_s": 14.5,
+      "duration_s": 29.6,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -78,11 +88,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -90,9 +110,9 @@
     },
     {
       "run": 3,
-      "run_id": "faulty-20261118T133324Z",
+      "run_id": "faulty-20261118T150102Z",
       "status": "Blocked",
-      "duration_s": 14.9,
+      "duration_s": 30.5,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -112,11 +132,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -124,9 +154,9 @@
     },
     {
       "run": 4,
-      "run_id": "faulty-20261118T133339Z",
+      "run_id": "faulty-20261118T150133Z",
       "status": "Blocked",
-      "duration_s": 14.0,
+      "duration_s": 30.5,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -146,11 +176,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -158,9 +198,9 @@
     },
     {
       "run": 5,
-      "run_id": "faulty-20261118T133353Z",
+      "run_id": "faulty-20261118T150203Z",
       "status": "Blocked",
-      "duration_s": 14.2,
+      "duration_s": 34.5,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -180,11 +220,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -192,9 +242,9 @@
     },
     {
       "run": 6,
-      "run_id": "faulty-20261118T133407Z",
+      "run_id": "faulty-20261118T150238Z",
       "status": "Blocked",
-      "duration_s": 14.3,
+      "duration_s": 36.1,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -214,11 +264,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -226,9 +286,9 @@
     },
     {
       "run": 7,
-      "run_id": "faulty-20261118T133421Z",
+      "run_id": "faulty-20261118T150314Z",
       "status": "Blocked",
-      "duration_s": 15.2,
+      "duration_s": 31.2,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -248,11 +308,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -260,9 +330,9 @@
     },
     {
       "run": 8,
-      "run_id": "faulty-20261118T133437Z",
+      "run_id": "faulty-20261118T150345Z",
       "status": "Blocked",
-      "duration_s": 17.1,
+      "duration_s": 32.4,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -282,11 +352,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -294,9 +374,9 @@
     },
     {
       "run": 9,
-      "run_id": "faulty-20261118T133454Z",
+      "run_id": "faulty-20261118T150418Z",
       "status": "Blocked",
-      "duration_s": 16.2,
+      "duration_s": 31.3,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -316,11 +396,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -328,9 +418,9 @@
     },
     {
       "run": 10,
-      "run_id": "faulty-20261118T133510Z",
+      "run_id": "faulty-20261118T150449Z",
       "status": "Blocked",
-      "duration_s": 14.9,
+      "duration_s": 30.2,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -350,11 +440,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -362,9 +462,9 @@
     },
     {
       "run": 11,
-      "run_id": "faulty-20261118T133525Z",
+      "run_id": "faulty-20261118T150520Z",
       "status": "Blocked",
-      "duration_s": 14.8,
+      "duration_s": 30.5,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -384,11 +484,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -396,9 +506,9 @@
     },
     {
       "run": 12,
-      "run_id": "faulty-20261118T133540Z",
+      "run_id": "faulty-20261118T150550Z",
       "status": "Blocked",
-      "duration_s": 16.2,
+      "duration_s": 30.6,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -418,11 +528,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -430,9 +550,9 @@
     },
     {
       "run": 13,
-      "run_id": "faulty-20261118T133556Z",
+      "run_id": "faulty-20261118T150621Z",
       "status": "Blocked",
-      "duration_s": 14.0,
+      "duration_s": 35.9,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -452,11 +572,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -464,9 +594,9 @@
     },
     {
       "run": 14,
-      "run_id": "faulty-20261118T133610Z",
+      "run_id": "faulty-20261118T150657Z",
       "status": "Blocked",
-      "duration_s": 14.5,
+      "duration_s": 32.5,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -486,11 +616,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -498,9 +638,9 @@
     },
     {
       "run": 15,
-      "run_id": "faulty-20261118T133625Z",
+      "run_id": "faulty-20261118T150730Z",
       "status": "Blocked",
-      "duration_s": 15.3,
+      "duration_s": 29.7,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -520,11 +660,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -532,9 +682,9 @@
     },
     {
       "run": 16,
-      "run_id": "faulty-20261118T133640Z",
+      "run_id": "faulty-20261118T150759Z",
       "status": "Blocked",
-      "duration_s": 15.0,
+      "duration_s": 29.5,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -554,11 +704,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -566,9 +726,9 @@
     },
     {
       "run": 17,
-      "run_id": "faulty-20261118T133655Z",
+      "run_id": "faulty-20261118T150829Z",
       "status": "Blocked",
-      "duration_s": 14.6,
+      "duration_s": 33.1,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -588,11 +748,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -600,9 +770,9 @@
     },
     {
       "run": 18,
-      "run_id": "faulty-20261118T133710Z",
+      "run_id": "faulty-20261118T150902Z",
       "status": "Blocked",
-      "duration_s": 15.5,
+      "duration_s": 30.0,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -622,11 +792,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -634,9 +814,9 @@
     },
     {
       "run": 19,
-      "run_id": "faulty-20261118T133725Z",
+      "run_id": "faulty-20261118T150932Z",
       "status": "Blocked",
-      "duration_s": 14.4,
+      "duration_s": 32.1,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -656,11 +836,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
@@ -668,9 +858,9 @@
     },
     {
       "run": 20,
-      "run_id": "faulty-20261118T133740Z",
+      "run_id": "faulty-20261118T151004Z",
       "status": "Blocked",
-      "duration_s": 14.6,
+      "duration_s": 35.1,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -690,11 +880,21 @@
           "outage_shown_as_pending_or_unknown"
         ],
         "C09": [
-          "one_payment_mined_per_intent",
-          "test_debited_once"
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "one_payment_on_chain",
+          "test_debited_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_pays_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_pays_once",
+          "double_click_pays_once",
+          "contract_refuses_same_intent"
         ],
         "C10": [
-          "direct_admin_call_rejected",
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
           "allowlist_unchanged"
         ]
       },
