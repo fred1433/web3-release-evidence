@@ -1,0 +1,9 @@
+out/
+cache/
+.venv/
+reports/logs/
+reports/.repeat-evidence/
+__pycache__/
+node_modules/
+.wrangler/
+.DS_Store

@@ -1,0 +1,57 @@
+diff -ru variants/faulty/SampleGrants.sol variants/corrected/SampleGrants.sol
+--- variants/faulty/SampleGrants.sol	2026-11-18 10:20:48
++++ variants/corrected/SampleGrants.sol	2026-11-18 10:20:48
+@@ -42,8 +42,8 @@
+         token = token_;
+     }
+ 
+-    // Admin screen only: the interface shows this control to the admin wallet.
+-    function setAllowlisted(address account, bool allowed) external {
++    // Admin only, enforced here and not only in the interface.
++    function setAllowlisted(address account, bool allowed) external onlyAdmin {
+         allowlisted[account] = allowed;
+         emit Allowlisted(account, allowed);
+     }
+diff -ru variants/faulty/flow.js variants/corrected/flow.js
+--- variants/faulty/flow.js	2026-11-18 10:23:08
++++ variants/corrected/flow.js	2026-11-18 10:23:08
+@@ -1,7 +1,9 @@
+ // How the interface follows a payment after the wallet returns a transaction hash.
+-// Faulty version, as shipped before the release review.
++// Corrected version: "Confirmed" only from a receipt included in a block.
++// After repeated RPC failures the status is "unknown", and the retry action
++// checks the SAME transaction again instead of paying a second time.
+ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+-export const RETRY_LABEL = 'Try the payment again';
++export const RETRY_LABEL = 'Check status again';
+ 
+ export async function follow(ui, wallet, hash, payAgain) {
+   ui.setState('submitted', hash);
+@@ -11,18 +13,10 @@
+     try {
+       receipt = await wallet.request({ method: 'eth_getTransactionReceipt', params: [hash] });
+     } catch (e) {
+-      // The node is flaky: fall back to the transaction lookup.
+-      try {
+-        const tx = await wallet.request({ method: 'eth_getTransactionByHash', params: [hash] });
+-        if (tx) {
+-          ui.setState('confirmed', hash);
+-          return tx;
+-        }
+-      } catch (_) { /* still down */ }
+       failures += 1;
+       if (failures >= 3) {
+         ui.setState('unknown', hash);
+-        ui.offerRetry(RETRY_LABEL, payAgain);
++        ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, payAgain));
+         return null;
+       }
+       await sleep(250);
+@@ -35,6 +29,6 @@
+     await sleep(250);
+   }
+   ui.setState('unknown', hash);
+-  ui.offerRetry(RETRY_LABEL, payAgain);
++  ui.offerRetry(RETRY_LABEL, () => follow(ui, wallet, hash, payAgain));
+   return null;
+ }

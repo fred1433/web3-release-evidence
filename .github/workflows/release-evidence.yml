@@ -1,0 +1,45 @@
+name: release evidence
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  bench:
+    name: ${{ matrix.variant }} app
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: faulty
+            expect: Blocked
+          - variant: corrected
+            expect: Demonstrated checks passed
+    steps:
+      - uses: actions/checkout@v7
+      - uses: foundry-rs/foundry-toolchain@v1.9.2
+        with:
+          version: v1.9.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install the bench
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Status rule self-test
+        run: python bench/selftest.py
+      - name: Run every required check
+        run: python bench/run.py --variant ${{ matrix.variant }} --expect "${{ matrix.expect }}" --out reports/ci-${{ matrix.variant }}.json
+      - name: Keep the report and the screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-evidence-${{ matrix.variant }}
+          path: |
+            reports/ci-${{ matrix.variant }}.json
+            reports/evidence/${{ matrix.variant }}/
+            reports/logs/

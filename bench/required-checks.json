@@ -1,0 +1,178 @@
+{
+  "about": "Required checks for a release of the Sample Grants synthetic app. Every check maps to one acceptance criterion. A run that does not execute every check here cannot pass. Rules marked fictitious are demo rules: no one has approved them.",
+  "checks": [
+    {
+      "id": "C01",
+      "title": "Wallet connects on the right chain",
+      "layer": "interface",
+      "method": "Playwright + test wallet",
+      "criterion": "After connecting, the app shows the wallet's account, the local chain, and a TEST balance equal to the balance on chain.",
+      "rule": {
+        "text": "The balance a user sees is the balance the chain holds.",
+        "fictitious": false
+      },
+      "allowed": "Connect and read the balance.",
+      "forbidden": "A displayed balance that differs from the chain."
+    },
+    {
+      "id": "C02",
+      "title": "Refused signature sends nothing",
+      "layer": "interface",
+      "method": "Playwright + test wallet answering 4001",
+      "criterion": "When the user refuses in the wallet (code 4001), the app says so and no transaction reaches the node.",
+      "rule": {
+        "text": "Nothing is sent without the user's signature.",
+        "fictitious": false
+      },
+      "allowed": "Refuse the request.",
+      "forbidden": "A transaction or a nonce change after a refusal."
+    },
+    {
+      "id": "C03",
+      "title": "Wrong network blocks sending",
+      "layer": "interface",
+      "method": "Playwright + test wallet chainChanged",
+      "criterion": "On another chain the app shows a banner, disables payment, sends nothing, and clears the banner after switching back.",
+      "rule": {
+        "text": "Payments are only sent on the intended chain.",
+        "fictitious": false
+      },
+      "allowed": "Switch back to the local chain.",
+      "forbidden": "A send attempt while the wallet is on another chain."
+    },
+    {
+      "id": "C04",
+      "title": "Terms signed before the payment",
+      "layer": "interface + API",
+      "method": "Playwright wallet call log + API",
+      "criterion": "Payment stays locked until the demo terms are signed; the signature precedes the transaction; the API keeps a verified record and refuses a forged one.",
+      "rule": {
+        "text": "Demo terms v0 must be accepted before any payment.",
+        "fictitious": true
+      },
+      "allowed": "Sign the terms, then pay.",
+      "forbidden": "A payment before the terms, or an acceptance record signed by another key."
+    },
+    {
+      "id": "C05",
+      "title": "Allowlist enforced by the contract",
+      "layer": "contract",
+      "method": "Direct contract call from a non-allowlisted account",
+      "criterion": "A wallet outside the allowlist calling the contract directly is reverted with NotAllowlisted and no grant is created.",
+      "rule": {
+        "text": "Only allowlisted wallets may open a grant.",
+        "fictitious": true
+      },
+      "allowed": "Allowlisted wallets open grants.",
+      "forbidden": "A non-allowlisted wallet opening a grant by skipping the interface."
+    },
+    {
+      "id": "C06",
+      "title": "Reverted payment is shown as failed",
+      "layer": "interface + chain",
+      "method": "Playwright, fixed gas limit, direct chain reads",
+      "criterion": "With an empty TEST balance and a fixed gas limit, the transaction is mined with status 0, token balances do not move, the native balance drops by the fee only, and the app says failed.",
+      "rule": {
+        "text": "A failed payment is never presented as done.",
+        "fictitious": false
+      },
+      "allowed": "A mined, reverted transaction that costs gas.",
+      "forbidden": "Moved tokens or a success message after a revert."
+    },
+    {
+      "id": "C07",
+      "title": "Success is confirmed only after the block",
+      "layer": "interface + API + chain",
+      "method": "Playwright, manual mining, direct chain reads",
+      "criterion": "Nothing says confirmed before the block is mined; then the receipt is status 1, 25 TEST move once, the grant is active on chain and the API agrees.",
+      "rule": {
+        "text": "Confirmed means included in a block.",
+        "fictitious": false
+      },
+      "allowed": "Pending while the transaction waits.",
+      "forbidden": "Confirmed before the block, or an API that disagrees with the chain."
+    },
+    {
+      "id": "C08",
+      "title": "No confirmed without a receipt during an RPC outage",
+      "layer": "interface + chain",
+      "method": "RPC proxy cuts receipts; full UI state history",
+      "criterion": "While the node does not answer receipt requests, the app never shows confirmed: no receipt exists and no block has been mined.",
+      "rule": {
+        "text": "Confirmed means included in a block.",
+        "fictitious": false
+      },
+      "allowed": "Pending or status unknown.",
+      "forbidden": "Confirmed at any moment while no receipt exists."
+    },
+    {
+      "id": "C09",
+      "title": "Retry after status unknown pays once",
+      "layer": "interface + chain",
+      "method": "RPC proxy outage, retry, direct block scan",
+      "criterion": "After status unknown and a retry, exactly one payment is mined for that intent and the user's TEST balance drops by 25 once.",
+      "rule": {
+        "text": "One payment intent, one payment.",
+        "fictitious": false
+      },
+      "allowed": "Check the same transaction again.",
+      "forbidden": "A second payment for the same intent."
+    },
+    {
+      "id": "C10",
+      "title": "Admin function enforced by the contract",
+      "layer": "contract",
+      "method": "Direct contract call from an ordinary account",
+      "criterion": "The admin control is hidden for ordinary users, and an ordinary account calling setAllowlisted directly is reverted; the allowlist does not change.",
+      "rule": {
+        "text": "Only the admin edits the allowlist.",
+        "fictitious": true
+      },
+      "allowed": "Admin edits the allowlist.",
+      "forbidden": "Any other account editing it by calling the contract."
+    },
+    {
+      "id": "C11",
+      "title": "Revoked access stops being served",
+      "layer": "chain + API",
+      "method": "Playwright revoke, indexer catch-up, API requests",
+      "criterion": "The API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
+      "rule": {
+        "text": "Revoked access ends at the confirmed revocation.",
+        "fictitious": true
+      },
+      "allowed": "Read while the grant is active.",
+      "forbidden": "Serving the data after the revocation is on chain."
+    }
+  ],
+  "not_covered": [
+    {
+      "item": "Real wallet extensions and mobile wallets",
+      "why": "The bench drives an EIP-1193 test provider. It proves the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
+    },
+    {
+      "item": "Economic and security audit of the contract",
+      "why": "The checks prove five rules on one contract. They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+    },
+    {
+      "item": "Gas spikes and congestion on a public network",
+      "why": "The local chain mines on demand. Stuck, replaced or cancelled transactions under real fee markets are not exercised."
+    },
+    {
+      "item": "Chain reorganisations",
+      "why": "Confirmed here means included in one block. A block that is later dropped is not simulated."
+    },
+    {
+      "item": "Legal drafting of the terms and the allowlist",
+      "why": "The rules are fictitious demo rules. The bench checks that the app enforces them, not that they are the right rules."
+    },
+    {
+      "item": "Load, many users at once, indexer restarts",
+      "why": "Each check runs one user on a fresh chain snapshot."
+    },
+    {
+      "item": "The client's own application",
+      "why": "Not assessed. This run tests a synthetic app built to carry three known faults."
+    }
+  ]
+}
