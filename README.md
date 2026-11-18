@@ -77,7 +77,7 @@ python bench/mutants.py --jobs 3                          # every mutant, writes
 python bench/mutants.py m1_confirm_on_retry m4_slow_retry # some of them
 ```
 
-One run takes about 35 seconds. CI runs both variants on every push (`.github/workflows/release-evidence.yml`) with the two `--expect` commands above, and every mutant with `bench/mutants.py`.
+One run takes about 30 seconds, measured: 28.7 to 31.9 s over the 40 runs in `reports/stability-*.json` (an Apple Silicon laptop, the two series side by side), 30.5 s and 31.1 s for `reports/corrected.json` and `reports/faulty.json`. `bench/mutants.py --jobs 3` took 3 min 37 s on the same laptop. CI runs both variants on every push (`.github/workflows/release-evidence.yml`) with the two `--expect` commands above, and every mutant with `bench/mutants.py`.
 
 ## Pointing it at another dApp
 

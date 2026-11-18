@@ -3,20 +3,20 @@
   "kind": "Recorded test run",
   "app": "Sample Grants (synthetic application)",
   "variant": "faulty",
-  "run_id": "faulty-20261118T145850Z",
-  "commit": "c7b71566307fd5793e16c83224414fd96646cfcb",
+  "run_id": "faulty-20261118T160349Z",
+  "commit": "082cc5abbf32bc2a853aa1dd8b864729e3d8f75e",
   "worktree_clean": true,
   "chain_id": 31337,
   "setup_block": 9,
   "started": {
-    "utc": "2026-11-18 14:58:50 UTC",
-    "pacific": "2026-11-18 06:58:50 PST"
+    "utc": "2026-11-18 16:03:49 UTC",
+    "pacific": "2026-11-18 08:03:49 PST"
   },
   "finished": {
-    "utc": "2026-11-18 14:59:25 UTC",
-    "pacific": "2026-11-18 06:59:25 PST"
+    "utc": "2026-11-18 16:04:20 UTC",
+    "pacific": "2026-11-18 08:04:20 PST"
   },
-  "duration_s": 35.0,
+  "duration_s": 31.1,
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -43,6 +43,14 @@
   ],
   "errored": [],
   "not_executed": [],
+  "invariants": [
+    {
+      "id": "I1",
+      "assertion": "no_confirmed_before_receipt_block",
+      "applies_to": "every check that opens the app: all but C05",
+      "text": "The status line never says Confirmed before the block that holds the receipt of the transaction it names. The test wallet sends each change of the status line to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it."
+    }
+  ],
   "status_rule": "Blocked if any required check fails on a named assertion; otherwise Incomplete if any required check was skipped, timed out or crashed; otherwise Demonstrated checks passed.",
   "planted_faults": [
     {
@@ -69,7 +77,7 @@
       "where": "variants/faulty/flow.js, variants/faulty/SampleGrants.sol",
       "detected_by": "C09",
       "critical": "retry_sends_no_new_payment",
-      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, and the contract accepts the same payment intent twice.",
+      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, each click makes a new intent in the browser, and the contract accepts the same intent twice.",
       "detected": true
     }
   ],
@@ -98,12 +106,18 @@
           "ok": true,
           "observed": "1000 TEST on screen",
           "expected": "1000 TEST on chain"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "0 confirmed moments on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
         "screenshot": "evidence/faulty/C01-connected.png"
       },
-      "duration_s": 0.76,
+      "duration_s": 0.29,
       "trace": {
         "rule": {
           "text": "The balance a user sees is the balance the chain holds.",
@@ -154,13 +168,19 @@
             "rejected"
           ],
           "expected": "no confirmed"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "0 confirmed moments on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
         "wallet_answer": "code 4001 (user rejected)",
         "screenshot": "evidence/faulty/C02-declined.png"
       },
-      "duration_s": 1.02,
+      "duration_s": 0.85,
       "trace": {
         "rule": {
           "text": "Nothing is sent without the user's signature.",
@@ -209,6 +229,12 @@
           "ok": true,
           "observed": false,
           "expected": false
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "0 confirmed moments on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
@@ -223,7 +249,7 @@
           "wallet_switchEthereumChain"
         ]
       },
-      "duration_s": 1.89,
+      "duration_s": 1.71,
       "trace": {
         "rule": {
           "text": "Payments are only sent on the intended chain.",
@@ -272,6 +298,12 @@
           "ok": true,
           "observed": "HTTP 400",
           "expected": "HTTP 400"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "1 confirmed moment on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
@@ -287,7 +319,7 @@
         ],
         "acceptance_signature": "0x1d2af7dafc84d28115\u2026"
       },
-      "duration_s": 1.14,
+      "duration_s": 1.08,
       "trace": {
         "rule": {
           "text": "Demo terms v0 must be accepted before any payment.",
@@ -332,7 +364,7 @@
         "caller": "outsider (not allowlisted, holds TEST, has approved)",
         "path": "eth_sendTransaction straight to the node, no interface"
       },
-      "duration_s": 0.05,
+      "duration_s": 0.01,
       "trace": {
         "rule": {
           "text": "Only allowlisted wallets may open a grant.",
@@ -391,10 +423,16 @@
             "reverted"
           ],
           "expected": "no confirmed"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "0 confirmed moments on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
-        "tx": "0x516e9ee8f679d03f8eee2de9cbcc61232b7359680d6a04dffbab879fb993fd04",
+        "tx": "0x8d7c51f99b88283087e06ddfcba2da5f51c57b8137aae5cd123f735dea92830d",
         "block": 10,
         "gas_limit": 300000,
         "gas_used": 33148,
@@ -405,7 +443,7 @@
         ],
         "screenshot": "evidence/faulty/C06-failed.png"
       },
-      "duration_s": 1.61,
+      "duration_s": 1.37,
       "trace": {
         "rule": {
           "text": "A failed payment is never presented as done.",
@@ -429,10 +467,10 @@
           "name": "no_confirmed_before_block",
           "ok": true,
           "observed": [
-            "idle \"No payment yet\" at -1.30s",
-            "awaiting-signature \"Waiting for your wallet\" at -1.01s",
+            "idle \"No payment yet\" at -1.23s",
+            "awaiting-signature \"Waiting for your wallet\" at -1.00s",
             "submitted \"Pending: waiting for the network to include it\" at -1.00s",
-            "confirmed \"Confirmed\" at +0.04s"
+            "confirmed \"Confirmed\" at +0.01s"
           ],
           "expected": "confirmed only after the block (t >= 0)"
         },
@@ -459,20 +497,26 @@
           "ok": true,
           "observed": "API grant #1 active, owner 0x70997970c51812dc3a010c7d01b50e0d17dc79c8, paid 25 TEST",
           "expected": "API grant #1 equals the chain"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "1 confirmed moment on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
-        "tx": "0xb1238e9313c1d5b6b964a245718845d29ae124af78250bba462536d9dde7b13f",
+        "tx": "0x9e032906d7a631cc69afc55b62d60464c8e7d93c423d864754abda9bfba47735",
         "block": 10,
         "ui_history": [
-          "idle \"No payment yet\" at -1.30s",
-          "awaiting-signature \"Waiting for your wallet\" at -1.01s",
+          "idle \"No payment yet\" at -1.23s",
+          "awaiting-signature \"Waiting for your wallet\" at -1.00s",
           "submitted \"Pending: waiting for the network to include it\" at -1.00s",
-          "confirmed \"Confirmed\" at +0.04s"
+          "confirmed \"Confirmed\" at +0.01s"
         ],
         "screenshot": "evidence/faulty/C07-confirmed.png"
       },
-      "duration_s": 2.33,
+      "duration_s": 1.5,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -491,7 +535,8 @@
       "outcome": "failed",
       "failed_assertions": [
         "never_confirmed_without_receipt",
-        "outage_shown_as_pending_or_unknown"
+        "outage_shown_as_pending_or_unknown",
+        "no_confirmed_before_receipt_block"
       ],
       "error": null,
       "assertions": [
@@ -501,7 +546,7 @@
           "observed": [
             "awaiting-signature \"Waiting for your wallet\" at +0.02s",
             "submitted \"Pending: waiting for the network to include it\" at +0.03s",
-            "confirmed \"Confirmed\" at +0.04s",
+            "confirmed \"Confirmed\" at +0.03s",
             "receipt on chain before the block: none",
             "blocks mined before the bench mined: 0"
           ],
@@ -518,6 +563,14 @@
           "ok": true,
           "observed": "confirmed: \"Confirmed\", receipt status 0x1",
           "expected": "confirmed: \"Confirmed\", receipt status 0x1"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": false,
+          "observed": [
+            "\"Confirmed\" 5.07 s before block 10 was mined (tab 1)"
+          ],
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
@@ -526,7 +579,7 @@
           "interface": {
             "status": "Confirmed",
             "state": "confirmed",
-            "tx": "0xff468a37ed9f9e4605727cebe6ab6f4a84c37c1170b46dc2435cef8f5c5887ab",
+            "tx": "0x28d17710cf76d900481884694084f877ffadf50d8139452d274ff712076dd1db",
             "history": [
               {
                 "state": "awaiting-signature",
@@ -541,10 +594,10 @@
               {
                 "state": "confirmed",
                 "text": "Confirmed",
-                "at_s": 0.04
+                "at_s": 0.03
               }
             ],
-            "block_mined_at_s": 5.13
+            "block_mined_at_s": 5.1
           },
           "api": {
             "grants_for_user": 0,
@@ -560,10 +613,10 @@
           }
         },
         "outage": "the proxy on the app path answered HTTP 503 to every eth_getTransactionReceipt; the node still answered the bench",
-        "outage_held_s": 5.13,
+        "outage_held_s": 5.1,
         "cut_requests": 1
       },
-      "duration_s": 5.77,
+      "duration_s": 5.63,
       "trace": {
         "rule": {
           "text": "Confirmed means included in a block.",
@@ -578,19 +631,20 @@
     },
     {
       "id": "C09",
-      "title": "One payment per intent, however the user retries",
+      "title": "At most one debit per payment intent",
       "outcome": "failed",
       "failed_assertions": [
         "retry_checks_same_transaction",
         "retry_sends_no_new_payment",
         "screen_ends_confirmed",
-        "one_payment_on_chain",
-        "test_debited_once",
+        "retry_debits_once",
         "pay_locked_while_unknown",
-        "pay_during_unknown_pays_once",
+        "pay_during_unknown_debits_once",
         "reload_resumes_same_transaction",
-        "reload_then_pay_pays_once",
-        "double_click_pays_once",
+        "reload_then_pay_debits_once",
+        "second_device_debits_once",
+        "double_click_debits_once",
+        "wallet_error_then_pay_debits_once",
         "contract_refuses_same_intent"
       ],
       "error": null,
@@ -610,7 +664,7 @@
         {
           "name": "retry_checks_same_transaction",
           "ok": false,
-          "observed": "0 receipt or transaction lookups for the first transaction in the 1.5 s after the retry",
+          "observed": "0 receipt or transaction lookups for the first transaction after the retry, then 1 new payment",
           "expected": "at least 1 lookup for the first transaction"
         },
         {
@@ -626,16 +680,10 @@
           "expected": "confirmed: \"Confirmed\" for the first transaction"
         },
         {
-          "name": "one_payment_on_chain",
+          "name": "retry_debits_once",
           "ok": false,
-          "observed": "2 payment transactions: nonce 1 block 10 status 0x1, nonce 2 block 10 status 0x1",
-          "expected": "1 payment transaction, status 0x1"
-        },
-        {
-          "name": "test_debited_once",
-          "ok": false,
-          "observed": "-50 TEST",
-          "expected": "-25 TEST"
+          "observed": "2 payment transactions: nonce 1 block 10 status 0x1 (debit), nonce 2 block 10 status 0x1 (debit); -50 TEST",
+          "expected": "one debit: -25 TEST"
         },
         {
           "name": "pay_locked_while_unknown",
@@ -644,130 +692,181 @@
           "expected": "Pay button disabled"
         },
         {
-          "name": "pay_during_unknown_pays_once",
+          "name": "pay_during_unknown_debits_once",
           "ok": false,
-          "observed": "2 payment transactions: nonce 3 block 11 status 0x1, nonce 4 block 11 status 0x1, -50 TEST",
-          "expected": "1 payment transaction, -25 TEST"
+          "observed": "2 payment transactions: nonce 3 block 11 status 0x1 (debit), nonce 4 block 11 status 0x1 (debit); -50 TEST",
+          "expected": "one debit: -25 TEST"
         },
         {
           "name": "reload_resumes_same_transaction",
           "ok": false,
-          "observed": "after reload the status line follows no transaction: idle",
+          "observed": "after reload the status line follows no transaction, and the Pay button is open: idle",
           "expected": "the pending transaction, followed again"
         },
         {
-          "name": "reload_then_pay_pays_once",
+          "name": "reload_then_pay_debits_once",
           "ok": false,
-          "observed": "2 payment transactions: nonce 5 block 12 status 0x1, nonce 6 block 12 status 0x1, -50 TEST",
-          "expected": "1 payment transaction, -25 TEST"
+          "observed": "2 payment transactions: nonce 5 block 12 status 0x1 (debit), nonce 6 block 12 status 0x1 (debit); -50 TEST",
+          "expected": "one debit: -25 TEST"
         },
         {
-          "name": "double_click_pays_once",
+          "name": "second_device_debits_once",
           "ok": false,
-          "observed": "2 payment transactions: nonce 7 block 13 status 0x1, nonce 8 block 13 status 0x1, -50 TEST",
-          "expected": "1 payment transaction, -25 TEST"
+          "observed": "2 payment transactions: nonce 7 block 13 status 0x1 (debit), nonce 8 block 13 status 0x1 (debit); -50 TEST",
+          "expected": "one debit: -25 TEST"
+        },
+        {
+          "name": "double_click_debits_once",
+          "ok": false,
+          "observed": "2 payment transactions: nonce 9 block 14 status 0x1 (debit), nonce 10 block 14 status 0x1 (debit); -50 TEST",
+          "expected": "one debit: -25 TEST"
+        },
+        {
+          "name": "wallet_error_then_pay_debits_once",
+          "ok": false,
+          "observed": "2 payment transactions: nonce 11 block 15 status 0x1 (debit), nonce 12 block 15 status 0x1 (debit); -50 TEST; screen after the wallet error: \"Something went wrong\", at the end: \"Confirmed\"",
+          "expected": "one debit: -25 TEST"
         },
         {
           "name": "contract_refuses_same_intent",
           "ok": false,
           "observed": "status 0x1, error none",
           "expected": "status 0x0, IntentAlreadyPaid()"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "3 confirmed moments on 7 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
         "retry_button": "Try the payment again",
         "payments": [
           {
-            "tx": "0x9a92c60f987696e38e38ea7d6a133f8e9c7ac447114876bde6b1529575901105",
+            "tx": "0x8e9611a911da5503a67358cd9b4fe03a6093b104a9300cfab3fdc928dddf0f5c",
             "nonce": 1,
             "block": 10,
             "status": "0x1",
-            "intent": "0x56ddf3725061626dc8353b839d82474a60bf100678c6b2dc7f89c42c3971cec6"
+            "intent": "0x2b19d19b2bc17c117c57dd9091ec68bac20c06077bd8661bf41c521f0e341ab3"
           },
           {
-            "tx": "0x6445b38d8f96276426eb52aec9ab1e65ff19b287ae37d3e50392f8a708cf3626",
+            "tx": "0x877ad83b1615f84325477f403079b13a10c51f44d795c4854979e077e102efeb",
             "nonce": 2,
             "block": 10,
             "status": "0x1",
-            "intent": "0x8a3e074cfa1113eb60f23a9d5e78b0ccdab7ddf2115f88bbb4ad27d2b0c7e8e2"
+            "intent": "0xbea9397e3ff87fe81f551c320425132a95bd5257d69472e00f168e5f0118db1e"
           }
         ],
         "ui_history": [
-          "idle \"No payment yet\" at -0.14s",
-          "awaiting-signature \"Waiting for your wallet\" at +0.02s",
+          "idle \"No payment yet\" at -0.12s",
+          "awaiting-signature \"Waiting for your wallet\" at +0.01s",
           "submitted \"Pending: waiting for the network to include it\" at +0.02s",
-          "unknown \"Status unknown: the network did not answer\" at +0.54s",
-          "awaiting-signature \"Waiting for your wallet\" at +0.57s",
-          "submitted \"Pending: waiting for the network to include it\" at +0.57s",
-          "confirmed \"Confirmed\" at +2.11s"
+          "unknown \"Status unknown: the network did not answer\" at +0.53s",
+          "awaiting-signature \"Waiting for your wallet\" at +0.55s",
+          "submitted \"Pending: waiting for the network to include it\" at +0.56s",
+          "confirmed \"Confirmed\" at +1.83s"
         ],
+        "retry_block_mined_at_s": 1.66,
         "screenshot": "evidence/faulty/C09-after-retry.png",
         "pay_during_unknown": [
           {
-            "tx": "0x3e1cdf0e4ea0c966bf6e21bf2f8807e3ef46250fbb99509f04dcc28a4325615b",
+            "tx": "0x8b6de1c1bc75201a2535ff0177f0d117a00874a2a3a2fdbdd68e9ccf387bd2b1",
             "nonce": 3,
             "block": 11,
             "status": "0x1",
-            "intent": "0x6ea9f3fa94741e66c7bf8eaf20afb306854169102712d063e2e4ffea742ba0b1"
+            "intent": "0x5e236b65f0f1c377b1e985cb5d7d912a05e8615eaf56f78df3da0aa4e50331e3"
           },
           {
-            "tx": "0x5910648047f57340a4d9acba32d1a7840689028c6c4c1a97ada91666d984c36f",
+            "tx": "0xafcec9ee307f7ed1c9f4a9809f0b1be608cc967f76dea66f9862204bb559f636",
             "nonce": 4,
             "block": 11,
             "status": "0x1",
-            "intent": "0x170411a07f7395202a5809cca265aa459c7cb0b193d81979a2c5ea18214611ec"
+            "intent": "0xd7d15000bd75a597820f56f98792498451710c71fb5ff072cd7146a89e0ba92c"
           }
         ],
         "reload_then_pay": [
           {
-            "tx": "0x5eaa82279820da94656eba6c557e49f93e2719d669f5bb9b3ec11625d1ac351e",
+            "tx": "0xfbd6a9dfa0cdfccac9a68bf54e3fa70c7898eae89d37990bb2f16db670fc8c05",
             "nonce": 5,
             "block": 12,
             "status": "0x1",
-            "intent": "0xe43f4ecc4d3bd8a79414e5405225b915798c3d5431958556981147a253b80f1d"
+            "intent": "0x3ac2e6d10c141bc92f5b8104d4a154a134df40ae4fa09baee8575847d0667881"
           },
           {
-            "tx": "0x5a810e94e049767d8a21a1f6644cbcd3628af62972d0a8c7c2d0c83aee8b4689",
+            "tx": "0x53341222a5f02fc2ab61d8072158d9a2dd14262cb8fb07532676875a19a1d315",
             "nonce": 6,
             "block": 12,
             "status": "0x1",
-            "intent": "0x1e96f5c603a2baa0d3145adc57399de93e1ac905af752c0f13083828caee793d"
+            "intent": "0xa642dcb20ffb5f4c7996e4c9b7bedabeb7eed45f0de79dac5c26ab599806a402"
+          }
+        ],
+        "second_device": [
+          {
+            "tx": "0xcd876b34654197760d8114cf1e9e9680cc3c6b084a6e6733ab07b29559f3f9f4",
+            "nonce": 7,
+            "block": 13,
+            "status": "0x1",
+            "intent": "0x6144413bd64dc64ca08f412568099448ac0bc4e8d081baf6e0056d81f503ed1f"
+          },
+          {
+            "tx": "0xcd6a23775594545353bd6e2cfab94a6ac421d463f002258bf1c5d521cae7b488",
+            "nonce": 8,
+            "block": 13,
+            "status": "0x1",
+            "intent": "0xba9ae77cb92c5737f3652414ca435274c3eb4f25e104b3ee55f6cebc8d076044"
           }
         ],
         "double_click": [
           {
-            "tx": "0x2754c2d15f6b802cc61713b321a443b2fc2a6900cf430d2655f6847053f41436",
-            "nonce": 7,
-            "block": 13,
+            "tx": "0x01282bb4f81458e5c36b3cbc81d4d9cfcea27465ee1a1f893de15838bef89f99",
+            "nonce": 9,
+            "block": 14,
             "status": "0x1",
-            "intent": "0x2ec6515959381c29fa9180d78b266d1243de3b04ced3f20065b07d6d65a15e54"
+            "intent": "0x58ebc888f10240988af48b5e184e88e527ffcd7e28230c15bd558eaae1e26905"
           },
           {
-            "tx": "0x84070a7508ad8193556a1287c6fe917c305bc84fc075984886b7a5b2fba04035",
-            "nonce": 8,
-            "block": 13,
+            "tx": "0x9695e3a702e13b534e01edb34721da041a61802104911c272923f505fe6d93a6",
+            "nonce": 10,
+            "block": 14,
             "status": "0x1",
-            "intent": "0x3e5fb86887bbd75a964ea55996c2976a998469247711ce8cbf90a1fb08f7d248"
+            "intent": "0x5dd37b66c44cee71fccf4481328693c23b164d2e5b7f4fadd8ab9c87043a1e82"
+          }
+        ],
+        "wallet_error_then_pay": [
+          {
+            "tx": "0x0c6a6f15527e72f56a54945a496ea616c88bc1061430ddf88c8ebbb8506ae4b5",
+            "nonce": 11,
+            "block": 15,
+            "status": "0x1",
+            "intent": "0x64a2307f71226435b82a45d89d41c91cb076dab2978163ede4625657cb5af0d2"
+          },
+          {
+            "tx": "0xd34b1ef60d9eaf9eb595f6cc041e4d78a6619e9c65a03043263bd8e05ab6be80",
+            "nonce": 12,
+            "block": 15,
+            "status": "0x1",
+            "intent": "0x3e2cb6caf1117eaad1300f348a00ed47cf03e678dc4b320b16ea2707ca5db47a"
           }
         ],
         "same_intent_replay": {
-          "tx": "0x8991899f107df693cf1facdd699c960cb5df93117d3fc4294b2eee4c544918b0",
-          "block": 14,
-          "intent": "0x56ddf3725061626dc8353b839d82474a60bf100678c6b2dc7f89c42c3971cec6",
+          "tx": "0x79ed5e8fbeb92544385569973716bae75d8ec6304b668424f4ef1314c97ec6f7",
+          "block": 16,
+          "intent": "0x2b19d19b2bc17c117c57dd9091ec68bac20c06077bd8661bf41c521f0e341ab3",
           "path": "eth_sendTransaction straight to the node, no interface"
         }
       },
-      "duration_s": 13.45,
+      "duration_s": 13.83,
       "trace": {
         "rule": {
-          "text": "One payment intent, one payment.",
+          "text": "At most one debit per payment intent.",
           "fictitious": false
         },
-        "allowed": "Check the same transaction again.",
-        "forbidden": "A second payment transaction for the same intent, successful or reverted.",
-        "criterion": "After status unknown, the retry looks up the same transaction again and the screen ends on Confirmed; clicking Pay during unknown, reloading then paying, and double clicking each leave exactly one payment transaction (mined or reverted) and a single 25 TEST debit; the contract refuses the same intent sent again with IntentAlreadyPaid.",
+        "allowed": "Check the same transaction again. A duplicate that the contract reverts: it costs gas and moves no TEST.",
+        "forbidden": "A second debit for the same payment intent.",
+        "criterion": "After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once: a duplicate that the contract reverts is listed and not counted as a debit. The contract refuses the same intent sent again with IntentAlreadyPaid. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
         "layer": "interface + chain",
-        "method": "RPC proxy outage, retry, Pay during unknown, reload, double click; direct block and mempool scan; direct contract call"
+        "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; waits with a deadline; direct block and mempool scan; direct contract call"
       }
     },
     {
@@ -810,6 +909,12 @@
           "ok": true,
           "observed": "admin panel shown; add status 0x1, remove status 0x1",
           "expected": "admin panel shown; add status 0x1, remove status 0x1"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "0 confirmed moments on 2 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
@@ -823,7 +928,7 @@
         ],
         "path": "eth_sendTransaction straight to the node, no interface"
       },
-      "duration_s": 0.45,
+      "duration_s": 0.42,
       "trace": {
         "rule": {
           "text": "Only the admin edits the allowlist.",
@@ -866,6 +971,12 @@
           "ok": true,
           "observed": "HTTP 403 at indexed block 11",
           "expected": "HTTP 403 once block 11 is indexed"
+        },
+        {
+          "name": "no_confirmed_before_receipt_block",
+          "ok": true,
+          "observed": "1 confirmed moment on 1 tab(s), each after its block",
+          "expected": "every confirmed moment after the block holding its receipt"
         }
       ],
       "evidence": {
@@ -874,7 +985,7 @@
         "api_after": 403,
         "reader_identity": "simulated: declared in the x-reader-address request header, no reader sign-in"
       },
-      "duration_s": 0.84,
+      "duration_s": 1.78,
       "trace": {
         "rule": {
           "text": "Revoked access ends once the revocation is indexed.",
@@ -891,7 +1002,11 @@
   "not_covered": [
     {
       "item": "Real wallet extensions and mobile wallets",
-      "why": "The bench drives an EIP-1193 test provider. It proves the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
+      "why": "The bench drives an EIP-1193 test provider. It exercises the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
+    },
+    {
+      "item": "A payment started on another device or with browser storage cleared or refused",
+      "why": "The intent is derived by the contract from the order, not kept by the browser, so these cases cannot debit twice while the order is unpaid; C09 runs the second device (a fresh browser, empty storage), and refused storage takes the same path without being run on its own. What the browser keeps is the Pay lock and the follow-up after a reload: there, the user can still send a duplicate, which the contract reverts at the cost of its gas. Once the first payment is in a block, a new Pay is a new order and a new debit, by design."
     },
     {
       "item": "Reader authentication",
@@ -899,7 +1014,7 @@
     },
     {
       "item": "Economic and security audit of the contract",
-      "why": "The checks prove three rules the contract enforces on its own (allowlist, admin role, one payment per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+      "why": "The checks exercise three rules the contract enforces on its own (allowlist, admin role, at most one debit per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
     },
     {
       "item": "Gas spikes and congestion on a public network",
@@ -916,10 +1031,6 @@
     {
       "item": "Load, many users at once, indexer restarts",
       "why": "Each check runs one user on a fresh chain snapshot."
-    },
-    {
-      "item": "The client's own application",
-      "why": "Not assessed. This run tests a synthetic app built to carry three known faults."
     }
   ],
   "decision": "The bench fills in the technical result only. The rules marked fictitious were written for this demo and approved by no one; go or no-go is a person's decision, taken with this report in hand."

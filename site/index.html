@@ -583,7 +583,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   }
 
   const inv = (F.invariants || [])[0];
-  if (inv) { $('inv').replaceChildren(el('b', null, 'Applied to ' + inv.applies_to + ': '), document.createTextNode(inv.text + ' Assertion '), el('code', null, inv.assertion), document.createTextNode('.')); }
+  if (inv) { $('inv').replaceChildren(el('b', null, `Invariant ${inv.id} (${inv.applies_to}). `), document.createTextNode(inv.text + ' Assertion '), el('code', null, inv.assertion), document.createTextNode('.')); }
   const nc = $('nc');
   for (const n of F.not_covered) { const x = el('li'); x.append(el('b', null, n.item), el('span', null, n.why)); nc.append(x); }
 

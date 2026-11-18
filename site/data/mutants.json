@@ -1,0 +1,314 @@
+{
+  "finished": "2026-11-18 16:19:19 UTC",
+  "commit": "082cc5abbf32bc2a853aa1dd8b864729e3d8f75e",
+  "as_expected": 18,
+  "total": 18,
+  "mutants": [
+    {
+      "id": "late_d1",
+      "breaks": "D1",
+      "what": "Confirmed from the transaction lookup after about 3 s of failed receipts.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "duration_s": 49.0
+    },
+    {
+      "id": "unknown_then_confirmed",
+      "breaks": "D1",
+      "what": "Shows unknown, then switches to Confirmed 3 s later from the transaction lookup.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.3
+    },
+    {
+      "id": "label_lies",
+      "breaks": "D1",
+      "what": "The state says unknown, the visible text says Confirmed.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "outage_shown_as_unknown",
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.7
+    },
+    {
+      "id": "m1_confirm_on_retry",
+      "breaks": "D1",
+      "what": "Check status again shows Confirmed as soon as the node knows the transaction, before any block.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "no_confirmed_before_receipt_block"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.9
+    },
+    {
+      "id": "weak_d2",
+      "breaks": "D2",
+      "what": "Only adding is guarded: anyone can remove anyone.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C10": [
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {},
+      "duration_s": 30.1
+    },
+    {
+      "id": "allowlisted_admin",
+      "breaks": "D2",
+      "what": "Any allowlisted account can edit the allowlist.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.4
+    },
+    {
+      "id": "wrong_error",
+      "breaks": "D2",
+      "what": "Refused, but with another error than NotAdmin.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.3
+    },
+    {
+      "id": "no_retry",
+      "breaks": "D3",
+      "what": "No retry button after status unknown.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "retry_offered",
+          "retry_checks_same_transaction",
+          "screen_ends_confirmed"
+        ]
+      },
+      "errors": {
+        "C08": "BenchTimeout: the screen did not end on confirmed within 10 s"
+      },
+      "duration_s": 37.9
+    },
+    {
+      "id": "retry_noop",
+      "breaks": "D3",
+      "what": "The retry button does nothing. Nothing happening is a passed deadline, not a detection: the run ends Incomplete, which cannot pass either.",
+      "expected": "Incomplete",
+      "outcome": "Incomplete",
+      "as_expected": true,
+      "exit": 3,
+      "failed_assertions": {},
+      "errors": {
+        "C08": "BenchTimeout: the screen did not end on confirmed within 10 s",
+        "C09": "BenchTimeout: the app answered the retry with neither a lookup of the first transaction nor a new payment within 10 s"
+      },
+      "duration_s": 36.8
+    },
+    {
+      "id": "pay_unlocked",
+      "breaks": "D3",
+      "what": "The Pay button is never locked (the contract still reverts the duplicate).",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "pay_locked_while_unknown"
+        ]
+      },
+      "errors": {},
+      "duration_s": 30.1
+    },
+    {
+      "id": "no_storage",
+      "breaks": "D3",
+      "what": "Nothing survives a reload: the transaction in progress is kept in memory only.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "reload_resumes_same_transaction"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.8
+    },
+    {
+      "id": "contract_no_intent",
+      "breaks": "D3",
+      "what": "The contract no longer refuses a paid intent.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "second_device_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ]
+      },
+      "errors": {},
+      "duration_s": 30.0
+    },
+    {
+      "id": "retry_repays_same_intent",
+      "breaks": "D3",
+      "what": "The retry pays again with the same intent: one debit, one reverted duplicate.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment"
+        ]
+      },
+      "errors": {
+        "C08": "BenchTimeout: the screen did not end on confirmed within 10 s",
+        "C09": "BenchTimeout: the screen did not end on confirmed within 10 s"
+      },
+      "duration_s": 38.2
+    },
+    {
+      "id": "browser_intent",
+      "breaks": "D3",
+      "what": "The intent is made in the browser again instead of being asked from the contract.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "second_device_debits_once",
+          "wallet_error_then_pay_debits_once"
+        ]
+      },
+      "errors": {},
+      "duration_s": 30.9
+    },
+    {
+      "id": "m3_new_intent_after_wallet_error",
+      "breaks": "D3",
+      "what": "After any wallet error the app forgets the order and makes a new intent in the browser.",
+      "expected": "Blocked",
+      "outcome": "Blocked",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C09": [
+          "wallet_error_then_pay_debits_once"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.5
+    },
+    {
+      "id": "m3_as_written",
+      "breaks": "D3",
+      "what": "The reviewer's M3 line as written: the browser record is wiped on any wallet error. The intent no longer lives there, so this changes nothing: the next Pay asks the contract and gets the same intent.",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "duration_s": 29.5
+    },
+    {
+      "id": "m4_slow_retry",
+      "breaks": "waits",
+      "what": "Correct but slow: the retry checks the same transaction after a 2 s backoff.",
+      "expected": "Demonstrated checks passed",
+      "outcome": "Demonstrated checks passed",
+      "as_expected": true,
+      "exit": 0,
+      "failed_assertions": {},
+      "errors": {},
+      "duration_s": 33.7
+    },
+    {
+      "id": "ci_only_d2",
+      "breaks": "CI",
+      "what": "A faulty app that keeps only D2 (D1 and D3 fixed) must fail the CI calibration.",
+      "expected": "calibration fails",
+      "outcome": "exit 1, calibration FAILED, planted faults detected: D2; expected: D1, D2, D3; failed checks: C10; expected exactly: C08, C09, C10",
+      "as_expected": true,
+      "exit": 1,
+      "failed_assertions": {
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {},
+      "duration_s": 29.3
+    }
+  ]
+}

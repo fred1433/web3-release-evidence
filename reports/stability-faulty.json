@@ -1,7 +1,7 @@
 {
   "variant": "faulty",
   "runs": 20,
-  "commit": "c7b71566307fd5793e16c83224414fd96646cfcb",
+  "commit": "082cc5abbf32bc2a853aa1dd8b864729e3d8f75e",
   "versions": {
     "anvil": "anvil Version: 1.9.0",
     "forge": "forge Version: 1.9.0",
@@ -16,673 +16,13 @@
     "Blocked": 20
   },
   "finished": {
-    "utc": "2026-11-18 15:10:40 UTC",
-    "pacific": "2026-11-18 07:10:40 PST"
+    "utc": "2026-11-18 16:15:35 UTC",
+    "pacific": "2026-11-18 08:15:35 PST"
   },
   "detail": [
     {
       "run": 1,
-      "run_id": "faulty-20261118T150001Z",
-      "status": "Blocked",
-      "duration_s": 30.8,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 2,
-      "run_id": "faulty-20261118T150032Z",
-      "status": "Blocked",
-      "duration_s": 29.6,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 3,
-      "run_id": "faulty-20261118T150102Z",
-      "status": "Blocked",
-      "duration_s": 30.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 4,
-      "run_id": "faulty-20261118T150133Z",
-      "status": "Blocked",
-      "duration_s": 30.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 5,
-      "run_id": "faulty-20261118T150203Z",
-      "status": "Blocked",
-      "duration_s": 34.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 6,
-      "run_id": "faulty-20261118T150238Z",
-      "status": "Blocked",
-      "duration_s": 36.1,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 7,
-      "run_id": "faulty-20261118T150314Z",
-      "status": "Blocked",
-      "duration_s": 31.2,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 8,
-      "run_id": "faulty-20261118T150345Z",
-      "status": "Blocked",
-      "duration_s": 32.4,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 9,
-      "run_id": "faulty-20261118T150418Z",
-      "status": "Blocked",
-      "duration_s": 31.3,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 10,
-      "run_id": "faulty-20261118T150449Z",
-      "status": "Blocked",
-      "duration_s": 30.2,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 11,
-      "run_id": "faulty-20261118T150520Z",
-      "status": "Blocked",
-      "duration_s": 30.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 12,
-      "run_id": "faulty-20261118T150550Z",
-      "status": "Blocked",
-      "duration_s": 30.6,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 13,
-      "run_id": "faulty-20261118T150621Z",
-      "status": "Blocked",
-      "duration_s": 35.9,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 14,
-      "run_id": "faulty-20261118T150657Z",
-      "status": "Blocked",
-      "duration_s": 32.5,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 15,
-      "run_id": "faulty-20261118T150730Z",
-      "status": "Blocked",
-      "duration_s": 29.7,
-      "outcomes": {
-        "C01": "passed",
-        "C02": "passed",
-        "C03": "passed",
-        "C04": "passed",
-        "C05": "passed",
-        "C06": "passed",
-        "C07": "passed",
-        "C08": "failed",
-        "C09": "failed",
-        "C10": "failed",
-        "C11": "passed"
-      },
-      "failed_assertions": {
-        "C08": [
-          "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
-        ],
-        "C09": [
-          "retry_checks_same_transaction",
-          "retry_sends_no_new_payment",
-          "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
-          "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
-          "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
-          "contract_refuses_same_intent"
-        ],
-        "C10": [
-          "ordinary_account_cannot_add",
-          "ordinary_account_cannot_remove",
-          "allowlist_unchanged"
-        ]
-      },
-      "errors": {}
-    },
-    {
-      "run": 16,
-      "run_id": "faulty-20261118T150759Z",
+      "run_id": "faulty-20261118T160517Z",
       "status": "Blocked",
       "duration_s": 29.5,
       "outcomes": {
@@ -701,19 +41,711 @@
       "failed_assertions": {
         "C08": [
           "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
         ],
         "C09": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
+          "retry_debits_once",
           "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
+          "pay_during_unknown_debits_once",
           "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 2,
+      "run_id": "faulty-20261118T160547Z",
+      "status": "Blocked",
+      "duration_s": 29.8,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 3,
+      "run_id": "faulty-20261118T160616Z",
+      "status": "Blocked",
+      "duration_s": 31.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 4,
+      "run_id": "faulty-20261118T160648Z",
+      "status": "Blocked",
+      "duration_s": 31.1,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 5,
+      "run_id": "faulty-20261118T160719Z",
+      "status": "Blocked",
+      "duration_s": 31.6,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 6,
+      "run_id": "faulty-20261118T160751Z",
+      "status": "Blocked",
+      "duration_s": 31.4,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 7,
+      "run_id": "faulty-20261118T160822Z",
+      "status": "Blocked",
+      "duration_s": 31.3,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 8,
+      "run_id": "faulty-20261118T160854Z",
+      "status": "Blocked",
+      "duration_s": 30.2,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 9,
+      "run_id": "faulty-20261118T160924Z",
+      "status": "Blocked",
+      "duration_s": 30.4,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 10,
+      "run_id": "faulty-20261118T160954Z",
+      "status": "Blocked",
+      "duration_s": 30.7,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 11,
+      "run_id": "faulty-20261118T161025Z",
+      "status": "Blocked",
+      "duration_s": 30.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 12,
+      "run_id": "faulty-20261118T161056Z",
+      "status": "Blocked",
+      "duration_s": 29.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 13,
+      "run_id": "faulty-20261118T161125Z",
+      "status": "Blocked",
+      "duration_s": 30.9,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 14,
+      "run_id": "faulty-20261118T161156Z",
+      "status": "Blocked",
+      "duration_s": 31.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 15,
+      "run_id": "faulty-20261118T161228Z",
+      "status": "Blocked",
+      "duration_s": 31.0,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
+          "contract_refuses_same_intent"
+        ],
+        "C10": [
+          "ordinary_account_cannot_add",
+          "ordinary_account_cannot_remove",
+          "allowlist_unchanged"
+        ]
+      },
+      "errors": {}
+    },
+    {
+      "run": 16,
+      "run_id": "faulty-20261118T161259Z",
+      "status": "Blocked",
+      "duration_s": 31.9,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "failed",
+        "C09": "failed",
+        "C10": "failed",
+        "C11": "passed"
+      },
+      "failed_assertions": {
+        "C08": [
+          "never_confirmed_without_receipt",
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
+        ],
+        "C09": [
+          "retry_checks_same_transaction",
+          "retry_sends_no_new_payment",
+          "screen_ends_confirmed",
+          "retry_debits_once",
+          "pay_locked_while_unknown",
+          "pay_during_unknown_debits_once",
+          "reload_resumes_same_transaction",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
           "contract_refuses_same_intent"
         ],
         "C10": [
@@ -726,9 +758,9 @@
     },
     {
       "run": 17,
-      "run_id": "faulty-20261118T150829Z",
+      "run_id": "faulty-20261118T161331Z",
       "status": "Blocked",
-      "duration_s": 33.1,
+      "duration_s": 31.8,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -745,19 +777,21 @@
       "failed_assertions": {
         "C08": [
           "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
         ],
         "C09": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
+          "retry_debits_once",
           "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
+          "pay_during_unknown_debits_once",
           "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
           "contract_refuses_same_intent"
         ],
         "C10": [
@@ -770,9 +804,9 @@
     },
     {
       "run": 18,
-      "run_id": "faulty-20261118T150902Z",
+      "run_id": "faulty-20261118T161403Z",
       "status": "Blocked",
-      "duration_s": 30.0,
+      "duration_s": 30.8,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -789,19 +823,21 @@
       "failed_assertions": {
         "C08": [
           "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
         ],
         "C09": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
+          "retry_debits_once",
           "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
+          "pay_during_unknown_debits_once",
           "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
           "contract_refuses_same_intent"
         ],
         "C10": [
@@ -814,9 +850,9 @@
     },
     {
       "run": 19,
-      "run_id": "faulty-20261118T150932Z",
+      "run_id": "faulty-20261118T161434Z",
       "status": "Blocked",
-      "duration_s": 32.1,
+      "duration_s": 30.7,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -833,19 +869,21 @@
       "failed_assertions": {
         "C08": [
           "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
         ],
         "C09": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
+          "retry_debits_once",
           "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
+          "pay_during_unknown_debits_once",
           "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
           "contract_refuses_same_intent"
         ],
         "C10": [
@@ -858,9 +896,9 @@
     },
     {
       "run": 20,
-      "run_id": "faulty-20261118T151004Z",
+      "run_id": "faulty-20261118T161504Z",
       "status": "Blocked",
-      "duration_s": 35.1,
+      "duration_s": 30.8,
       "outcomes": {
         "C01": "passed",
         "C02": "passed",
@@ -877,19 +915,21 @@
       "failed_assertions": {
         "C08": [
           "never_confirmed_without_receipt",
-          "outage_shown_as_pending_or_unknown"
+          "outage_shown_as_pending_or_unknown",
+          "no_confirmed_before_receipt_block"
         ],
         "C09": [
           "retry_checks_same_transaction",
           "retry_sends_no_new_payment",
           "screen_ends_confirmed",
-          "one_payment_on_chain",
-          "test_debited_once",
+          "retry_debits_once",
           "pay_locked_while_unknown",
-          "pay_during_unknown_pays_once",
+          "pay_during_unknown_debits_once",
           "reload_resumes_same_transaction",
-          "reload_then_pay_pays_once",
-          "double_click_pays_once",
+          "reload_then_pay_debits_once",
+          "second_device_debits_once",
+          "double_click_debits_once",
+          "wallet_error_then_pay_debits_once",
           "contract_refuses_same_intent"
         ],
         "C10": [
