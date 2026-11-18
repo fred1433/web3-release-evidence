@@ -53,6 +53,7 @@ class Chain:
         self.url = url
         self._id = 0
         self.mines = []  # wall-clock ms of every evm_mine the bench issued
+        self.mined_at = {}  # block hash -> wall-clock ms taken just before the bench mined it
 
     def rpc(self, method, params=None):
         self._id += 1
@@ -68,9 +69,11 @@ class Chain:
         return self.keccak(signature)[:10]
 
     def mine(self):
+        """Mine one block. The time is taken before the block exists, so nothing can have seen it earlier."""
         t = int(time.time() * 1000)
         self.mines.append(t)
         self.rpc('evm_mine')
+        self.mined_at[self.rpc('eth_getBlockByNumber', ['latest', False])['hash']] = t
         return t
 
     def head(self):

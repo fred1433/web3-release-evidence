@@ -4,15 +4,18 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const randomIntent = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
 export const RETRY_LABEL = 'Try the payment again';
 
-// No memory of a payment in progress: the Pay button stays active and every click is a new intent.
+// No memory of a payment in progress: the Pay button stays active and every click is a new intent,
+// made in the browser.
 export function createPayments() {
   return {
     locked: () => false,
-    begin: () => randomIntent(),
+    begin: async () => randomIntent(),
     sent() {},
     abandon() {},
     settled() {},
     pending: () => null,
+    intentOf: () => null,
+    paid: async () => false,
   };
 }
 

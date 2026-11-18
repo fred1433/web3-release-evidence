@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import ROOT, Chain, RpcProxy, free_port, pad, start_anvil, start_app, stop  # noqa: E402
-from checks import CHECKS, Check  # noqa: E402
+from checks import CHECKS, Check, screen_invariant  # noqa: E402
 from status import decide, BLOCKED, INCOMPLETE, PASSED  # noqa: E402
 
 CHAIN_ID = 31337
@@ -57,11 +57,14 @@ class Ctx:
     def __init__(self, **kw):
         self.__dict__.update(kw)
         self.contexts = []
+        self.ui_log = []  # every change of the status line, on every tab, sent by the test wallet as it happens
 
     def page(self, who, **wallet):
         cfg = {'account': self.acc[who], 'chainId': hex(CHAIN_ID), 'homeChainId': hex(CHAIN_ID), 'rpcUrl': self.proxy.url}
         cfg.update(wallet)
         context = self.browser.new_context(viewport={'width': 480, 'height': 900}, device_scale_factor=2)
+        tab = len(self.contexts) + 1
+        context.expose_binding('__benchRecord', lambda source, entry: self.ui_log.append(dict(entry, tab=tab)))
         context.add_init_script(script='window.__WALLET_CONFIG = ' + json.dumps(cfg) + ';\n' + WALLET_JS)
         self.contexts.append(context)
         return context.new_page()
@@ -128,6 +131,11 @@ def run_once(variant, skip, evidence_dir, reports_dir, browser, log_dir):
             finally:
                 ctx.close()
                 stop(app)
+            if ctx.contexts:  # the check watched the screen: the confirmed-after-block invariant applies
+                try:
+                    screen_invariant(ctx, c)
+                except Exception as e:
+                    error = error or f'{type(e).__name__} in the screen invariant: {str(e)[:300]}'
             failed = [x['name'] for x in c.assertions if not x['ok']]
             # Only a named assertion that failed is a detection; an error with no failed assertion is not.
             outcome = 'failed' if failed else ('error' if error else 'passed')
@@ -175,6 +183,7 @@ def run_once(variant, skip, evidence_dir, reports_dir, browser, log_dir):
         'failed': verdict['failed'],
         'errored': verdict['errored'],
         'not_executed': verdict['not_executed'],
+        'invariants': MANIFEST['invariants'],
         'status_rule': 'Blocked if any required check fails on a named assertion; otherwise Incomplete if any required check was skipped, timed out or crashed; otherwise Demonstrated checks passed.',
         'planted_faults': [dict(f, detected=detected(f, by_id)) for f in FAULTS['faults']],
         'checks': results,

@@ -13,8 +13,10 @@ contract SampleGrants {
     ITestToken public immutable token;
     uint256 public grantCount;
     mapping(address => bool) public allowlisted;
-    // One payment per intent: an intent id the payer already used is refused.
+    // At most one debit per intent: an intent id the payer already used is refused.
     mapping(address => mapping(bytes32 => bool)) public intentPaid;
+    // Orders each payer has paid for one reader and one dataset. The next order's intent derives from it.
+    mapping(address => mapping(address => mapping(bytes32 => uint256))) public ordersPaid;
 
     struct Grant {
         address owner;
@@ -51,10 +53,17 @@ contract SampleGrants {
         emit Allowlisted(account, allowed);
     }
 
+    /// The intent of the payer's next order for this reader and dataset, derived from the order
+    /// itself. Until that order is paid, every device, every browser and every retry gets the same id.
+    function intentFor(address payer, address reader, bytes32 dataset) external view returns (bytes32) {
+        return keccak256(abi.encode(payer, reader, dataset, ordersPaid[payer][reader][dataset]));
+    }
+
     function grantAndPay(address reader, bytes32 dataset, uint256 amount, bytes32 intent) external returns (uint256 grantId) {
         if (!allowlisted[msg.sender]) revert NotAllowlisted();
         if (intentPaid[msg.sender][intent]) revert IntentAlreadyPaid();
         intentPaid[msg.sender][intent] = true;
+        ordersPaid[msg.sender][reader][dataset] += 1;
         token.transferFrom(msg.sender, reader, amount);
         grantId = ++grantCount;
         grants[grantId] = Grant(msg.sender, reader, dataset, amount, true);

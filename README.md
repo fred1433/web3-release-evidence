@@ -23,11 +23,19 @@ Three faults are planted in `variants/faulty` (`variants/faults.json`); `variant
 
 | Fault | What happens | Found by (critical assertion) |
 | --- | --- | --- |
-| D1 | The receipt request fails, the app falls back to the transaction lookup and shows **Confirmed** while the transaction is still in the mempool. | C08 (`never_confirmed_without_receipt`). Receipt requests are cut on the app's path until the screen settles, plus 5 seconds; the node still answers the bench. Then the bench restores the RPC and mines, and both versions end on Confirmed: only the timed history of the status line, state and visible text, tells them apart. |
+| D1 | The receipt request fails, the app falls back to the transaction lookup and shows **Confirmed** while the transaction is still in the mempool. | C08 (`never_confirmed_without_receipt`). Receipt requests are cut on the app's path until the screen settles, plus 5 seconds; the node still answers the bench. Then the bench restores the RPC and mines, and both versions end on Confirmed: only the timed history of the status line, state and visible text, tells them apart. The same rule is also an invariant on every check that opens the app (below). |
 | D2 | `setAllowlisted` has no `onlyAdmin`. The interface hides it, the contract does not refuse it. | C10 (`ordinary_account_cannot_add`). An allowlisted ordinary account calls the contract directly, to add and to remove; both must revert with `NotAdmin()`, and the admin must still be able to edit. |
-| D3 | After "status unknown", the retry button sends a second payment. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, and the contract accepts the same payment intent twice. | C09 (`retry_sends_no_new_payment`). The retry must look up the same transaction, send nothing new, and end on Confirmed. Then three other ways to pay again (Pay during "unknown", reload then pay, double click with no outage) must each leave exactly one payment transaction on chain, mined or reverted. Finally the same intent, sent straight to the contract, must revert with `IntentAlreadyPaid()`. |
+| D3 | After "status unknown", the retry button sends a second payment. Nothing remembers the payment in progress: the Pay button stays active, a reload forgets it, each click makes a new intent in the browser, and the contract accepts the same intent twice. | C09 (`retry_sends_no_new_payment`). The retry must look up the same transaction, send nothing new, and end on Confirmed. Then five other ways to pay again (Pay during "unknown", reload then Pay, Pay from a second device, double click, Pay again after the wallet broadcast the payment then answered an error) must each move 25 TEST once: at most one debit per intent. A duplicate that the contract reverts is listed in the report and not counted as a debit. Finally the same intent, sent straight to the contract, must revert with `IntentAlreadyPaid()`. |
 
-The corrected app keeps the payment in progress per account in `localStorage` until its receipt arrives, locks the Pay button while it is pending or unknown, resumes following it after a reload, and reuses its intent id, which the contract refuses a second time.
+In the corrected app the payment intent does not come from the browser. The contract derives it from the order (`intentFor(payer, reader, dataset)`: the payer, the reader, the dataset and how many such orders the payer has already paid), so a retry, a reload, a second device or a cleared browser storage all send the same intent while the order is unpaid, and the contract refuses a paid intent. The browser keeps only the transaction in progress (`localStorage`), to lock the Pay button while it is pending or unknown and to resume following it after a reload. When a duplicate gets through anyway (second device, wallet error), the contract reverts it and the screen says "Already paid", not "Failed".
+
+### Invariants
+
+- **D1, everywhere the bench watches the screen.** In every check that opens the app (all but C05), the status line never says Confirmed before the block that holds the receipt of the transaction it names (`no_confirmed_before_receipt_block`). The test wallet sends each change of the status line to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it.
+- **D3: at most one debit per payment intent.** C09 counts the TEST that left the payer in each of its six pay-again situations, and lists every payment transaction with its status.
+- **Waits.** Every wait has a deadline. A slow but correct app passes (a retry that checks the transaction after 2 seconds does); a passed deadline makes the run Incomplete, never Blocked. Before mining, the bench holds a short observation window (1 s with no change on the status line, 0.5 s after a pay-again) so a wrong claim has time to show; a window can only give a fault time to appear, it cannot make a correct app fail.
+
+Each rule is turned false on purpose by a mutant of the app (`bench/mutants.py`, report in `reports/mutants.json`).
 
 C11 checks revocation with the reader's identity simulated: the API trusts the address declared in the `x-reader-address` header, and the demo has no reader sign-in. It shows that the API applies the grant state to that identity once the revocation is mined and indexed, not that the caller owns the address.
 
@@ -65,9 +73,11 @@ python bench/run.py --variant faulty --expect Blocked --expect-detected D1,D2,D3
     # exit 0 only if the status is Blocked AND exactly D1, D2 and D3 were detected on their critical
     # assertions, the failed checks are exactly C08, C09 and C10, and no check errored or was left out
 python bench/run.py --variant corrected --expect "Demonstrated checks passed" --expect-detected none
+python bench/mutants.py --jobs 3                          # every mutant, writes reports/mutants.json; exit 0 only if each ended as expected
+python bench/mutants.py m1_confirm_on_retry m4_slow_retry # some of them
 ```
 
-One run takes about 35 seconds. CI runs both variants on every push (`.github/workflows/release-evidence.yml`) with the last two commands.
+One run takes about 35 seconds. CI runs both variants on every push (`.github/workflows/release-evidence.yml`) with the two `--expect` commands above, and every mutant with `bench/mutants.py`.
 
 ## Pointing it at another dApp
 
@@ -79,6 +89,6 @@ Phases: on a testnet, replay the transaction journeys with funded test wallets. 
 
 ## Not covered
 
-See `not_covered` in any report: real wallet extensions and mobile wallets, reader authentication, an economic or security audit of the contract, gas spikes on a public network, chain reorganisations, the legal drafting of the terms, load and indexer restarts, and the client's own application.
+See `not_covered` in any report: real wallet extensions and mobile wallets; a payment started on another device or with browser storage cleared or refused (the intent comes from the contract, so these cannot debit twice while the order is unpaid, but the Pay lock and the follow-up after a reload live in the browser: there a duplicate can still be sent, and the contract reverts it at the cost of its gas; once the first payment is in a block, a new Pay is a new order); reader authentication; an economic or security audit of the contract; gas spikes on a public network; chain reorganisations; the legal drafting of the terms; load and indexer restarts.
 
 Built by [The AI Pipe](https://theaipipe.com). MIT licence.

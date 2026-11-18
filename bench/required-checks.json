@@ -107,16 +107,16 @@
     },
     {
       "id": "C09",
-      "title": "One payment per intent, however the user retries",
+      "title": "At most one debit per payment intent",
       "layer": "interface + chain",
-      "method": "RPC proxy outage, retry, Pay during unknown, reload, double click; direct block and mempool scan; direct contract call",
-      "criterion": "After status unknown, the retry looks up the same transaction again and the screen ends on Confirmed; clicking Pay during unknown, reloading then paying, and double clicking each leave exactly one payment transaction (mined or reverted) and a single 25 TEST debit; the contract refuses the same intent sent again with IntentAlreadyPaid.",
+      "method": "RPC proxy outage; retry, Pay during unknown, reload, second device, double click, wallet error after broadcast; waits with a deadline; direct block and mempool scan; direct contract call",
+      "criterion": "After status unknown, the retry looks up the same transaction again, sends nothing new, and the screen ends on Confirmed. Pay during unknown, reload then Pay, Pay from a second device, a double click, and Pay again after the wallet broadcast the payment then answered an error each move 25 TEST once: a duplicate that the contract reverts is listed and not counted as a debit. The contract refuses the same intent sent again with IntentAlreadyPaid. Every wait has a deadline: a slow but correct app passes, a passed deadline makes the run Incomplete.",
       "rule": {
-        "text": "One payment intent, one payment.",
+        "text": "At most one debit per payment intent.",
         "fictitious": false
       },
-      "allowed": "Check the same transaction again.",
-      "forbidden": "A second payment transaction for the same intent, successful or reverted."
+      "allowed": "Check the same transaction again. A duplicate that the contract reverts: it costs gas and moves no TEST.",
+      "forbidden": "A second debit for the same payment intent."
     },
     {
       "id": "C10",
@@ -148,7 +148,11 @@
   "not_covered": [
     {
       "item": "Real wallet extensions and mobile wallets",
-      "why": "The bench drives an EIP-1193 test provider. It proves the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
+      "why": "The bench drives an EIP-1193 test provider. It exercises the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
+    },
+    {
+      "item": "A payment started on another device or with browser storage cleared or refused",
+      "why": "The intent is derived by the contract from the order, not kept by the browser, so these cases cannot debit twice while the order is unpaid; C09 runs the second device (a fresh browser, empty storage), and refused storage takes the same path without being run on its own. What the browser keeps is the Pay lock and the follow-up after a reload: there, the user can still send a duplicate, which the contract reverts at the cost of its gas. Once the first payment is in a block, a new Pay is a new order and a new debit, by design."
     },
     {
       "item": "Reader authentication",
@@ -156,7 +160,7 @@
     },
     {
       "item": "Economic and security audit of the contract",
-      "why": "The checks prove three rules the contract enforces on its own (allowlist, admin role, one payment per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+      "why": "The checks exercise three rules the contract enforces on its own (allowlist, admin role, at most one debit per intent). They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
     },
     {
       "item": "Gas spikes and congestion on a public network",
@@ -173,10 +177,14 @@
     {
       "item": "Load, many users at once, indexer restarts",
       "why": "Each check runs one user on a fresh chain snapshot."
-    },
+    }
+  ],
+  "invariants": [
     {
-      "item": "The client's own application",
-      "why": "Not assessed. This run tests a synthetic app built to carry three known faults."
+      "id": "I1",
+      "assertion": "no_confirmed_before_receipt_block",
+      "applies_to": "every check that opens the app: all but C05",
+      "text": "The status line never says Confirmed before the block that holds the receipt of the transaction it names. The test wallet sends each change of the status line to the bench as it happens, on every tab and across reloads; the bench notes the time of each block just before mining it."
     }
   ]
 }

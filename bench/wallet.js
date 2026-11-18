@@ -1,8 +1,10 @@
 // EIP-1193 test provider injected before the page loads (Playwright add_init_script).
 // It answers the wallet-only methods itself (accounts, chain switching, user refusal 4001)
 // and forwards everything else to the RPC endpoint the app is configured with.
-// It also records every wallet call and every change of the interface status (its state and
-// its visible text), so the bench judges the whole history of what the screen said, not just its final state.
+// It also records every wallet call and every change of the status line (its state and its
+// visible text), so the bench judges the whole history of the status line, not just its final state.
+// Each change is also sent to the bench as it happens (window.__benchRecord), so the history
+// survives a reload and a closed tab.
 (() => {
   const cfg = window.__WALLET_CONFIG;
   let chainId = cfg.chainId;
@@ -49,6 +51,12 @@
           if (cfg.rejectSend) throw rejected();
           const tx = Object.assign({}, params[0]);
           if (cfg.fixedGas) tx.gas = cfg.fixedGas;
+          if (cfg.failAfterSend && !window.__failedAfterSend) {
+            // The wallet broadcasts the transaction, then answers an error instead of its hash (a timeout).
+            window.__failedAfterSend = true;
+            await forward('eth_sendTransaction', [tx]);
+            throw Object.assign(new Error('Request timed out'), { code: -32603 });
+          }
           return forward('eth_sendTransaction', [tx]);
         }
         default:
@@ -67,7 +75,9 @@
     const last = window.__uiStates[window.__uiStates.length - 1];
     if (!last || last.state !== s || last.text !== text) {
       const code = el.querySelector('code');
-      window.__uiStates.push({ state: s, text, t: Date.now(), hash: code ? code.textContent : '' });
+      const entry = { state: s, text, t: Date.now(), hash: code ? code.textContent : '' };
+      window.__uiStates.push(entry);
+      try { if (window.__benchRecord) window.__benchRecord(entry); } catch (_) { /* bench not listening */ }
     }
   };
   document.addEventListener('DOMContentLoaded', () => {

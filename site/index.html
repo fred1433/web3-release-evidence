@@ -85,6 +85,7 @@ h1 span { display: block; }
 .histcap { font-size: 13px; color: var(--muted); margin: 14px 0 4px; }
 .history { font-family: var(--mono); font-size: 13px; color: var(--carbon); margin: 0; padding: 0; list-style: none; }
 .history li { padding: 2px 0; display: flex; justify-content: space-between; gap: 12px; max-width: 360px; }
+.history li span:last-child { white-space: nowrap; }
 .history li.bad { color: var(--red); font-weight: 600; }
 .history li.mined { border-top: 1px dashed var(--rule-strong); border-bottom: 1px dashed var(--rule-strong); margin: 4px 0; padding: 3px 0; color: var(--ink); font-weight: 600; }
 .history li.after { color: var(--muted); }
@@ -313,6 +314,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     <div class="cap"><h3>Covered</h3><p>Open a line for its rule, what is allowed, what is forbidden, and the assertions.</p></div>
     <div class="body">
       <table class="checks" id="checks"><tbody></tbody></table>
+      <p class="note" id="inv"></p>
     </div>
   </div>
   <div class="row">
@@ -345,7 +347,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
         <div><h4>Ready in the bench</h4><ul>
           <li>RPC proxy that cuts chosen methods, between your app and its node</li>
           <li>Test wallet: accounts, refusal 4001, chain switching</li>
-          <li>Full history of what the screen said, word for word, not only its last state</li>
+          <li>Full history of the status line, word for word, not only its last state</li>
           <li>Direct chain and mempool reads, manual mining, snapshots</li>
           <li>Required-checks manifest, the three statuses, JSON report, CI</li>
         </ul></div>
@@ -357,7 +359,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
           <li>Which journey matters most for the launch</li>
         </ul></div>
       </div>
-      <p class="note">EVM is an assumption of this demo. A test wallet proves the app's logic; it does not prove that MetaMask or a phone wallet behaves the same way, which needs its own pass.</p>
+      <p class="note">EVM is an assumption of this demo. A test wallet exercises the app's logic; it does not show that MetaMask or a phone wallet behaves the same way, which needs its own pass.</p>
     </div>
   </div>
   <div class="row">
@@ -393,10 +395,11 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   let D;
   try {
     const get = async (p, t, n = 0) => { try { const r = await fetch(p); if (!r.ok) throw new Error(p + ' ' + r.status); return t ? r.text() : r.json(); } catch (e) { if (n < 2) { await new Promise((ok) => setTimeout(ok, 400)); return get(p, t, n + 1); } throw e; } };
-    const [faulty, corrected, skip, sf, sc, diff] = await Promise.all([
+    const [faulty, corrected, skip, sf, sc, diff, mut] = await Promise.all([
       get('data/faulty.json'), get('data/corrected.json'), get('data/corrected-skip-C08.json'),
-      get('data/stability-faulty.json'), get('data/stability-corrected.json'), get('data/variants.diff', true)]);
-    D = { faulty, corrected, skip, sf, sc, diff };
+      get('data/stability-faulty.json'), get('data/stability-corrected.json'), get('data/variants.diff', true),
+      get('data/mutants.json').catch(() => null)]);
+    D = { faulty, corrected, skip, sf, sc, diff, mut };
   } catch (e) {
     $('ledger').replaceChildren(el('p', 'err', 'The recorded reports could not be loaded: ' + e.message));
     return;
@@ -404,7 +407,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   const byId = (r, id) => r.checks.find((c) => c.id === id);
   const assertion = (c, name) => (c && c.assertions || []).find((x) => x.name === name);
   const short = (h) => h ? h.slice(0, 10) + '…' + h.slice(-6) : '';
-  const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
   const say = (n) => words[n] || String(n);
   const secs = (s) => (s >= 0 ? '+' : '') + s.toFixed(2) + ' s';
   const label = (h) => (h.text || h.state).split(':')[0];
@@ -477,11 +480,9 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     $('shot').alt = `Screenshot of the synthetic app during the outage, ${view} version: the status line reads "${cols.interface.status}".`;
     const hl = $('history'); hl.replaceChildren();
     const li = (cls, a, b) => { const x = el('li', cls); x.append(el('span', null, a), el('span', null, b)); return x; };
-    for (const h of before) hl.append(li(isConfirmed(h) ? 'bad' : '', label(h), secs(h.at_s)));
+    for (const h of before) hl.append(li(isConfirmed(h) ? 'bad' : '', h.text || h.state, secs(h.at_s)));
     hl.append(li('mined', `Block ${nextBlock} mined by the bench`, secs(tMine)));
-    for (const h of after) hl.append(li('after', label(h), secs(h.at_s)));
-    const end = hist[hist.length - 1];
-    hl.append(li('after', `End of the check: ${label(end)}`, ''));
+    for (const h of after) hl.append(li('after', h.text || h.state, secs(h.at_s)));
     $('txline').textContent = 'tx ' + cols.interface.tx;
 
     const api = $('api'); api.replaceChildren();
@@ -502,8 +503,8 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     const a = assertion(c8, 'never_confirmed_without_receipt');
     $('finding').replaceChildren(el('span', null, 'Check C08, assertion'), el('span', 'typed', a ? a.name : 'never_confirmed_without_receipt'), el('span', 'res ' + c8.outcome, c8.outcome),
       el('span', null, bad
-        ? `The screen said ${label(claim)} at ${secs(claim.at_s)}; the block holding the payment was mined at ${secs(tMine)}.`
-        : `The screen said ${label(claim)} at ${secs(claim.at_s)} and never the word confirmed before the block, mined at ${secs(tMine)}.`));
+        ? `The screen said "${claim.text}" at ${secs(claim.at_s)}; the block holding the payment was mined at ${secs(tMine)}.`
+        : `The screen said "${claim.text}" at ${secs(claim.at_s)} and never the word confirmed before the block, mined at ${secs(tMine)}.`));
   }
   $('switch').addEventListener('click', () => { view = view === 'faulty' ? 'corrected' : 'faulty'; render(true); });
   render(false);
@@ -546,8 +547,8 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     td.append(b, tr2); tr.append(td); tb.append(tr);
   }
 
-  const D3_LINES = [['retry_sends_no_new_payment', 'Retry after unknown'], ['pay_during_unknown_pays_once', 'Pay during unknown'],
-    ['reload_then_pay_pays_once', 'Reload, then pay'], ['double_click_pays_once', 'Double click, no outage'], ['contract_refuses_same_intent', 'Same intent sent again']];
+  const D3_OTHERS = [['pay_during_unknown_debits_once', 'Pay during unknown'], ['reload_then_pay_debits_once', 'reload then Pay'],
+    ['second_device_debits_once', 'a second device'], ['double_click_debits_once', 'a double click'], ['wallet_error_then_pay_debits_once', 'Pay again after a wallet error']];
   const fl = $('faults');
   for (const f of F.planted_faults) {
     const rc = byId(F, f.detected_by), cc = byId(C, f.detected_by);
@@ -566,7 +567,10 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     }
     if (f.id === 'D3') {
       line('Retry button', `"${rc.evidence.retry_button}"`);
-      for (const [n, k] of D3_LINES) { const x = assertion(rc, n); if (x) line(k, fmt(x.observed)); }
+      const rd = assertion(rc, 'retry_debits_once');
+      if (rd) line('After the retry', fmt(rd.observed));
+      const twice = D3_OTHERS.filter(([n]) => { const x = assertion(rc, n); return x && !x.ok; }).map(([, k]) => k);
+      if (twice.length) line('Also debited twice', twice.join(', ') + (assertion(rc, 'contract_refuses_same_intent')?.ok === false ? '; the contract accepted the same intent again' : ''));
     }
     body.append(ev);
     d.append(el('span', 'fid', f.id), body);
@@ -578,6 +582,8 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
     pre.append(cls ? el('span', cls, ln) : document.createTextNode(ln), document.createTextNode('\n'));
   }
 
+  const inv = (F.invariants || [])[0];
+  if (inv) { $('inv').replaceChildren(el('b', null, 'Applied to ' + inv.applies_to + ': '), document.createTextNode(inv.text + ' Assertion '), el('code', null, inv.assertion), document.createTextNode('.')); }
   const nc = $('nc');
   for (const n of F.not_covered) { const x = el('li'); x.append(el('b', null, n.item), el('span', null, n.why)); nc.append(x); }
 
@@ -587,6 +593,19 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.
   $('proofs').append(
     el('li', null, `Same corrected app, with check ${sk.not_executed.join(', ')} left out of the run: ${sk.status}, ${sk.counts.executed} of ${sk.counts.required} required checks executed. A smaller run cannot pass.`),
     el('li', null, stab(D.sf)), el('li', null, stab(D.sc)));
+  if (D.mut) {
+    const ms = D.mut.mutants;
+    const nBlocked = ms.filter((m) => m.expected === 'Blocked').length;
+    const nIncomplete = ms.filter((m) => m.expected === 'Incomplete').length;
+    const pass = ms.filter((m) => m.expected === 'Demonstrated checks passed');
+    const li2 = el('li');
+    li2.append(document.createTextNode(`${say(ms.length)[0].toUpperCase() + say(ms.length).slice(1)} mutants of the app: ${nBlocked} must end Blocked, `
+      + (nIncomplete ? `${say(nIncomplete)} Incomplete (a retry button that does nothing: a passed deadline is never a detection), ` : '')
+      + `one must fail the CI calibration, and ${say(pass.length)} must pass (`));
+    pass.forEach((m, i) => { if (i) li2.append(document.createTextNode(', ')); li2.append(el('code', null, m.id)); });
+    li2.append(document.createTextNode(`). ${D.mut.as_expected} of ${D.mut.total} ended as expected. Run `), el('code', null, 'bench/mutants.py'), document.createTextNode(', report in '), el('code', null, 'reports/mutants.json'), document.createTextNode('.'));
+    $('proofs').append(li2);
+  }
 })();
 </script>
 </body>

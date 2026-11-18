@@ -6,7 +6,7 @@ const wallet = window.ethereum;
 let account = null;
 let chainOk = false;
 let accepted = false;
-const payments = createPayments();
+const payments = createPayments({ wallet, cfg });
 
 const TITLES = {
   idle: 'No payment yet',
@@ -16,6 +16,7 @@ const TITLES = {
   confirmed: 'Confirmed',
   reverted: 'Failed: the contract rejected the payment',
   unknown: 'Status unknown: the network did not answer',
+  'already-paid': 'Already paid: an earlier transaction for this order went through. This one was refused, no second debit.',
   error: 'Something went wrong',
 };
 const ui = {
@@ -92,7 +93,10 @@ async function connect() {
   await onChain(await wallet.request({ method: 'eth_chainId' }));
   wallet.on?.('chainChanged', onChain);
   const pending = payments.pending(account);
-  if (pending) follow(ui, wallet, pending, { payAgain: pay, done: () => payments.settled(account) });
+  if (pending) {
+    const intent = payments.intentOf(account);
+    follow(ui, wallet, pending, { payAgain: pay, done: () => payments.settled(account), paid: () => payments.paid(account, intent) });
+  }
   refreshButtons();
   refresh();
   setInterval(refresh, 1000);
@@ -125,12 +129,14 @@ async function sendTx(data) {
 
 async function pay() {
   if (!accepted || payments.locked(account)) return;
-  const intent = payments.begin(account);
+  const asked = payments.begin(account);
   refreshButtons();
+  let intent;
+  try { intent = await asked; } catch (_) { payments.abandon(account, true); ui.setState('error'); return; }
   const { hash, rejected } = await sendTx(cfg.selectors.grantAndPay + pad(cfg.reader) + pad(cfg.datasetId) + pad(toHex(cfg.fee)) + pad(intent));
   if (!hash) { payments.abandon(account, rejected); refreshButtons(); return; }
-  payments.sent(account, hash);
-  await follow(ui, wallet, hash, { payAgain: pay, done: () => payments.settled(account) });
+  payments.sent(account, hash, intent);
+  await follow(ui, wallet, hash, { payAgain: pay, done: () => payments.settled(account), paid: () => payments.paid(account, intent) });
   refresh();
 }
 

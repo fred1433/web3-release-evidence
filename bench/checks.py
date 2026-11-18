@@ -1,4 +1,5 @@
 """The eleven required checks. Each one records named assertions and evidence.
+screen_invariant() is added to every check that opens the app.
 
 A check never decides the release on its own: it returns its assertions, and status.py
 turns the set of results into Blocked / Incomplete / Demonstrated checks passed.
@@ -121,6 +122,87 @@ def wait_indexed(ctx, block, timeout=6.0):
     raise BenchTimeout(f'the app indexer did not reach block {block} within {timeout:g} s')
 
 
+def wait_until(page, what, fn, timeout=10.0):
+    """Poll fn until it returns something truthy, letting the page run. Past the deadline: BenchTimeout."""
+    end = time.time() + timeout
+    while time.time() < end:
+        v = fn()
+        if v:
+            return v
+        page.wait_for_timeout(50)
+    raise BenchTimeout(f'{what} within {timeout:g} s')
+
+
+AT_REST = ('idle', 'unknown', 'confirmed', 'reverted', 'already-paid', 'rejected', 'error')
+QUIET_MS = 500
+HOLD_MS = 1000
+
+
+def quiet(pages, cond, ms, what, timeout=10.0):
+    """Wait until cond() holds and no status line on `pages` changed for `ms` in a row.
+    This is an observation window, not a verdict: it only gives a wrong claim time to show up.
+    Past the deadline: BenchTimeout."""
+    end = time.time() + timeout
+    seen, since = None, None
+    while time.time() < end:
+        now = sum(len(states(p)) for p in pages)
+        if cond() and now == seen:
+            if (time.time() - since) * 1000 >= ms:
+                return
+        else:
+            seen, since = now, time.time()
+        pages[0].wait_for_timeout(50)
+    raise BenchTimeout(f'{what} within {timeout:g} s')
+
+
+def settle(ctx, pages, s, who, timeout=15.0):
+    """End of a pay-again scenario, in two phases.
+    1. Nothing is mined yet: the app may send whatever it wants. Done when every payment the app
+       sent is on the node, no screen waits for its wallet, and nothing changed for QUIET_MS.
+    2. The RPC answers again and the bench mines until every payment the app sent is in a block,
+       the mempool is empty and every screen is at rest, for QUIET_MS in a row.
+    A payment the app would start later than that is outside the observation window."""
+    def sent():
+        return ctx.proxy.count('eth_sendTransaction') - s['sends']
+
+    def known():
+        return len(payments_since(ctx, s['head'], who))
+
+    def last(p):
+        return (states(p) or [{'state': 'idle'}])[-1]['state']
+
+    quiet(pages, lambda: known() >= sent() and all(last(p) != 'awaiting-signature' for p in pages), QUIET_MS,
+          'the app kept sending or waiting for its wallet', timeout)
+    ctx.proxy.restore()
+
+    def mined_and_at_rest():
+        if ctx.chain.pending_count():
+            ctx.chain.mine()
+            return False
+        landed = [p for p in payments_since(ctx, s['head'], who) if p['block'] is not None]
+        return len(landed) >= sent() and all(last(p) in AT_REST for p in pages)
+    quiet(pages, mined_and_at_rest, QUIET_MS, 'the payments and the screen did not settle', timeout)
+
+
+def screen_invariant(ctx, c):
+    """Applied to every check that opens the app: each moment the status line claimed confirmed must
+    come after the bench mined the block that holds the receipt of the transaction it names."""
+    claims = [x for x in ctx.ui_log if claims_confirmed(x)]
+    bad = []
+    for x in claims:
+        h = x.get('hash') or ''
+        r = ctx.chain.receipt(h) if h.startswith('0x') else None
+        t_block = ctx.chain.mined_at.get(r['blockHash']) if r else None
+        if r is None:
+            bad.append(f'"{x["text"]}" for {h[:10] + "…" if h else "no transaction"}: no receipt on chain')
+        elif t_block is None or x['t'] < t_block:
+            ahead = f'{(t_block - x["t"]) / 1000:.2f} s before' if t_block else 'before'
+            bad.append(f'"{x["text"]}" {ahead} block {int(r["blockNumber"], 16)} was mined (tab {x["tab"]})')
+    c.expect('no_confirmed_before_receipt_block', not bad,
+             bad or f'{len(claims)} confirmed moment{"s" if len(claims) != 1 else ""} on {len({x["tab"] for x in ctx.ui_log})} tab(s), each after its block',
+             'every confirmed moment after the block holding its receipt')
+
+
 def status_hash(page):
     return page.inner_text('#status-hash').strip()
 
@@ -176,18 +258,36 @@ def payments_since(ctx, head0, who):
         for tx in ctx.chain.block(n)['transactions']:
             if is_payment(ctx, tx, who):
                 rc = ctx.chain.receipt(tx['hash'])
-                out.append({'tx': tx['hash'], 'nonce': int(tx['nonce'], 16), 'block': n, 'status': rc['status'], 'intent': '0x' + tx['input'][-64:]})
+                p = {'tx': tx['hash'], 'nonce': int(tx['nonce'], 16), 'block': n, 'status': rc['status'], 'intent': '0x' + tx['input'][-64:]}
+                if rc['status'] == '0x0':
+                    p['reason'] = revert_reason(ctx, tx, n)
+                out.append(p)
     for tx in ctx.chain.pending_txs():
         if is_payment(ctx, tx, who):
             out.append({'tx': tx['hash'], 'nonce': int(tx['nonce'], 16), 'block': None, 'status': 'pending', 'intent': '0x' + tx['input'][-64:]})
     return out
 
 
-def describe(pays):
+def revert_reason(ctx, tx, block):
+    """Name the error a mined transaction reverted with, from the node's trace of that transaction."""
+    try:
+        out = ctx.chain.rpc('debug_traceTransaction', [tx['hash'], {'tracer': 'callTracer'}]).get('output') or ''
+        return error_name(ctx, out[:10]) if len(out) >= 10 else 'reverted'
+    except Exception:
+        return 'reverted'
+
+
+def describe(ctx, pays):
+    """Every payment transaction, with what it did: a debit, or a revert (no debit) and its reason."""
     if not pays:
         return 'no payment transaction'
-    return f"{len(pays)} payment transaction{'s' if len(pays) > 1 else ''}: " + ', '.join(
-        f"nonce {p['nonce']} " + ('waiting in the mempool' if p['block'] is None else f"block {p['block']} status {p['status']}") for p in pays)
+    def one(p):
+        if p['block'] is None:
+            return f"nonce {p['nonce']} waiting in the mempool"
+        if p['status'] == '0x1':
+            return f"nonce {p['nonce']} block {p['block']} status 0x1 (debit)"
+        return f"nonce {p['nonce']} block {p['block']} status 0x0 ({p.get('reason') or 'reverted'}, no debit)"
+    return f"{len(pays)} payment transaction{'s' if len(pays) > 1 else ''}: " + ', '.join(one(p) for p in pays)
 
 
 def mark(ctx, who):
@@ -436,10 +536,18 @@ def c08(ctx, c):
 
 
 def c09(ctx, c):
-    """One payment intent, one payment: retry after status unknown, then three other ways to pay again
-    (the main button during unknown, a reload, a double click). Each must leave one payment on chain."""
+    """At most one debit per payment intent. After status unknown: the retry, the main Pay button,
+    a reload, a second device; without any outage: a double click, and a wallet that broadcasts
+    then answers an error. Each must move 25 TEST once. A duplicate transaction the contract
+    reverts is listed, not counted as a debit. Last, the contract itself refuses a paid intent."""
     user = ctx.acc['user']
     cut = ('eth_getTransactionReceipt', 'eth_getTransactionByHash')
+    one_debit = 'one debit: -25 TEST'
+
+    def debit_line(s):
+        pays = payments_since(ctx, s['head'], user)
+        debit = s['balance'] - token_balance(ctx, user)
+        return pays, debit, describe(ctx, pays) + f'; -{debit / UNIT:g} TEST'
 
     # 1. Status unknown, then the retry button.
     ctx.proxy.cut(*cut)
@@ -459,30 +567,36 @@ def c09(ctx, c):
     t_retry = now_ms()
     if label is not None:
         retry.click()
-    page.wait_for_timeout(1500)
+        # Wait for the app's answer to the retry, however long it takes within the deadline:
+        # a lookup of the first transaction, or a new payment.
+        wait_until(page, 'the app answered the retry with neither a lookup of the first transaction nor a new payment',
+                   lambda: ctx.proxy.lookups_since(t_retry, first['hash']) or ctx.proxy.count('eth_sendTransaction') > s0['sends'] + 1)
+        # No block yet: give the screen time to claim anything it wants before the bench mines.
+        quiet([page], lambda: True, HOLD_MS, 'the status line kept changing after the retry')
     asked = ctx.proxy.lookups_since(t_retry, first['hash']) if first['hash'] else []
+    sends = ctx.proxy.count('eth_sendTransaction') - s0['sends']
+    if sends > 1:
+        wait_until(page, 'a payment the app sent did not reach the node', lambda: len(payments_since(ctx, s0['head'], user)) >= sends)
     c.expect('retry_checks_same_transaction', len(asked) > 0,
-             f"{len(asked)} receipt or transaction lookup{'s' if len(asked) != 1 else ''} for the first transaction in the 1.5 s after the retry",
+             f"{len(asked)} receipt or transaction lookup{'s' if len(asked) != 1 else ''} for the first transaction after the retry"
+             + (f', then {sends - 1} new payment' if sends > 1 else ''),
              'at least 1 lookup for the first transaction')
     after_retry = payments_since(ctx, s0['head'], user)
-    sends = ctx.proxy.count('eth_sendTransaction') - s0['sends']
     c.expect('retry_sends_no_new_payment', len(after_retry) == 1 and sends == 1,
-             f'{sends} eth_sendTransaction from the app; ' + describe(after_retry), '1 eth_sendTransaction; 1 payment transaction')
-    ctx.chain.mine()
+             f'{sends} eth_sendTransaction from the app; ' + describe(ctx, after_retry), '1 eth_sendTransaction; 1 payment transaction')
+    t_mine = ctx.chain.mine()
     if label is not None:
         wait_current(page, 'confirmed', 10000)
-        page.wait_for_timeout(300)
     end = states(page)[-1]
     c.expect('screen_ends_confirmed', end['state'] == 'confirmed' and end['text'] == 'Confirmed' and end['hash'] == first['hash'],
              f"{end['state']}: \"{end['text']}\" for {'the first transaction' if end['hash'] == first['hash'] else 'another transaction'}",
              'confirmed: "Confirmed" for the first transaction')
-    pays = payments_since(ctx, s0['head'], user)
-    c.expect('one_payment_on_chain', len(pays) == 1 and pays[0]['status'] == '0x1', describe(pays), '1 payment transaction, status 0x1')
-    debit = s0['balance'] - token_balance(ctx, user)
-    c.expect('test_debited_once', debit == FEE, f'-{debit / UNIT:g} TEST', '-25 TEST')
+    settle(ctx, [page], s0, user)
+    pays, debit, line = debit_line(s0)
+    c.expect('retry_debits_once', debit == FEE, line, one_debit)
     c.evidence.update({'retry_button': label, 'payments': pays, 'ui_history': history(states(page), t0),
-                       'screenshot': shot(ctx, page, 'after-retry')})
-    intent = pays[0]['intent'] if pays else None
+                       'retry_block_mined_at_s': round((t_mine - t0) / 1000, 2), 'screenshot': shot(ctx, page, 'after-retry')})
+    intent = next((p['intent'] for p in pays if p['status'] == '0x1'), None)
     page.context.close()
 
     # 2. Status unknown, then the main Pay button instead of the retry.
@@ -495,13 +609,9 @@ def c09(ctx, c):
     disabled = page.is_disabled('[data-testid=pay]')
     c.expect('pay_locked_while_unknown', disabled, f'Pay button {"disabled" if disabled else "active"}', 'Pay button disabled')
     force_click(page, '[data-testid=pay]')
-    page.wait_for_timeout(1500)
-    ctx.proxy.restore()
-    ctx.chain.mine()
-    page.wait_for_timeout(800)
-    pays = payments_since(ctx, s1['head'], user)
-    c.expect('pay_during_unknown_pays_once', len(pays) == 1 and s1['balance'] - token_balance(ctx, user) == FEE,
-             describe(pays) + f", -{(s1['balance'] - token_balance(ctx, user)) / UNIT:g} TEST", '1 payment transaction, -25 TEST')
+    settle(ctx, [page], s1, user)
+    pays, debit, line = debit_line(s1)
+    c.expect('pay_during_unknown_debits_once', debit == FEE, line, one_debit)
     c.evidence['pay_during_unknown'] = pays
     page.context.close()
 
@@ -516,39 +626,64 @@ def c09(ctx, c):
     page.reload()
     page.wait_for_selector('body[data-ready="1"]', timeout=10000)
     connect(page)
-    page.wait_for_timeout(1500)
-    resumed = [s for s in states(page) if s['hash'] and s['hash'] == pending_hash]
-    c.expect('reload_resumes_same_transaction', bool(resumed),
-             f"after reload the status line follows {'the pending transaction' if resumed else 'no transaction'}: " + ', '.join(s['state'] for s in states(page)) if states(page) else 'after reload the status line follows no transaction',
-             'the pending transaction, followed again')
     sign_terms(page)
+    # Wait until the app either follows the pending transaction again or leaves the Pay button open.
+    after = wait_until(page, 'after the reload the app neither followed the pending transaction nor opened the Pay button',
+                       lambda: 'resumed' if any(s['hash'] == pending_hash for s in states(page))
+                       else ('open' if not page.is_disabled('[data-testid=pay]') else None))
+    c.expect('reload_resumes_same_transaction', after == 'resumed',
+             'after reload the status line follows ' + ('the pending transaction' if after == 'resumed' else 'no transaction, and the Pay button is open')
+             + ': ' + (', '.join(s['state'] for s in states(page)) or 'no state'),
+             'the pending transaction, followed again')
     force_click(page, '[data-testid=pay]')
-    page.wait_for_timeout(1500)
-    ctx.proxy.restore()
-    ctx.chain.mine()
-    page.wait_for_timeout(800)
-    pays = payments_since(ctx, s2['head'], user)
-    c.expect('reload_then_pay_pays_once', len(pays) == 1 and s2['balance'] - token_balance(ctx, user) == FEE,
-             describe(pays) + f", -{(s2['balance'] - token_balance(ctx, user)) / UNIT:g} TEST", '1 payment transaction, -25 TEST')
+    settle(ctx, [page], s2, user)
+    pays, debit, line = debit_line(s2)
+    c.expect('reload_then_pay_debits_once', debit == FEE, line, one_debit)
     c.evidence['reload_then_pay'] = pays
     page.context.close()
 
-    # 4. No outage at all: a double click on Pay.
+    # 4. Status unknown on one device, the same account pays from another (a fresh browser: empty storage).
+    ctx.proxy.cut(*cut)
     page = ready_page(ctx)
     s3 = mark(ctx, user)
+    page.click('[data-testid=pay]')
+    wait_pool(ctx, 1)
+    wait_state(page, 'unknown', 8000)
+    other = ready_page(ctx)
+    force_click(other, '[data-testid=pay]')
+    settle(ctx, [page, other], s3, user)
+    pays, debit, line = debit_line(s3)
+    c.expect('second_device_debits_once', debit == FEE, line, one_debit)
+    c.evidence['second_device'] = pays
+    page.context.close()
+    other.context.close()
+
+    # 5. No outage: a double click on Pay.
+    page = ready_page(ctx)
+    s4 = mark(ctx, user)
     page.dblclick('[data-testid=pay]')
     wait_pool(ctx, 1)
-    page.wait_for_timeout(1000)
-    ctx.chain.mine()
-    wait_state(page, 'confirmed', 8000)
-    page.wait_for_timeout(800)
-    pays = payments_since(ctx, s3['head'], user)
-    c.expect('double_click_pays_once', len(pays) == 1 and s3['balance'] - token_balance(ctx, user) == FEE,
-             describe(pays) + f", -{(s3['balance'] - token_balance(ctx, user)) / UNIT:g} TEST", '1 payment transaction, -25 TEST')
+    settle(ctx, [page], s4, user)
+    pays, debit, line = debit_line(s4)
+    c.expect('double_click_debits_once', debit == FEE, line, one_debit)
     c.evidence['double_click'] = pays
     page.context.close()
 
-    # 5. The contract itself: the intent of the first payment, sent again straight to the node.
+    # 6. No outage: the wallet broadcasts the payment, then answers an error (a timeout). The user pays again.
+    page = ready_page(ctx, failAfterSend=True)
+    s5 = mark(ctx, user)
+    page.click('[data-testid=pay]')
+    wait_pool(ctx, 1)
+    wait_state(page, 'error', 8000)
+    after_error = states(page)[-1]
+    force_click(page, '[data-testid=pay]')
+    settle(ctx, [page], s5, user)
+    pays, debit, line = debit_line(s5)
+    c.expect('wallet_error_then_pay_debits_once', debit == FEE, line + f'; screen after the wallet error: "{after_error["text"]}", at the end: "{states(page)[-1]["text"]}"', one_debit)
+    c.evidence['wallet_error_then_pay'] = pays
+    page.context.close()
+
+    # 7. The contract itself: the intent of the first payment, sent again straight to the node.
     if intent is None:
         raise BenchError('no payment from scenario 1 to replay')
     data = pay_data(ctx, intent)

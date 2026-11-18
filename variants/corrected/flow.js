@@ -3,25 +3,35 @@
 // After repeated RPC failures the status is "unknown", and the retry action
 // checks the SAME transaction again instead of paying a second time.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const randomIntent = () => '0x' + [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
+const pad = (hex) => hex.replace(/^0x/, '').padStart(64, '0');
 export const RETRY_LABEL = 'Check status again';
 
-// A payment in progress is remembered per account (localStorage) until its receipt arrives.
-// The Pay button stays locked while it is pending or unknown, a reload resumes following it,
-// and its intent id is reused, so the contract refuses a second payment for the same intent.
-export function createPayments(storage = window.localStorage) {
+// The payment intent is not made in the browser. The contract derives it from the order
+// (payer, reader, dataset, orders already paid), so every device, every browser and every
+// retry that pays the same unpaid order sends the same intent, and the contract refuses an
+// intent that was already paid: at most one debit per order.
+// The browser only remembers the transaction in progress (localStorage), to lock the Pay
+// button while it is pending or unknown and to resume following it after a reload.
+export function createPayments({ wallet, cfg, storage = window.localStorage }) {
   const key = (a) => 'sample-grants:payment:' + a;
   const read = (a) => { try { return JSON.parse(storage.getItem(key(a)) || 'null'); } catch (_) { return null; } };
   const write = (a, v) => { try { if (v) storage.setItem(key(a), JSON.stringify(v)); else storage.removeItem(key(a)); } catch (_) { /* memory lock still holds */ } };
+  const call = (data) => wallet.request({ method: 'eth_call', params: [{ to: cfg.grants, data }, 'latest'] });
   const inFlight = new Set();
   return {
     locked: (a) => inFlight.has(a) || Boolean(read(a)?.hash),
-    begin(a) { inFlight.add(a); const r = read(a) || { intent: randomIntent() }; write(a, r); return r.intent; },
-    sent(a, hash) { write(a, { ...read(a), hash }); },
-    // A refusal sent nothing. Any other error may hide a payment that went out: keep its intent.
+    async begin(a) {
+      inFlight.add(a);
+      try { return await call(cfg.selectors.intentFor + pad(a) + pad(cfg.reader) + pad(cfg.datasetId)); } catch (e) { inFlight.delete(a); throw e; }
+    },
+    sent(a, hash, intent) { write(a, { hash, intent }); },
+    // A refusal sent nothing. Any other error may hide a payment that went out: the next Pay asks the
+    // contract for the intent again and gets the same one while that payment is unpaid.
     abandon(a, rejected) { inFlight.delete(a); if (rejected) write(a, null); },
     settled(a) { inFlight.delete(a); write(a, null); },
     pending: (a) => read(a)?.hash || null,
+    intentOf: (a) => read(a)?.intent || null,
+    async paid(a, intent) { return Boolean(intent) && BigInt(await call(cfg.selectors.intentPaid + pad(a) + pad(intent))) === 1n; },
   };
 }
 
@@ -46,7 +56,10 @@ export async function follow(ui, wallet, hash, opts = {}) {
       continue;
     }
     if (receipt && receipt.blockNumber) {
-      ui.setState(receipt.status === '0x1' ? 'confirmed' : 'reverted', hash);
+      let state = receipt.status === '0x1' ? 'confirmed' : 'reverted';
+      // A reverted duplicate is not a failed payment if an earlier transaction paid the same intent.
+      if (state === 'reverted' && opts.paid) { try { if (await opts.paid()) state = 'already-paid'; } catch (_) { /* stays reverted */ } }
+      ui.setState(state, hash);
       if (opts.done) opts.done(receipt);
       return receipt;
     }
