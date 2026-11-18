@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Release Evidence Bench</title>
+<meta name="description" content="A release bench for EVM dApps, run on a synthetic app with three planted faults: the screen said confirmed while the chain had nothing.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #e8eee4;
+  --sheet: #fafbf6;
+  --rule: #c5d4c1;
+  --rule-strong: #8ea78b;
+  --ink: #17202e;
+  --muted: #56635c;
+  --carbon: #27477a;
+  --red: #b3261e;
+  --red-wash: #f6e3df;
+  --green: #2f6b45;
+  --green-wash: #e1efe5;
+  --grey-stamp: #5c6670;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --sans: "Archivo", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.55 var(--sans); font-variation-settings: "wdth" 100; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--carbon); outline-offset: 3px; }
+code, .typed { font-family: var(--mono); color: var(--carbon); font-size: .86em; }
+
+.strip { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; padding: 14px 28px; font-size: 14px; color: var(--muted); }
+.strip a { color: var(--ink); font-weight: 600; }
+
+.sheet { max-width: 1200px; margin: 0 auto 28px; background: var(--sheet); border: 1px solid var(--rule-strong); }
+
+/* ---------- 1. the contradiction ---------- */
+.review { padding: 36px 44px 40px; position: relative; }
+.formhead { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+.formhead .doc { font-size: 15px; color: var(--muted); max-width: 46ch; }
+.formhead .doc strong { color: var(--ink); font-weight: 650; display: block; font-size: 17px; }
+.recorded { font-family: var(--mono); font-size: 13px; color: var(--carbon); text-align: right; line-height: 1.6; }
+h1 { font-weight: 820; font-variation-settings: "wdth" 72; font-size: clamp(44px, 6.1vw, 86px); line-height: .94; letter-spacing: -.012em; margin: 26px 0 12px; max-width: none; }
+h1 span { display: block; }
+.lede { font-size: 19px; max-width: 62ch; margin: 0 0 22px; color: #2b3542; }
+
+.verdict { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin: 0 0 26px; }
+.stamp { --c: var(--red); font-weight: 800; font-variation-settings: "wdth" 88; font-size: 25px; letter-spacing: .07em; text-transform: uppercase; color: var(--c); border: 3px solid var(--c); outline: 1px solid var(--c); outline-offset: 3px; padding: 6px 14px 5px; transform: rotate(-3deg); filter: url(#ink); line-height: 1.15; background: transparent; }
+.stamp.pass { --c: var(--green); }
+.stamp.neutral { --c: var(--grey-stamp); transform: rotate(1.5deg); }
+.stamp small { display: block; font-size: 12px; letter-spacing: .04em; font-weight: 600; text-transform: none; font-variation-settings: "wdth" 100; }
+.stamp.thud { animation: thud .38s cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes thud { 0% { transform: rotate(-3deg) scale(1.35); opacity: 0; } 70% { opacity: 1; } 100% { transform: rotate(-3deg) scale(1); } }
+.switch { margin-left: auto; font: 650 16px var(--sans); padding: 11px 18px; background: var(--ink); color: var(--sheet); border: 0; cursor: pointer; }
+.switch:hover { background: #2a3648; }
+
+.ledger { display: grid; grid-template-columns: minmax(300px, 1.05fr) 1fr 1fr; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.col { padding: 14px 20px 18px; border-left: 1px solid var(--rule); min-width: 0; }
+.col:first-child { border-left: 0; padding-left: 0; }
+.col h2 { font-size: 15px; font-weight: 700; font-variation-settings: "wdth" 80; margin: 0 0 2px; letter-spacing: .01em; }
+.col .src { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.shotwrap { display: block; max-width: 360px; border: 1px solid var(--rule-strong); background: #fff; }
+.shot { display: block; width: 100%; height: 340px; object-fit: cover; object-position: 50% 74%; }
+.shotwrap:hover { border-color: var(--ink); }
+.shotnote { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.entries { margin: 0; }
+.entry { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 9px 0 8px; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.entry dt { font-size: 15px; color: #2b3542; }
+.entry dd { margin: 0; font-family: var(--mono); color: var(--carbon); font-size: 15px; text-align: right; font-weight: 500; }
+.entry.hit dd { color: var(--red); font-weight: 600; }
+.entry.ok dd { color: var(--green); font-weight: 600; }
+.history { font-family: var(--mono); font-size: 13px; color: var(--carbon); margin: 14px 0 0; padding: 0; list-style: none; }
+.history li { padding: 2px 0; }
+.history li.bad { color: var(--red); font-weight: 600; }
+.blocks { margin: 18px 0 0; display: grid; gap: 8px; }
+.blk { border: 1px solid var(--rule-strong); padding: 9px 12px; font-size: 14px; background: #fff; }
+.blk b { display: block; font-family: var(--mono); font-weight: 600; color: var(--carbon); font-size: 14px; }
+.blk.open { border: 2px dashed var(--carbon); background: transparent; color: var(--carbon); }
+.blk.open.hit { border-color: var(--red); color: var(--red); background: var(--red-wash); }
+.blk.open.hit b { color: var(--red); }
+.histcap { font-size: 13px; color: var(--muted); margin: 14px 0 0; }
+.history { margin-top: 4px !important; }
+.txline { font-family: var(--mono); font-size: 12px; color: var(--muted); word-break: break-all; margin-top: 10px; }
+.finding { margin: 16px 0 0; font-size: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.finding .typed { font-size: 14px; }
+.finding .res { font-family: var(--mono); font-weight: 600; font-size: 14px; }
+.finding .res.failed { color: var(--red); } .finding .res.passed { color: var(--green); }
+.runmeta { margin-top: 14px; font-size: 14px; color: var(--muted); display: flex; gap: 6px 22px; flex-wrap: wrap; }
+.runmeta span b { font-weight: 600; color: var(--ink); }
+
+/* ---------- forms: sections 2 and 3 ---------- */
+.form { padding: 34px 44px 40px; }
+.form > h2 { font-weight: 800; font-variation-settings: "wdth" 75; font-size: clamp(32px, 4.2vw, 52px); line-height: 1; margin: 0 0 10px; letter-spacing: -.01em; }
+.form > .intro { max-width: 64ch; margin: 0 0 24px; color: #2b3542; }
+.row { display: grid; grid-template-columns: 190px 1fr; border-top: 1px solid var(--ink); }
+.row:last-of-type { border-bottom: 1px solid var(--ink); }
+.row > .cap { padding: 16px 18px 16px 0; border-right: 1px solid var(--rule); }
+.row > .cap h3 { margin: 0; font-size: 22px; font-weight: 780; font-variation-settings: "wdth" 78; line-height: 1.1; }
+.row > .cap p { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+.row > .body { padding: 16px 0 18px 22px; min-width: 0; }
+
+table.checks { width: 100%; border-collapse: collapse; font-size: 15px; }
+.checks th { text-align: left; font-weight: 600; font-size: 13px; color: var(--muted); padding: 0 8px 8px 0; border-bottom: 1px solid var(--rule-strong); }
+.checks td { padding: 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.checks .res { font-family: var(--mono); font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+.res.passed { color: var(--green); } .res.failed { color: var(--red); } .res.skipped, .res.error { color: #8a5a00; }
+.checks button.rowbtn { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 48px 1fr 150px 92px 100px; gap: 8px; width: 100%; padding: 10px 0; cursor: pointer; align-items: baseline; }
+.checks button.rowbtn:hover .t { text-decoration: underline; text-underline-offset: 3px; }
+.checks button.rowbtn:focus-visible { outline: 2px solid var(--carbon); outline-offset: 2px; }
+.checks .id { font-family: var(--mono); color: var(--carbon); font-size: 13.5px; }
+.checks .layer { font-size: 13.5px; color: var(--muted); }
+.checks .t::after { content: " +"; color: var(--muted); }
+.checks tr.open .t::after { content: " \2212"; }
+.headrow { display: grid; grid-template-columns: 48px 1fr 150px 92px 100px; gap: 8px; font-size: 13px; color: var(--muted); font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--rule-strong); }
+.trace { display: none; padding: 4px 0 18px 56px; }
+tr.open .trace { display: block; }
+.chain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--rule); margin: 6px 0 12px; }
+.chain div { padding: 9px 12px; border-left: 1px solid var(--rule); font-size: 14px; }
+.chain div:first-child { border-left: 0; }
+.chain b { display: block; font-size: 12.5px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+.fict { font-size: 12px; color: #8a5a00; border: 1px solid #d9b86a; padding: 0 5px; margin-left: 4px; white-space: nowrap; }
+.asserts { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.asserts td, .asserts th { text-align: left; padding: 5px 8px 5px 0; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+.asserts th { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.asserts td { font-family: var(--mono); color: var(--carbon); overflow-wrap: anywhere; }
+.asserts td.n { width: 30%; overflow-wrap: normal; word-break: break-all; }
+.asserts td.n { color: var(--ink); }
+.asserts td.bad { color: var(--red); }
+.vs { font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+
+.faults { display: grid; gap: 0; }
+.fault { display: grid; grid-template-columns: 54px 1fr; gap: 6px 14px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.fault:first-child { padding-top: 2px; }
+.fault .fid { font-family: var(--mono); font-weight: 600; color: var(--red); font-size: 16px; }
+.fault h4 { margin: 0; font-size: 18px; font-weight: 700; }
+.fault p { margin: 4px 0 0; max-width: 72ch; font-size: 15.5px; }
+.fault .ev { font-family: var(--mono); color: var(--carbon); font-size: 13px; margin-top: 6px; word-break: break-all; }
+details.diff { margin-top: 14px; }
+details.diff summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+pre.diff { font: 12.5px/1.5 var(--mono); background: #f2f4ef; border: 1px solid var(--rule); padding: 12px 14px; overflow-x: auto; margin: 10px 0 0; max-height: 520px; }
+pre.diff .a { color: var(--green); background: #e4f1e7; display: inline-block; min-width: 100%; }
+pre.diff .d { color: var(--red); background: #f8e7e4; display: inline-block; min-width: 100%; }
+pre.diff .h { color: var(--muted); }
+
+ul.nc { margin: 0; padding: 0; list-style: none; }
+ul.nc li { padding: 8px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: minmax(180px, 280px) 1fr; gap: 14px; font-size: 15px; }
+ul.nc li:last-child { border-bottom: 0; }
+ul.nc b { font-weight: 650; }
+ul.nc span { color: #2b3542; }
+
+.sign { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--rule-strong); }
+.sign > div { padding: 12px 14px 16px; border-left: 1px solid var(--rule); }
+.sign > div:first-child { border-left: 0; }
+.sign b { display: block; font-size: 13px; color: var(--muted); font-weight: 600; }
+.sign .line { margin-top: 26px; border-top: 1px solid var(--ink); padding-top: 6px; font-size: 14.5px; }
+.sign .line.typed { font-size: 14px; }
+.proofs { margin: 16px 0 0; padding: 0; list-style: none; }
+.proofs li { padding: 7px 0; border-bottom: 1px dotted var(--rule); font-size: 15.5px; }
+.proofs li:last-child { border-bottom: 0; }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule-strong); }
+.split > div { padding: 12px 16px 14px; }
+.split > div + div { border-left: 1px solid var(--rule-strong); background: #f3f6f0; }
+.split h4 { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
+.split ul { margin: 0; padding-left: 18px; font-size: 15px; }
+.split li { margin: 3px 0; }
+.note { font-size: 15px; color: #2b3542; margin: 12px 0 0; max-width: 72ch; }
+.phases { margin: 0; padding: 0; list-style: none; }
+.phases li { display: grid; grid-template-columns: 160px 1fr; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 15.5px; }
+.phases li:last-child { border-bottom: 0; }
+.phases b { font-weight: 700; }
+.cta { display: flex; gap: 18px 30px; align-items: center; flex-wrap: wrap; }
+.cta a.book { background: var(--ink); color: var(--sheet); text-decoration: none; font-weight: 650; padding: 12px 20px; }
+.cta a.book:hover { background: #2a3648; }
+.cta .by { font-size: 15px; color: var(--muted); }
+.cta .by b { color: var(--ink); font-weight: 650; }
+footer { max-width: 1200px; margin: 0 auto; padding: 0 28px 40px; font-size: 13.5px; color: var(--muted); }
+.err { color: var(--red); font-family: var(--mono); padding: 20px 0; }
+
+@media (max-width: 980px) {
+  .ledger { grid-template-columns: 1fr 1fr; }
+  .ledger .col:first-child { grid-column: 1 / -1; border-bottom: 1px solid var(--rule); padding-bottom: 18px; display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 0 22px; }
+  .ledger .col:first-child > h2, .ledger .col:first-child > .src { grid-column: 1 / -1; }
+  .ledger .col:nth-child(2) { border-left: 0; padding-left: 0; }
+}
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  .strip { padding: 12px 16px; font-size: 13px; }
+  .sheet { border-left: 0; border-right: 0; }
+  .review, .form { padding: 24px 16px 28px; }
+  .formhead { flex-direction: column; gap: 10px; }
+  .recorded { text-align: left; }
+  h1 { margin-top: 22px; }
+  .lede { font-size: 17px; }
+  .switch { margin-left: 0; width: 100%; }
+  .stamp { font-size: 21px; margin-left: 4px; }
+  .ledger { grid-template-columns: 1fr; }
+  .ledger .col:first-child { display: block; }
+  .col { border-left: 0; padding: 14px 0 16px; border-top: 1px solid var(--rule); }
+  .col:first-child { border-top: 0; }
+  .shotwrap { max-width: 100%; }
+  .shot { height: auto; aspect-ratio: 480 / 430; }
+  .row { grid-template-columns: 1fr; }
+  .row > .cap { border-right: 0; padding: 14px 0 4px; }
+  .row > .body { padding: 6px 0 16px; }
+  .headrow, .checks button.rowbtn { grid-template-columns: 40px 1fr 62px 72px; }
+  .headrow .layer, .checks .layer { display: none; }
+  .trace { padding-left: 0; }
+  .chain { grid-template-columns: 1fr 1fr; }
+  .chain div:nth-child(3) { border-left: 0; }
+  .chain div:nth-child(n+3) { border-top: 1px solid var(--rule); }
+  ul.nc li { grid-template-columns: 1fr; gap: 2px; }
+  .sign { grid-template-columns: 1fr; }
+  .sign > div { border-left: 0; border-top: 1px solid var(--rule); }
+  .sign > div:first-child { border-top: 0; }
+  .split { grid-template-columns: 1fr; }
+  .split > div + div { border-left: 0; border-top: 1px solid var(--rule-strong); }
+  .phases li { grid-template-columns: 1fr; gap: 2px; }
+  .fault { grid-template-columns: 38px 1fr; }
+  footer { padding: 0 16px 32px; }
+}
+@media (prefers-reduced-motion: reduce) { .stamp.thud { animation: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.75" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter>
+</svg>
+
+<div class="strip">
+  <span>Independent demonstration by The AI Pipe · Synthetic application · Local chain</span>
+  <a href="https://github.com/fred1433/web3-release-evidence">Source, reports and screenshots on GitHub</a>
+</div>
+
+<main>
+<section class="sheet review" aria-labelledby="h1">
+  <div class="formhead">
+    <div class="doc"><strong>Release review, Sample Grants</strong>A synthetic app built to carry three known faults, checked by a bench that reads the chain on its own.</div>
+    <div class="recorded" id="recorded">Recorded test run</div>
+  </div>
+
+  <h1 id="h1"><span>The app says confirmed.</span> <span>The chain doesn't.</span></h1>
+  <p class="lede" id="lede">The bench made the node stop answering receipt requests while a payment was waiting to be mined, then wrote down what each layer said at that moment.</p>
+
+  <div class="verdict">
+    <div class="stamp" id="stamp" role="status"></div>
+    <div class="stamp neutral" id="mvp"></div>
+    <button class="switch" id="switch" type="button" aria-pressed="false">View corrected run</button>
+  </div>
+
+  <div class="ledger" id="ledger">
+    <div class="col">
+      <h2>Interface</h2>
+      <p class="src">Playwright screenshot, taken during the outage</p>
+      <a class="shotwrap" id="shotlink" href="#" target="_blank" rel="noopener"><img class="shot" id="shot" alt="" width="480" height="696"></a>
+      <p class="shotnote">Cropped to the payment card. Open it for the whole screen.</p>
+      <div>
+        <p class="histcap">Status line, timed from the click</p>
+        <ol class="history" id="history" aria-label="Every state the status line showed, timed from the click"></ol>
+        <div class="txline" id="txline"></div>
+      </div>
+    </div>
+    <div class="col">
+      <h2>Application API</h2>
+      <p class="src">The app's own indexer, asked at the same moment</p>
+      <dl class="entries" id="api"></dl>
+      <div class="blocks" id="apiblocks"></div>
+    </div>
+    <div class="col">
+      <h2>Chain</h2>
+      <p class="src">Read straight from the node, around the faulty proxy</p>
+      <dl class="entries" id="chain"></dl>
+      <div class="blocks" id="blocks"></div>
+    </div>
+  </div>
+  <p class="finding" id="finding"></p>
+  <div class="runmeta" id="runmeta"></div>
+</section>
+
+<section class="sheet form" aria-labelledby="h2">
+  <h2 id="h2">What this run establishes</h2>
+  <p class="intro" id="intro2"></p>
+
+  <div class="row">
+    <div class="cap"><h3>Covered</h3><p>Open a line for its rule, what is allowed, what is forbidden, and the assertions.</p></div>
+    <div class="body">
+      <table class="checks" id="checks"><tbody></tbody></table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cap"><h3>Broke</h3><p>Faults planted on purpose in the faulty version. The corrected version changes these lines only.</p></div>
+    <div class="body">
+      <div class="faults" id="faults"></div>
+      <details class="diff"><summary>Read the whole diff between the two versions</summary><pre class="diff" id="diff"></pre></details>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cap"><h3>Not covered</h3><p>Said plainly, so nobody reads more into the result than it holds.</p></div>
+    <div class="body"><ul class="nc" id="nc"></ul></div>
+  </div>
+  <div class="row">
+    <div class="cap"><h3>Decision</h3><p>Three separate signatures. The bench only fills in the middle one.</p></div>
+    <div class="body">
+      <div class="sign" id="sign"></div>
+      <ul class="proofs" id="proofs"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="sheet form" aria-labelledby="h3">
+  <h2 id="h3">The first journey on your MVP</h2>
+  <p class="intro">The bench carries over. The wiring depends on how your product is built, which I have not seen.</p>
+  <div class="row">
+    <div class="cap"><h3>What carries over</h3></div>
+    <div class="body">
+      <div class="split">
+        <div><h4>Ready in the bench</h4><ul>
+          <li>RPC proxy that cuts chosen methods, between your app and its node</li>
+          <li>Test wallet: accounts, refusal 4001, chain switching</li>
+          <li>Full history of what the screen said, not only its last state</li>
+          <li>Direct chain reads, manual mining, snapshots</li>
+          <li>Required-checks manifest, the three statuses, JSON report, CI</li>
+        </ul></div>
+        <div><h4>Depends on your product</h4><ul>
+          <li>Contracts, ABIs, and which network you test on</li>
+          <li>Your indexer or backend, and how it reaches the node</li>
+          <li>Sign-in and wallet flow (embedded wallet, SIWE, account abstraction)</li>
+          <li>Compliance steps: KYC or KYB provider, allowlist source, disclosures</li>
+          <li>Which journey matters most for the launch</li>
+        </ul></div>
+      </div>
+      <p class="note">EVM is an assumption of this demo. A test wallet proves the app's logic; it does not prove that MetaMask or a phone wallet behaves the same way, which needs its own pass.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cap"><h3>Phases</h3></div>
+    <div class="body">
+      <ul class="phases">
+        <li><b>Testnet</b><span>Replay the transaction journeys with funded test wallets, outages and retries included.</span></li>
+        <li><b>Before mainnet</b><span>Rehearse the deployment on a local copy of mainnet (<code>anvil --fork-url</code>, impersonated accounts, no key), then check the live configuration read-only: chain id, contract addresses and bytecode, admin role held by the expected multisig.</span></li>
+        <li><b>Reorgs</b><span>A transaction confirmed in one block, then dropped (<code>anvil_reorg</code>), belongs to that rehearsal. Not built here.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cap"><h3>First milestone</h3></div>
+    <div class="body">
+      <p class="note" style="margin-top:0">One priority journey, agreed together, on a non-production environment. Done means four things you can observe: your team reruns it without me, the evidence is kept with each run, a missing check shows up as Incomplete, and every anomaly comes with the steps to reproduce it.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cap"><h3>Next step</h3></div>
+    <div class="body cta">
+      <a class="book" href="https://cal.theaipipe.com">Book 15 minutes</a>
+      <span class="by">Built and run by <b>Frederic de Lavenne de Choulot</b>, The AI Pipe</span>
+    </div>
+  </div>
+</section>
+</main>
+<footer>Recorded test run on a local chain with development accounts and TEST units of no value. This page loads no wallet library and never asks for a wallet.</footer>
+
+<script>
+(async () => {
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  let D;
+  try {
+    const get = async (p, t, n = 0) => { try { const r = await fetch(p); if (!r.ok) throw new Error(p + ' ' + r.status); return t ? r.text() : r.json(); } catch (e) { if (n < 2) { await new Promise((ok) => setTimeout(ok, 400)); return get(p, t, n + 1); } throw e; } };
+    const [faulty, corrected, skip, sf, sc, diff] = await Promise.all([
+      get('data/faulty.json'), get('data/corrected.json'), get('data/corrected-skip-C08.json'),
+      get('data/stability-faulty.json'), get('data/stability-corrected.json'), get('data/variants.diff', true)]);
+    D = { faulty, corrected, skip, sf, sc, diff };
+  } catch (e) {
+    $('ledger').replaceChildren(el('p', 'err', 'The recorded reports could not be loaded: ' + e.message));
+    return;
+  }
+  const byId = (r, id) => r.checks.find((c) => c.id === id);
+  const short = (h) => h ? h.slice(0, 10) + '…' + h.slice(-6) : '';
+  const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const say = (n) => words[n] || String(n);
+  const TITLES = { submitted: 'Pending', confirmed: 'Confirmed', unknown: 'Status unknown', 'awaiting-signature': 'Waiting for wallet', reverted: 'Failed', rejected: 'Declined' };
+
+  // ---------- section 1 ----------
+  let view = 'faulty';
+  function entry(dl, label, value, cls) {
+    const row = el('div', 'entry' + (cls ? ' ' + cls : ''));
+    row.append(el('dt', null, label), el('dd', null, value));
+    dl.append(row);
+  }
+  function render(animate) {
+    const r = D[view];
+    const c8 = byId(r, 'C08');
+    const cols = c8.evidence.columns;
+    const bad = r.status === 'Blocked';
+    const st = $('stamp');
+    st.className = 'stamp' + (bad ? '' : ' pass');
+    st.replaceChildren(document.createTextNode(r.status), el('small', null,
+      bad ? `${r.counts.failed} of ${r.counts.required} required checks failed` : `${r.counts.passed} of ${r.counts.required} required checks passed`));
+    if (animate) { st.classList.remove('thud'); void st.offsetWidth; st.classList.add('thud'); }
+    $('mvp').replaceChildren(document.createTextNode('Client MVP: ' + r.client_mvp), el('small', null, 'This run tests the synthetic app only'));
+    $('shot').src = 'data/' + c8.evidence.screenshot;
+    $('shotlink').href = 'data/' + c8.evidence.screenshot;
+    $('shot').alt = `Screenshot of the synthetic app during the outage, ${view} version: the status line reads "${cols.interface.status}".`;
+    const hist = $('history'); hist.replaceChildren();
+    for (const h of cols.interface.history) {
+      const state = h.split(' at ')[0];
+      hist.append(el('li', state === 'confirmed' ? 'bad' : '', `${TITLES[state] || state}  ${h.split(' at ')[1]}`));
+    }
+    $('txline').textContent = 'tx ' + cols.interface.tx;
+    const api = $('api'); api.replaceChildren();
+    entry(api, 'Grants recorded for this wallet', String(cols.api.grants_for_user), cols.api.grants_for_user === 0 && bad ? 'hit' : '');
+    entry(api, 'Indexed up to block', String(cols.api.indexed_block));
+    entry(api, 'What the screen claimed', cols.interface.status.split(':')[0], bad ? 'hit' : 'ok');
+    const ch = $('chain'); ch.replaceChildren();
+    entry(ch, 'Receipt for this transaction', cols.chain.receipt ? 'present' : 'none', bad ? 'hit' : '');
+    entry(ch, 'Waiting in the mempool', String(cols.chain.pending_in_mempool));
+    entry(ch, 'Blocks mined since the click', String(cols.chain.blocks_mined_since_click), bad ? 'hit' : '');
+    entry(ch, 'Grants on the contract', String(cols.chain.grant_count));
+    entry(ch, 'User TEST balance', cols.chain.user_test_balance_unchanged ? 'unchanged' : 'changed');
+    const blk = (cls, head, text) => { const d = el('div', 'blk' + cls); d.append(el('b', null, head), document.createTextNode(text)); return d; };
+    $('blocks').replaceChildren(
+      blk('', `Block ${cols.chain.latest_block}`, 'Latest block, mined before the click.'),
+      blk(' open' + (bad ? ' hit' : ''), `Block ${cols.chain.latest_block + 1}`, `Not mined. The payment waits in the mempool (${cols.chain.pending_in_mempool} pending).`));
+    $('apiblocks').replaceChildren(
+      blk(' open' + (bad ? ' hit' : ''), 'Grant register', cols.api.grants_for_user === 0 ? 'Empty for this wallet: the indexer has seen no payment.' : `${cols.api.grants_for_user} grant(s) for this wallet.`));
+    const a = c8.assertions[0];
+    $('finding').replaceChildren(el('span', null, 'Check C08, assertion'), el('span', 'typed', a.name), el('span', 'res ' + c8.outcome, c8.outcome),
+      el('span', null, bad ? 'The screen said confirmed with no receipt and no new block.' : 'The screen said status unknown and offered to check the same transaction again.'));
+    $('recorded').replaceChildren(document.createTextNode(r.kind), el('br'), document.createTextNode(r.run_id), el('br'),
+      document.createTextNode(r.started.utc), el('br'), document.createTextNode(r.started.pacific));
+    $('runmeta').replaceChildren(
+      ...[['Version', view === 'faulty' ? 'faulty app' : 'corrected app'], ['Commit', (r.commit || '').slice(0, 7)], ['Chain id', String(r.chain_id)],
+        ['Executed', `${r.counts.executed} of ${r.counts.required} required checks`], ['Run time', r.duration_s + ' s'], ['Node', r.versions.anvil.replace(' Version:', '')]]
+        .map(([k, v]) => { const s = el('span'); s.append(document.createTextNode(k + ' '), el('b', null, v)); return s; }));
+    $('lede').textContent = bad
+      ? 'The bench made the node stop answering receipt requests while a payment was waiting to be mined, then wrote down what each layer said at that moment.'
+      : 'Corrected run, same outage, same chain state. The screen now says status unknown, and its retry checks the same transaction instead of paying again.';
+    const sw = $('switch');
+    sw.textContent = view === 'faulty' ? 'View corrected run' : 'View faulty run';
+    sw.setAttribute('aria-pressed', String(view === 'corrected'));
+  }
+  $('switch').addEventListener('click', () => { view = view === 'faulty' ? 'corrected' : 'faulty'; render(true); });
+  render(false);
+
+  // ---------- section 2 ----------
+  const F = D.faulty, C = D.corrected;
+  $('intro2').textContent = `${say(F.counts.required)[0].toUpperCase() + say(F.counts.required).slice(1)} required checks, identical for both versions of the app. Each ties a rule to an allowed behaviour, a forbidden attempt, a result and its evidence. Faulty run: ${F.status}. Corrected run: ${C.status}.`;
+  const tb = $('checks').querySelector('tbody');
+  const head = el('tr'); const hc = el('td'); const hr = el('div', 'headrow');
+  hr.append(el('span', null, 'Check'), el('span', null, ''), el('span', 'layer', 'Layer'), el('span', null, 'Faulty'), el('span', null, 'Corrected'));
+  hc.append(hr); head.append(hc); tb.append(head);
+  for (const fc of F.checks) {
+    const cc = byId(C, fc.id);
+    const tr = el('tr'); const td = el('td');
+    const b = el('button', 'rowbtn'); b.type = 'button'; b.setAttribute('aria-expanded', 'false');
+    b.append(el('span', 'id', fc.id), el('span', 't', fc.title), el('span', 'layer', fc.trace.layer), el('span', 'res ' + fc.outcome, fc.outcome), el('span', 'res ' + cc.outcome, cc.outcome));
+    const tr2 = el('div', 'trace');
+    const chain = el('div', 'chain');
+    const rule = el('div'); rule.append(el('b', null, 'Rule'), document.createTextNode(fc.trace.rule.text)); if (fc.trace.rule.fictitious) rule.append(el('span', 'fict', 'fictitious demo rule'));
+    const al = el('div'); al.append(el('b', null, 'Allowed'), document.createTextNode(fc.trace.allowed));
+    const fo = el('div'); fo.append(el('b', null, 'Forbidden attempt'), document.createTextNode(fc.trace.forbidden));
+    const me = el('div'); me.append(el('b', null, 'How it is checked'), document.createTextNode(fc.trace.method));
+    chain.append(rule, al, fo, me);
+    tr2.append(chain, el('p', 'vs', 'Criterion: ' + fc.trace.criterion));
+    for (const [label, rc] of [['Faulty run', fc], ['Corrected run', cc]]) {
+      tr2.append(el('p', 'vs', `${label}: ${rc.outcome}${rc.evidence && rc.evidence.tx ? ', tx ' + short(rc.evidence.tx) + ' in block ' + rc.evidence.block : ''}`));
+      const t = el('table', 'asserts');
+      const h = el('tr'); h.append(el('th', null, 'Assertion'), el('th', null, 'Observed'), el('th', null, 'Expected')); t.append(h);
+      for (const x of rc.assertions) {
+        const row = el('tr');
+        const obs = Array.isArray(x.observed) ? x.observed.join(', ') : typeof x.observed === 'object' && x.observed ? JSON.stringify(x.observed) : String(x.observed);
+        row.append(el('td', 'n', (x.ok ? 'ok  ' : 'FAIL  ') + x.name), el('td', x.ok ? '' : 'bad', obs), el('td', null, String(x.expected)));
+        t.append(row);
+      }
+      tr2.append(t);
+    }
+    b.addEventListener('click', () => { const o = tr.classList.toggle('open'); b.setAttribute('aria-expanded', String(o)); });
+    td.append(b, tr2); tr.append(td); tb.append(tr);
+  }
+
+  const fl = $('faults');
+  for (const f of F.planted_faults) {
+    const rc = byId(F, f.detected_by), cc = byId(C, f.detected_by);
+    const failed = rc.assertions.filter((x) => !x.ok);
+    const d = el('div', 'fault');
+    const body = el('div');
+    body.append(el('h4', null, f.title), el('p', null, f.what));
+    body.append(el('p', null, `Found by ${f.detected_by} on the faulty run (${failed.map((x) => x.name).join(', ')}); the same check ${cc.outcome} on the corrected run. Source: ${f.where}.`));
+    let ev = '';
+    if (f.id === 'D1') ev = 'observed: ' + failed[0].observed.join(' / ');
+    if (f.id === 'D2') ev = `tx ${rc.evidence.tx}, block ${rc.evidence.block}: ${failed[0].observed}; ${failed[1] ? failed[1].observed : ''}`;
+    if (f.id === 'D3') ev = rc.evidence.payments.map((p) => `tx ${p.tx}, nonce ${p.nonce}, block ${p.block}, status ${p.status}`).join(' / ') + ` / retry button: "${rc.evidence.retry_button}"`;
+    body.append(el('div', 'ev', ev));
+    d.append(el('span', 'fid', f.id), body);
+    fl.append(d);
+  }
+  const pre = $('diff');
+  for (const line of D.diff.split('\n')) {
+    const cls = line.startsWith('+++') || line.startsWith('---') || line.startsWith('diff ') || line.startsWith('@@') ? 'h' : line.startsWith('+') ? 'a' : line.startsWith('-') ? 'd' : '';
+    pre.append(cls ? el('span', cls, line) : document.createTextNode(line), document.createTextNode('\n'));
+  }
+
+  const nc = $('nc');
+  for (const n of F.not_covered) { const li = el('li'); li.append(el('b', null, n.item), el('span', null, n.why)); nc.append(li); }
+
+  const sign = $('sign');
+  const cell = (k, v, typed) => { const d = el('div'); d.append(el('b', null, k), el('div', 'line' + (typed ? ' typed' : ''), v)); return d; };
+  sign.append(cell('Rule approval', F.decision.rule_approval), cell('Technical verification, filled in by the bench', `Faulty: ${F.status}. Corrected: ${C.status}.`, true), cell('Launch decision', F.decision.launch_decision));
+
+  const proofs = $('proofs');
+  const sk = D.skip;
+  const stab = (s) => `${s.runs} runs of the ${s.variant} app on a fresh chain each time: ${Object.entries(s.statuses).map(([k, v]) => `${k} ${v} times`).join(', ')}; ${s.identical ? 'every run had the same outcome on every check' : 'outcomes differed between runs'}.`;
+  proofs.append(
+    el('li', null, `Same corrected app, with check ${sk.not_executed.join(', ')} left out of the run: ${sk.status}, ${sk.counts.executed} of ${sk.counts.required} required checks executed. A smaller run cannot pass.`),
+    el('li', null, stab(D.sf)), el('li', null, stab(D.sc)),
+    el('li', null, `Status rule: ${F.status_rule}`));
+})();
+</script>
+</body>
+</html>

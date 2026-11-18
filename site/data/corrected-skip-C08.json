@@ -1,0 +1,703 @@
+{
+  "schema": "release-evidence/1",
+  "kind": "Recorded test run",
+  "app": "Sample Grants (synthetic application)",
+  "variant": "corrected",
+  "run_id": "corrected-20261118T133217Z",
+  "commit": "b685a08c480ef7fa10467416b641693cfabb4d99",
+  "worktree_clean": true,
+  "chain_id": 31337,
+  "setup_block": 9,
+  "started": {
+    "utc": "2026-11-18 13:32:17 UTC",
+    "pacific": "2026-11-18 05:32:17 PST"
+  },
+  "finished": {
+    "utc": "2026-11-18 13:32:29 UTC",
+    "pacific": "2026-11-18 05:32:29 PST"
+  },
+  "duration_s": 11.6,
+  "versions": {
+    "anvil": "anvil Version: 1.9.0",
+    "forge": "forge Version: 1.9.0",
+    "solc": "0.8.28",
+    "node": "v26.8.2",
+    "python": "3.14.7",
+    "playwright": "1.62.0",
+    "chromium": "151.0.7922.34"
+  },
+  "status": "Incomplete",
+  "client_mvp": "not assessed",
+  "counts": {
+    "required": 11,
+    "executed": 10,
+    "passed": 10,
+    "failed": 0,
+    "errored": 0,
+    "not_executed": 1
+  },
+  "failed": [],
+  "errored": [],
+  "not_executed": [
+    "C08"
+  ],
+  "status_rule": "Blocked if any required check fails on a named assertion; otherwise Incomplete if any required check was skipped, timed out or crashed; otherwise Demonstrated checks passed.",
+  "planted_faults": [
+    {
+      "id": "D1",
+      "title": "Confirmed shown without a receipt",
+      "where": "variants/faulty/flow.js",
+      "detected_by": "C08",
+      "what": "When the receipt request fails, the app falls back to the transaction lookup and treats a known transaction as confirmed, although it is still waiting in the mempool.",
+      "detected": false
+    },
+    {
+      "id": "D2",
+      "title": "Admin function open to everyone",
+      "where": "variants/faulty/SampleGrants.sol",
+      "detected_by": "C10",
+      "what": "setAllowlisted lacks onlyAdmin. The interface hides the control, the contract does not refuse it.",
+      "detected": false
+    },
+    {
+      "id": "D3",
+      "title": "Retry pays a second time",
+      "where": "variants/faulty/flow.js",
+      "detected_by": "C09",
+      "what": "After status unknown, the retry button sends a new payment instead of checking the first one, which is still pending.",
+      "detected": false
+    }
+  ],
+  "checks": [
+    {
+      "id": "C01",
+      "title": "Wallet connects on the right chain",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "connected_account_matches",
+          "ok": true,
+          "observed": "0x7099\u202679c8",
+          "expected": "0x7099\u202679c8"
+        },
+        {
+          "name": "chain_is_local_dev_chain",
+          "ok": true,
+          "observed": "Local dev chain",
+          "expected": "Local dev chain"
+        },
+        {
+          "name": "displayed_balance_matches_chain",
+          "ok": true,
+          "observed": "1000.0 TEST on screen",
+          "expected": "1000.0 TEST on chain"
+        }
+      ],
+      "evidence": {
+        "screenshot": "evidence/corrected-skip/C01-connected.png"
+      },
+      "duration_s": 0.27,
+      "trace": {
+        "rule": {
+          "text": "The balance a user sees is the balance the chain holds.",
+          "fictitious": false
+        },
+        "allowed": "Connect and read the balance.",
+        "forbidden": "A displayed balance that differs from the chain.",
+        "criterion": "After connecting, the app shows the wallet's account, the local chain, and a TEST balance equal to the balance on chain.",
+        "layer": "interface",
+        "method": "Playwright + test wallet"
+      }
+    },
+    {
+      "id": "C02",
+      "title": "Refused signature sends nothing",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "ui_says_request_declined",
+          "ok": true,
+          "observed": [
+            "awaiting-signature",
+            "rejected"
+          ],
+          "expected": "rejected"
+        },
+        {
+          "name": "no_transaction_reached_node",
+          "ok": true,
+          "observed": "0 sent, 0 pending",
+          "expected": "0 sent, 0 pending"
+        },
+        {
+          "name": "nonce_unchanged",
+          "ok": true,
+          "observed": 1,
+          "expected": 1
+        },
+        {
+          "name": "never_confirmed",
+          "ok": true,
+          "observed": [
+            "awaiting-signature",
+            "rejected"
+          ],
+          "expected": "no confirmed"
+        }
+      ],
+      "evidence": {
+        "wallet_answer": "code 4001 (user rejected)",
+        "screenshot": "evidence/corrected-skip/C02-declined.png"
+      },
+      "duration_s": 0.8,
+      "trace": {
+        "rule": {
+          "text": "Nothing is sent without the user's signature.",
+          "fictitious": false
+        },
+        "allowed": "Refuse the request.",
+        "forbidden": "A transaction or a nonce change after a refusal.",
+        "criterion": "When the user refuses in the wallet (code 4001), the app says so and no transaction reaches the node.",
+        "layer": "interface",
+        "method": "Playwright + test wallet answering 4001"
+      }
+    },
+    {
+      "id": "C03",
+      "title": "Wrong network blocks sending",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "no_banner_on_right_chain",
+          "ok": true,
+          "observed": false,
+          "expected": false
+        },
+        {
+          "name": "banner_on_wrong_chain",
+          "ok": true,
+          "observed": true,
+          "expected": true
+        },
+        {
+          "name": "payment_disabled_on_wrong_chain",
+          "ok": true,
+          "observed": true,
+          "expected": true
+        },
+        {
+          "name": "nothing_sent_on_wrong_chain",
+          "ok": true,
+          "observed": "0 sent, 0 pending",
+          "expected": "0 sent, 0 pending"
+        },
+        {
+          "name": "switch_back_clears_banner",
+          "ok": true,
+          "observed": false,
+          "expected": false
+        }
+      ],
+      "evidence": {
+        "screenshot": "evidence/corrected-skip/C03-wrong-network.png",
+        "wallet_calls": [
+          "eth_requestAccounts",
+          "eth_chainId",
+          "eth_call",
+          "personal_sign",
+          "eth_chainId",
+          "eth_call",
+          "eth_call",
+          "wallet_switchEthereumChain"
+        ]
+      },
+      "duration_s": 1.76,
+      "trace": {
+        "rule": {
+          "text": "Payments are only sent on the intended chain.",
+          "fictitious": false
+        },
+        "allowed": "Switch back to the local chain.",
+        "forbidden": "A send attempt while the wallet is on another chain.",
+        "criterion": "On another chain the app shows a banner, disables payment, sends nothing, and clears the banner after switching back.",
+        "layer": "interface",
+        "method": "Playwright + test wallet chainChanged"
+      }
+    },
+    {
+      "id": "C04",
+      "title": "Terms signed before the payment",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "payment_locked_until_terms_signed",
+          "ok": true,
+          "observed": true,
+          "expected": true
+        },
+        {
+          "name": "terms_signed_before_transaction",
+          "ok": true,
+          "observed": "personal_sign at call 3, eth_sendTransaction at call 5",
+          "expected": "personal_sign first"
+        },
+        {
+          "name": "api_holds_verified_acceptance",
+          "ok": true,
+          "observed": "HTTP 200, verified=True",
+          "expected": "HTTP 200, verified=True"
+        },
+        {
+          "name": "api_refuses_forged_acceptance",
+          "ok": true,
+          "observed": "HTTP 400",
+          "expected": "HTTP 400"
+        }
+      ],
+      "evidence": {
+        "wallet_calls": [
+          "eth_requestAccounts",
+          "eth_chainId",
+          "eth_call",
+          "personal_sign",
+          "eth_chainId",
+          "eth_sendTransaction",
+          "eth_getTransactionReceipt",
+          "eth_call"
+        ],
+        "acceptance_signature": "0x1d2af7dafc84d28115\u2026"
+      },
+      "duration_s": 0.25,
+      "trace": {
+        "rule": {
+          "text": "Demo terms v0 must be accepted before any payment.",
+          "fictitious": true
+        },
+        "allowed": "Sign the terms, then pay.",
+        "forbidden": "A payment before the terms, or an acceptance record signed by another key.",
+        "criterion": "Payment stays locked until the demo terms are signed; the signature precedes the transaction; the API keeps a verified record and refuses a forged one.",
+        "layer": "interface + API",
+        "method": "Playwright wallet call log + API"
+      }
+    },
+    {
+      "id": "C05",
+      "title": "Allowlist enforced by the contract",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "direct_call_reverted",
+          "ok": true,
+          "observed": "status 0x0",
+          "expected": "status 0x0"
+        },
+        {
+          "name": "revert_reason_is_NotAllowlisted",
+          "ok": true,
+          "observed": "0x06fb10a9",
+          "expected": "0x06fb10a9 NotAllowlisted()"
+        },
+        {
+          "name": "no_grant_created",
+          "ok": true,
+          "observed": "0 grants",
+          "expected": "0 grants, reader balance unchanged"
+        }
+      ],
+      "evidence": {
+        "tx": "0x34ea2dbb725f8a26e44335b58fda66e3a470cf8e7621ba67056ae1568de3436a",
+        "block": 10,
+        "caller": "outsider (not allowlisted, holds TEST, has approved)",
+        "path": "eth_sendTransaction straight to the node, no interface"
+      },
+      "duration_s": 0.01,
+      "trace": {
+        "rule": {
+          "text": "Only allowlisted wallets may open a grant.",
+          "fictitious": true
+        },
+        "allowed": "Allowlisted wallets open grants.",
+        "forbidden": "A non-allowlisted wallet opening a grant by skipping the interface.",
+        "criterion": "A wallet outside the allowlist calling the contract directly is reverted with NotAllowlisted and no grant is created.",
+        "layer": "contract",
+        "method": "Direct contract call from a non-allowlisted account"
+      }
+    },
+    {
+      "id": "C06",
+      "title": "Reverted payment is shown as failed",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "receipt_status_0",
+          "ok": true,
+          "observed": "0x0",
+          "expected": "0x0"
+        },
+        {
+          "name": "token_balances_unchanged",
+          "ok": true,
+          "observed": [
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "native_balance_down_by_fee_only",
+          "ok": true,
+          "observed": "42452031432672 wei",
+          "expected": "42452031432672 wei (gasUsed x effectiveGasPrice)"
+        },
+        {
+          "name": "ui_says_failed",
+          "ok": true,
+          "observed": [
+            "awaiting-signature",
+            "submitted",
+            "reverted"
+          ],
+          "expected": "reverted"
+        },
+        {
+          "name": "never_confirmed",
+          "ok": true,
+          "observed": [
+            "awaiting-signature",
+            "submitted",
+            "reverted"
+          ],
+          "expected": "no confirmed"
+        }
+      ],
+      "evidence": {
+        "tx": "0x2967e103e762ec2e28a5a53642e6ff73ba19bc6ec27b958dd198092f67009ee9",
+        "block": 10,
+        "gas_limit": 300000,
+        "gas_used": 32556,
+        "states_before_block": [
+          "awaiting-signature",
+          "submitted"
+        ],
+        "screenshot": "evidence/corrected-skip/C06-failed.png"
+      },
+      "duration_s": 1.37,
+      "trace": {
+        "rule": {
+          "text": "A failed payment is never presented as done.",
+          "fictitious": false
+        },
+        "allowed": "A mined, reverted transaction that costs gas.",
+        "forbidden": "Moved tokens or a success message after a revert.",
+        "criterion": "With an empty TEST balance and a fixed gas limit, the transaction is mined with status 0, token balances do not move, the native balance drops by the fee only, and the app says failed.",
+        "layer": "interface + chain",
+        "method": "Playwright, fixed gas limit, direct chain reads"
+      }
+    },
+    {
+      "id": "C07",
+      "title": "Success is confirmed only after the block",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "no_confirmed_before_block",
+          "ok": true,
+          "observed": [
+            "awaiting-signature at -1.00s",
+            "submitted at -1.00s",
+            "confirmed at +0.02s"
+          ],
+          "expected": "confirmed only after the block (t >= 0)"
+        },
+        {
+          "name": "receipt_status_1",
+          "ok": true,
+          "observed": "0x1",
+          "expected": "0x1"
+        },
+        {
+          "name": "tokens_moved_once",
+          "ok": true,
+          "observed": "user -25.0, reader +25.0",
+          "expected": "user -25, reader +25"
+        },
+        {
+          "name": "grant_active_on_chain",
+          "ok": true,
+          "observed": {
+            "owner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "reader": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+            "paid": 25000000000000000000,
+            "active": true
+          },
+          "expected": "grant #1 active, owned by user"
+        },
+        {
+          "name": "api_matches_chain",
+          "ok": true,
+          "observed": {
+            "id": "1",
+            "owner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "reader": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+            "dataset": "0x4b93da463636a47984dc0eb92d4da5e12cfadf9e7990f54f51653c96d1df87ce",
+            "paid": "25000000000000000000",
+            "active": true,
+            "grantedBlock": 10,
+            "grantedTx": "0x21d58c7c1194e48ca41e498f766b9ad31f7dab139d374425ec829b635c12c9d5"
+          },
+          "expected": "API grant #1 equals the chain"
+        }
+      ],
+      "evidence": {
+        "tx": "0x21d58c7c1194e48ca41e498f766b9ad31f7dab139d374425ec829b635c12c9d5",
+        "block": 10,
+        "ui_history": [
+          "awaiting-signature at -1.00s",
+          "submitted at -1.00s",
+          "confirmed at +0.02s"
+        ],
+        "screenshot": "evidence/corrected-skip/C07-confirmed.png"
+      },
+      "duration_s": 1.5,
+      "trace": {
+        "rule": {
+          "text": "Confirmed means included in a block.",
+          "fictitious": false
+        },
+        "allowed": "Pending while the transaction waits.",
+        "forbidden": "Confirmed before the block, or an API that disagrees with the chain.",
+        "criterion": "Nothing says confirmed before the block is mined; then the receipt is status 1, 25 TEST move once, the grant is active on chain and the API agrees.",
+        "layer": "interface + API + chain",
+        "method": "Playwright, manual mining, direct chain reads"
+      }
+    },
+    {
+      "id": "C08",
+      "title": "No confirmed without a receipt during an RPC outage",
+      "outcome": "skipped",
+      "assertions": [],
+      "evidence": {},
+      "trace": {
+        "rule": {
+          "text": "Confirmed means included in a block.",
+          "fictitious": false
+        },
+        "allowed": "Pending or status unknown.",
+        "forbidden": "Confirmed at any moment while no receipt exists.",
+        "criterion": "While the node does not answer receipt requests, the app never shows confirmed: no receipt exists and no block has been mined.",
+        "layer": "interface + chain",
+        "method": "RPC proxy cuts receipts; full UI state history"
+      }
+    },
+    {
+      "id": "C09",
+      "title": "Retry after status unknown pays once",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "outage_shown_as_unknown",
+          "ok": true,
+          "observed": [
+            "awaiting-signature",
+            "submitted",
+            "unknown"
+          ],
+          "expected": "unknown"
+        },
+        {
+          "name": "one_payment_mined_per_intent",
+          "ok": true,
+          "observed": "1 payment(s) mined: nonce 1",
+          "expected": "1 payment"
+        },
+        {
+          "name": "test_debited_once",
+          "ok": true,
+          "observed": "-25.0 TEST",
+          "expected": "-25 TEST"
+        }
+      ],
+      "evidence": {
+        "retry_button": "Check status again",
+        "payments": [
+          {
+            "tx": "0x21d58c7c1194e48ca41e498f766b9ad31f7dab139d374425ec829b635c12c9d5",
+            "nonce": 1,
+            "block": 10,
+            "status": "0x1"
+          }
+        ],
+        "ui_history": [
+          "awaiting-signature at +0.01s",
+          "submitted at +0.02s",
+          "unknown at +0.53s",
+          "submitted at +0.55s",
+          "confirmed at +2.08s"
+        ],
+        "screenshot": "evidence/corrected-skip/C09-after-retry.png"
+      },
+      "duration_s": 2.67,
+      "trace": {
+        "rule": {
+          "text": "One payment intent, one payment.",
+          "fictitious": false
+        },
+        "allowed": "Check the same transaction again.",
+        "forbidden": "A second payment for the same intent.",
+        "criterion": "After status unknown and a retry, exactly one payment is mined for that intent and the user's TEST balance drops by 25 once.",
+        "layer": "interface + chain",
+        "method": "RPC proxy outage, retry, direct block scan"
+      }
+    },
+    {
+      "id": "C10",
+      "title": "Admin function enforced by the contract",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "admin_control_hidden_for_user",
+          "ok": true,
+          "observed": false,
+          "expected": false
+        },
+        {
+          "name": "direct_admin_call_rejected",
+          "ok": true,
+          "observed": "status 0x0, simulated error 0x7bfa4b9f",
+          "expected": "status 0x0, 0x7bfa4b9f NotAdmin()"
+        },
+        {
+          "name": "allowlist_unchanged",
+          "ok": true,
+          "observed": "allowlisted(outsider) = False",
+          "expected": "False"
+        }
+      ],
+      "evidence": {
+        "tx": "0x85a956f9dac93ea4db5316fca339c612384ff97a96a53fdd54163748c35f3a7b",
+        "block": 10,
+        "caller": "ordinary account, not the admin",
+        "call": "setAllowlisted(self, true)",
+        "path": "eth_sendTransaction straight to the node, no interface"
+      },
+      "duration_s": 0.16,
+      "trace": {
+        "rule": {
+          "text": "Only the admin edits the allowlist.",
+          "fictitious": true
+        },
+        "allowed": "Admin edits the allowlist.",
+        "forbidden": "Any other account editing it by calling the contract.",
+        "criterion": "The admin control is hidden for ordinary users, and an ordinary account calling setAllowlisted directly is reverted; the allowlist does not change.",
+        "layer": "contract",
+        "method": "Direct contract call from an ordinary account"
+      }
+    },
+    {
+      "id": "C11",
+      "title": "Revoked access stops being served",
+      "outcome": "passed",
+      "failed_assertions": [],
+      "error": null,
+      "assertions": [
+        {
+          "name": "api_serves_reader_while_active",
+          "ok": true,
+          "observed": "HTTP 200",
+          "expected": "HTTP 200"
+        },
+        {
+          "name": "api_refuses_other_reader",
+          "ok": true,
+          "observed": "HTTP 403",
+          "expected": "HTTP 403"
+        },
+        {
+          "name": "grant_inactive_on_chain",
+          "ok": true,
+          "observed": false,
+          "expected": false
+        },
+        {
+          "name": "api_refuses_after_revoke",
+          "ok": true,
+          "observed": "HTTP 403 at indexed block 11",
+          "expected": "HTTP 403 once block 11 is indexed"
+        }
+      ],
+      "evidence": {
+        "revoke_block": 11,
+        "api_before": 200,
+        "api_after": 403
+      },
+      "duration_s": 0.61,
+      "trace": {
+        "rule": {
+          "text": "Revoked access ends at the confirmed revocation.",
+          "fictitious": true
+        },
+        "allowed": "Read while the grant is active.",
+        "forbidden": "Serving the data after the revocation is on chain.",
+        "criterion": "The API serves the dataset to the granted reader only, and refuses it once the revocation is mined and indexed.",
+        "layer": "chain + API",
+        "method": "Playwright revoke, indexer catch-up, API requests"
+      }
+    }
+  ],
+  "not_covered": [
+    {
+      "item": "Real wallet extensions and mobile wallets",
+      "why": "The bench drives an EIP-1193 test provider. It proves the app's logic, not compatibility with MetaMask, Rabby, WalletConnect or a phone wallet."
+    },
+    {
+      "item": "Economic and security audit of the contract",
+      "why": "The checks prove five rules on one contract. They are not an audit: no fuzzing, no invariant testing, no review of upgrade or oracle risk."
+    },
+    {
+      "item": "Gas spikes and congestion on a public network",
+      "why": "The local chain mines on demand. Stuck, replaced or cancelled transactions under real fee markets are not exercised."
+    },
+    {
+      "item": "Chain reorganisations",
+      "why": "Confirmed here means included in one block. A block that is later dropped is not simulated."
+    },
+    {
+      "item": "Legal drafting of the terms and the allowlist",
+      "why": "The rules are fictitious demo rules. The bench checks that the app enforces them, not that they are the right rules."
+    },
+    {
+      "item": "Load, many users at once, indexer restarts",
+      "why": "Each check runs one user on a fresh chain snapshot."
+    },
+    {
+      "item": "The client's own application",
+      "why": "Not assessed. This run tests a synthetic app built to carry three known faults."
+    }
+  ],
+  "decision": {
+    "rule_approval": "Not given. The demo rules marked fictitious were written for this demo; real rules are approved by the product owner and counsel.",
+    "technical_verification": "Incomplete",
+    "launch_decision": "Not taken by the bench. A named person signs go or no-go with this report attached."
+  }
+}

@@ -1,0 +1,444 @@
+{
+  "variant": "corrected",
+  "runs": 20,
+  "commit": "b685a08c480ef7fa10467416b641693cfabb4d99",
+  "versions": {
+    "anvil": "anvil Version: 1.9.0",
+    "forge": "forge Version: 1.9.0",
+    "solc": "0.8.28",
+    "node": "v26.8.2",
+    "python": "3.14.7",
+    "playwright": "1.62.0",
+    "chromium": "151.0.7922.34"
+  },
+  "identical": true,
+  "statuses": {
+    "Demonstrated checks passed": 20
+  },
+  "finished": {
+    "utc": "2026-11-18 13:43:35 UTC",
+    "pacific": "2026-11-18 05:43:35 PST"
+  },
+  "detail": [
+    {
+      "run": 1,
+      "run_id": "corrected-20261118T133825Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 2,
+      "run_id": "corrected-20261118T133841Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 14.0,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 3,
+      "run_id": "corrected-20261118T133855Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.1,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 4,
+      "run_id": "corrected-20261118T133910Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 16.6,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 5,
+      "run_id": "corrected-20261118T133926Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.2,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 6,
+      "run_id": "corrected-20261118T133942Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.9,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 7,
+      "run_id": "corrected-20261118T133958Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 8,
+      "run_id": "corrected-20261118T134013Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.0,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 9,
+      "run_id": "corrected-20261118T134028Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.2,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 10,
+      "run_id": "corrected-20261118T134044Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 14.1,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 11,
+      "run_id": "corrected-20261118T134058Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 12,
+      "run_id": "corrected-20261118T134113Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.6,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 13,
+      "run_id": "corrected-20261118T134129Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 16.2,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 14,
+      "run_id": "corrected-20261118T134145Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.6,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 15,
+      "run_id": "corrected-20261118T134201Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 17.0,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 16,
+      "run_id": "corrected-20261118T134218Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.3,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 17,
+      "run_id": "corrected-20261118T134233Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 16.1,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 18,
+      "run_id": "corrected-20261118T134250Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.4,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 19,
+      "run_id": "corrected-20261118T134305Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 14.1,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    },
+    {
+      "run": 20,
+      "run_id": "corrected-20261118T134319Z",
+      "status": "Demonstrated checks passed",
+      "duration_s": 15.5,
+      "outcomes": {
+        "C01": "passed",
+        "C02": "passed",
+        "C03": "passed",
+        "C04": "passed",
+        "C05": "passed",
+        "C06": "passed",
+        "C07": "passed",
+        "C08": "passed",
+        "C09": "passed",
+        "C10": "passed",
+        "C11": "passed"
+      },
+      "failed_assertions": {},
+      "errors": {}
+    }
+  ]
+}
